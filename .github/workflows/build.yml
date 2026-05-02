@@ -1,4 +1,19 @@
-- name: Set up JDK 25
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "develop", "main", "sprint/0-fundacion" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 25
       uses: actions/setup-java@v3
       with:
         java-version: '25'
@@ -6,5 +21,4 @@
         cache: maven
 
     - name: Build with Maven
-      # Asegúrate de que 'run' esté alineado exactamente debajo de 'name'
       run: mvn -B package --file pom.xml -DskipTests
