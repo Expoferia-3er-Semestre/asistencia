@@ -1,0 +1,25 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "develop", "main" ] # Se ejecuta al hacer push a estas ramas
+  pull_request:
+    branches: [ "develop" ]        # Se ejecuta al abrir un PR hacia develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Usa un servidor Linux de GitHub
+
+    steps:
+    - uses: actions/checkout@v3 # Baja tu código al servidor
+    
+    - name: Set up JDK 25
+      uses: actions/setup-java@v3
+      with:
+        java-version: '25' # Asegúrate que coincida con tu pom.xml
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      # Ejecuta la compilación saltando los tests (según ASIS-4)
+      run: mvn -B package --file pom.xml -DskipTests[cite: 1]
