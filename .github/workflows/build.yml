@@ -20,5 +20,10 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml -DskipTests
+    # Paso nuevo: Verifica el estilo de código antes de compilar
+    - name: Checkstyle Validation
+      run: mvn checkstyle:check
+
+    - name: Build and Test with Maven
+      # Eliminamos -DskipTests para que tus pruebas con H2 se ejecuten en el CI
+      run: mvn -B package --file pom.xml
