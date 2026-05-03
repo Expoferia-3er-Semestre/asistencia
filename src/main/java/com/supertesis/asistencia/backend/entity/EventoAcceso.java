@@ -56,7 +56,7 @@ public class EventoAcceso {
     private EventoAccesoResultado resultado;
 
     @Lob
-    @Column(name = "datos_raw")
+    @Column(name = "datos_raw", columnDefinition = "LONGTEXT")
     private String datosRaw;
 
 

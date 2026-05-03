@@ -64,10 +64,10 @@ public class Asistencia {
     private AsistenciaEstado estado;
 
     @Column(name = "minutos_tardanza")
-    private Integer minutosTardanza;
+    private Short minutosTardanza;
 
     @Column(name = "minutos_extra")
-    private Integer minutosExtra;
+    private Short minutosExtra;
 
     @Column(nullable = false)
     private Boolean corregido;

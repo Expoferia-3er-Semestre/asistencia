@@ -36,7 +36,7 @@ public class Turno {
     private LocalTime horaSalida;
 
     @Column(name = "tolerancia_min", nullable = false)
-    private Integer toleranciaMin;
+    private Short toleranciaMin;
 
     @Column(nullable = false)
     private Boolean lunes;
