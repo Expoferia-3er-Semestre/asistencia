@@ -80,7 +80,13 @@
 			<artifactId>jjwt-api</artifactId>
 			<version>0.11.5</version>
 		</dependency>
-
+		
+		<!-- Base de datos en memoria para pruebas -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<!-- Implementación de la lógica (Runtime) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
