@@ -46,6 +46,9 @@ public class PersonalService {
         if (personal.getId() == null && personalRepository.existsByCedula(personal.getCedula())) {
             throw new IllegalArgumentException("Ya existe un personal con cédula " + personal.getCedula());
         }
+        if (personal.getActivo() == null) {
+            personal.setActivo(true);
+        }
         return personalRepository.save(personal);
     }
 
@@ -61,7 +64,9 @@ public class PersonalService {
         existing.setDepartamento(updatedPersonal.getDepartamento());
         existing.setFechaIngreso(updatedPersonal.getFechaIngreso());
         existing.setFechaEgreso(updatedPersonal.getFechaEgreso());
-        existing.setActivo(updatedPersonal.getActivo());
+        if (updatedPersonal.getActivo() != null) {
+            existing.setActivo(updatedPersonal.getActivo());
+        }
         return personalRepository.save(existing);
     }
 

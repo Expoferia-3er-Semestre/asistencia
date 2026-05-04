@@ -1,53 +1,83 @@
 package com.supertesis.asistencia.backend.config;
 
-import java.util.List;
-
+import com.supertesis.asistencia.backend.security.CustomUserDetailsService;
+import com.supertesis.asistencia.backend.security.JwtAuthenticationEntryPoint;
+import com.supertesis.asistencia.backend.security.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@Configuration
+import java.util.List;
+
+@Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Indicar a Spring Security que use la configuración de CORS definida abajo
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
-            // 2. Deshabilitar CSRF (común en APIs que usan JWT o para pruebas locales)
-            .csrf(csrf -> csrf.disable())
-            
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // Ajusta esto según tus necesidades de acceso
-            );
-            
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**", "/api/setup/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/modules/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(form -> form.disable());
+
         return http.build();
     }
 
-    // 3. Definir la fuente de configuración de CORS
+   @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        // 1. Pasamos SOLO el UserDetailsService al constructor (es el único parámetro permitido)
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(customUserDetailsService);
+        
+        // 2. Asignamos el PasswordEncoder a través del método setter (que sigue existiendo)
+        authProvider.setPasswordEncoder(passwordEncoder());
+        
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Permite el origen desde donde haces el fetch (puedes usar "*" para pruebas)
-        configuration.setAllowedOrigins(List.of("*")); 
-        
-        // Permite los métodos HTTP necesarios
+        configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
-        // Permite todos los encabezados (importante si usas JWT o Content-Type)
         configuration.setAllowedHeaders(List.of("*"));
-        
-        // Permite enviar credenciales (cookies, auth headers) si fuera necesario
-        // configuration.setAllowCredentials(true); 
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

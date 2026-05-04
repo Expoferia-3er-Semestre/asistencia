@@ -37,6 +37,9 @@ public class DepartamentoService {
         if (departamento.getId() == null && departamentoRepository.existsByNombre(departamento.getNombre())) {
             throw new IllegalArgumentException("Ya existe un departamento con nombre " + departamento.getNombre());
         }
+        if (departamento.getActivo() == null) {
+            departamento.setActivo(true);
+        }
         return departamentoRepository.save(departamento);
     }
 
@@ -45,7 +48,9 @@ public class DepartamentoService {
         Departamento existing = findById(id);
         existing.setNombre(updatedDepartamento.getNombre());
         existing.setDescripcion(updatedDepartamento.getDescripcion());
-        existing.setActivo(updatedDepartamento.getActivo());
+        if (updatedDepartamento.getActivo() != null) {
+            existing.setActivo(updatedDepartamento.getActivo());
+        }
         return departamentoRepository.save(existing);
     }
 

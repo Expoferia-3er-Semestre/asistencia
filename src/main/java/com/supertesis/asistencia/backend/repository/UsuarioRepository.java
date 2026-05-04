@@ -31,6 +31,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query("SELECT u FROM Usuario u JOIN FETCH u.personal p WHERE u.nombreUsuario = :nombreUsuario")
     Optional<Usuario> findByNombreUsuarioWithPersonal(@Param("nombreUsuario") String nombreUsuario);
 
+    // Consulta con JOIN para obtener usuario con información del rol
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.rol r WHERE u.nombreUsuario = :nombreUsuario")
+    Optional<Usuario> findByNombreUsuarioWithRoles(@Param("nombreUsuario") String nombreUsuario);
+
     // Consulta con JOIN para obtener usuarios con información del rol
     @Query("SELECT u FROM Usuario u JOIN FETCH u.rol r WHERE u.activo = true")
     List<Usuario> findActiveUsersWithRoles();
