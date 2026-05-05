@@ -1,10 +1,9 @@
 name: Java CI with Maven
 
 on:
-  push:
-    branches: [ "develop", "main", "sprint/0-fundacion" ]
+  push: # Se ejecuta en todas las ramas existentes y nuevas
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "develop", "sprint/0-fundacion" ]
 
 jobs:
   build:
