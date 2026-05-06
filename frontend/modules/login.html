@@ -1,0 +1,73 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3>Iniciar Sesión</h3>
+                </div>
+                <div class="card-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="nombreUsuario" class="form-label">Nombre de Usuario</label>
+                            <input type="text" class="form-control" id="nombreUsuario" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100" id="loginBtn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            Iniciar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function initLogin() {
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const spinner = loginBtn.querySelector('.spinner-border');
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nombreUsuario = document.getElementById('nombreUsuario').value;
+        const password = document.getElementById('password').value;
+
+        // Mostrar loading
+        loginBtn.disabled = true;
+        spinner.classList.remove('d-none');
+
+        try {
+            const response = await axios.post('/api/auth/login', {
+                nombreUsuario,
+                password
+            });
+
+            // Guardar token
+            localStorage.setItem('token', response.data.token);
+
+            // Mostrar éxito y redirigir
+            window.app.showSuccess('Inicio de sesión exitoso');
+            setTimeout(() => {
+                window.app.loadModule('dashboard');
+            }, 1000);
+
+        } catch (error) {
+            let message = 'Error al iniciar sesión';
+            if (error.response && error.response.data && error.response.data.message) {
+                message = error.response.data.message;
+            }
+            window.app.showError(message);
+        } finally {
+            // Ocultar loading
+            loginBtn.disabled = false;
+            spinner.classList.add('d-none');
+        }
+    });
+}
+</script>

@@ -1,0 +1,262 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>Gestión de Personal</h1>
+
+            <button class="btn btn-success mb-3" onclick="showAddPersonalModal()">
+                <i class="fas fa-plus"></i> Agregar Personal
+            </button>
+
+            <div class="card">
+                <div class="card-header">
+                    Lista de Personal
+                </div>
+                <div class="card-body">
+                    <div id="loading" class="loading d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
+                    </div>
+
+                    <div id="personalList">
+                        <!-- Aquí se cargará la lista de personal -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar personal -->
+<div class="modal fade" id="personalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="personalModalTitle">Agregar Personal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="personalForm">
+                    <input type="hidden" id="personalId">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="apellido" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="apellido" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cedula" class="form-label">Cédula</label>
+                        <input type="text" class="form-control" id="cedula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correo" class="form-label">Correo</label>
+                        <input type="email" class="form-control" id="correo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" id="telefono">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="activo" checked>
+                        <label class="form-check-label" for="activo">Activo</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="departamento" class="form-label">Departamento</label>
+                        <select class="form-control" id="departamento" required>
+                            <!-- Opciones se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cargo" class="form-label">Cargo</label>
+                        <select class="form-control" id="cargo" required>
+                            <!-- Opciones se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="savePersonal()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function initPersonal() {
+    await loadPersonalList();
+    await loadDepartamentos();
+    await loadCargos();
+}
+
+async function loadPersonalList() {
+    const loading = document.getElementById('loading');
+    const personalList = document.getElementById('personalList');
+
+    loading.classList.remove('d-none');
+
+    try {
+        const response = await axios.get('/api/personal');
+        const personal = response.data;
+
+        let html = `
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Departamento</th>
+                        <th>Cargo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        personal.forEach(p => {
+            html += `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.nombre}</td>
+                    <td>${p.apellido}</td>
+                    <td>${p.email}</td>
+                    <td>${p.departamento ? p.departamento.nombre : 'N/A'}</td>
+                    <td>${p.cargo ? p.cargo.nombre : 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editPersonal(${p.id})">Editar</button>
+                        <button class="btn btn-sm btn-danger" onclick="deletePersonal(${p.id})">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+        `;
+
+        personalList.innerHTML = html;
+
+    } catch (error) {
+        window.app.showError('Error al cargar la lista de personal');
+        console.error(error);
+    } finally {
+        loading.classList.add('d-none');
+    }
+}
+
+async function loadDepartamentos() {
+    try {
+        const response = await axios.get('/api/departamentos');
+        const select = document.getElementById('departamento');
+        select.innerHTML = '<option value="">Seleccione un departamento</option>';
+
+        response.data.forEach(dep => {
+            select.innerHTML += `<option value="${dep.id}">${dep.nombre}</option>`;
+        });
+    } catch (error) {
+        console.error('Error loading departamentos:', error);
+    }
+}
+
+async function loadCargos() {
+    try {
+        const response = await axios.get('/api/cargos');
+        const select = document.getElementById('cargo');
+        select.innerHTML = '<option value="">Seleccione un cargo</option>';
+
+        response.data.forEach(cargo => {
+            select.innerHTML += `<option value="${cargo.id}">${cargo.nombre}</option>`;
+        });
+    } catch (error) {
+        console.error('Error loading cargos:', error);
+    }
+}
+
+function showAddPersonalModal() {
+    document.getElementById('personalModalTitle').textContent = 'Agregar Personal';
+    document.getElementById('personalForm').reset();
+    document.getElementById('personalId').value = '';
+
+    new bootstrap.Modal(document.getElementById('personalModal')).show();
+}
+
+async function editPersonal(id) {
+    try {
+        const response = await axios.get(`/api/personal/${id}`);
+        const personal = response.data;
+
+        document.getElementById('personalModalTitle').textContent = 'Editar Personal';
+        document.getElementById('personalId').value = personal.id;
+        document.getElementById('nombre').value = personal.nombre;
+        document.getElementById('apellido').value = personal.apellido;
+        document.getElementById('cedula').value = personal.cedula || '';
+        document.getElementById('correo').value = personal.correo || '';
+        document.getElementById('telefono').value = personal.telefono || '';
+        document.getElementById('activo').checked = personal.activo != null ? personal.activo : true;
+        document.getElementById('departamento').value = personal.departamento ? personal.departamento.id : '';
+        document.getElementById('cargo').value = personal.cargo ? personal.cargo.id : '';
+
+        new bootstrap.Modal(document.getElementById('personalModal')).show();
+
+    } catch (error) {
+        window.app.showError('Error al cargar datos del personal');
+    }
+}
+
+async function savePersonal() {
+    const form = document.getElementById('personalForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    const personalData = {
+        nombre: document.getElementById('nombre').value,
+        apellido: document.getElementById('apellido').value,
+        cedula: document.getElementById('cedula').value,
+        correo: document.getElementById('correo').value,
+        telefono: document.getElementById('telefono').value,
+        activo: document.getElementById('activo').checked,
+        departamento: { id: parseInt(document.getElementById('departamento').value) },
+        cargo: { id: parseInt(document.getElementById('cargo').value) }
+    };
+
+    const personalId = document.getElementById('personalId').value;
+
+    try {
+        if (personalId) {
+            await axios.put(`/api/personal/${personalId}`, personalData);
+            window.app.showSuccess('Personal actualizado exitosamente');
+        } else {
+            await axios.post('/api/personal', personalData);
+            window.app.showSuccess('Personal agregado exitosamente');
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('personalModal')).hide();
+        await loadPersonalList();
+
+    } catch (error) {
+        window.app.showError('Error al guardar el personal');
+        console.error(error);
+    }
+}
+
+async function deletePersonal(id) {
+    if (!confirm('¿Está seguro de eliminar este registro?')) {
+        return;
+    }
+
+    try {
+        await axios.delete(`/api/personal/${id}`);
+        window.app.showSuccess('Personal eliminado exitosamente');
+        await loadPersonalList();
+    } catch (error) {
+        window.app.showError('Error al eliminar el personal');
+    }
+}
+</script>
