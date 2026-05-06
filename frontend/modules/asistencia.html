@@ -1,0 +1,162 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>Registro de Asistencia</h1>
+
+            <div class="card">
+                <div class="card-header">
+                    Marcar Asistencia
+                </div>
+                <div class="card-body">
+                    <form id="asistenciaForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="personalAsistencia" class="form-label">Seleccionar Personal</label>
+                                    <select class="form-control" id="personalAsistencia" required>
+                                        <option value="">Seleccione personal</option>
+                                        <!-- Opciones se cargarán dinámicamente -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="tipoAsistencia" class="form-label">Tipo de Registro</label>
+                                    <select class="form-control" id="tipoAsistencia" required>
+                                        <option value="ENTRADA">Entrada</option>
+                                        <option value="SALIDA">Salida</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="spinner-border spinner-border-sm d-none" id="asistenciaSpinner"></span>
+                            Registrar Asistencia
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    Asistencia de Hoy
+                </div>
+                <div class="card-body">
+                    <div id="loading" class="loading d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
+                    </div>
+
+                    <div id="asistenciaList">
+                        <!-- Aquí se cargará la lista de asistencia del día -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function initAsistencia() {
+    await loadPersonalForAsistencia();
+    await loadAsistenciaHoy();
+}
+
+async function loadPersonalForAsistencia() {
+    try {
+        const response = await axios.get('/api/personal');
+        const select = document.getElementById('personalAsistencia');
+
+        response.data.forEach(p => {
+            select.innerHTML += `<option value="${p.id}">${p.nombre} ${p.apellido}</option>`;
+        });
+    } catch (error) {
+        console.error('Error loading personal:', error);
+    }
+}
+
+async function loadAsistenciaHoy() {
+    const loading = document.getElementById('loading');
+    const asistenciaList = document.getElementById('asistenciaList');
+
+    loading.classList.remove('d-none');
+
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const response = await axios.get(`/api/asistencia?fecha=${today}`);
+        const asistencias = response.data;
+
+        let html = `
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Personal</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        asistencias.forEach(a => {
+            const hora = new Date(a.fechaHora).toLocaleTimeString();
+            html += `
+                <tr>
+                    <td>${hora}</td>
+                    <td>${a.personal.nombre} ${a.personal.apellido}</td>
+                    <td>${a.tipo}</td>
+                    <td>${a.estado}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+        `;
+
+        asistenciaList.innerHTML = html;
+
+    } catch (error) {
+        window.app.showError('Error al cargar la asistencia del día');
+        console.error(error);
+    } finally {
+        loading.classList.add('d-none');
+    }
+}
+
+document.getElementById('asistenciaForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const personalId = document.getElementById('personalAsistencia').value;
+    const tipo = document.getElementById('tipoAsistencia').value;
+    const spinner = document.getElementById('asistenciaSpinner');
+
+    spinner.classList.remove('d-none');
+
+    try {
+        const asistenciaData = {
+            personal: { id: parseInt(personalId) },
+            tipo: tipo,
+            fechaHora: new Date().toISOString()
+        };
+
+        await axios.post('/api/asistencia', asistenciaData);
+        window.app.showSuccess('Asistencia registrada exitosamente');
+
+        // Reset form
+        document.getElementById('asistenciaForm').reset();
+
+        // Reload list
+        await loadAsistenciaHoy();
+
+    } catch (error) {
+        window.app.showError('Error al registrar asistencia');
+        console.error(error);
+    } finally {
+        spinner.classList.add('d-none');
+    }
+});
+</script>
