@@ -1,76 +1,85 @@
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header text-center">
-                    <h3>Iniciar Sesión</h3>
-                </div>
-                <div class="card-body">
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="nombreUsuario" class="form-label">Nombre de Usuario</label>
-                            <input type="text" class="form-control" id="nombreUsuario" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100" id="loginBtn">
-                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-                            Iniciar Sesión
-                        </button>
-                    </form>
-                </div>
-            </div>
+<!doctype html>
+<html lang="es" data-theme="light">
+  <!-- tema claro de Pico.css -->
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Hace que el sitio sea responsivo en telefono-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar sesión — C.E.N. Roraima Asansa Escándela</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <!-- Importamos nuestros estilos (Pico.css viene dentro de styles.css)-->
+  </head>
+
+  <body>
+    <!--  auth-wrapper: centra la tarjeta verticalmente en toda la pantalla -->
+    <div class="auth-wrapper">
+      <!-- auth-card: la tarjeta blanca que contiene el formulario de login -->
+      <div class="auth-card">
+        <!--auth-header: sección superior con el logo y nombre de la institución -->
+        <div class="auth-header">
+          <!--Logo si no existe el archivo, lo oculta para que no rompa la página.-->
+          <img
+            src="../img/logo.svg.png"
+            alt="Logo C.E.N. Roraima Asansa Escándela"
+            onerror="this.style.display = 'none'"
+          />
+
+          <h2>C.E.N. Lcda. Roraima Asansa Escándela</h2>
+
+          <p>Control de asistencia</p>
         </div>
+
+        <!-- article: componente de Pico.css que genera automáticamente la tarjeta con padding y borde
+        -->
+        <article>
+          <!--  Mensaje de error — oculto por defecto.
+            login.js lo muestra si las credenciales fallan -->
+          <p
+            id="error-msg"
+            class="error-msg"
+            style="display: none"
+            role="alert"
+            aria-live="assertive"
+          ></p>
+          <!--<p id="error-msg" class="error-msg" style="display: none"></p>
+
+          <!-- Campo de nombre de usuario -->
+          <label for="usuario">Usuario</label>
+          <input
+            type="text"
+            id="usuario"
+            name="usuario"
+            placeholder="Tu nombre de usuario"
+            required
+            autofocus
+          />
+
+          <!-- Campo de contraseña — oculta el texto al escribir -->
+          <label for="password">Contraseña</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Tu contraseña"
+            required
+          />
+
+          <!--  Botón de login -->
+          <button
+            id="btn-login"
+            type="button"
+            onclick="iniciarSesion()"
+            style="width: 100%; margin-top: 0.5rem"
+          >
+            Iniciar sesión
+          </button>
+        </article>
+      </div>
     </div>
-</div>
 
-<script>
-function initLogin() {
-    const loginForm = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const spinner = loginBtn.querySelector('.spinner-border');
-
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const nombreUsuario = document.getElementById('nombreUsuario').value;
-        const password = document.getElementById('password').value;
-
-        // Mostrar loading
-        loginBtn.disabled = true;
-        spinner.classList.remove('d-none');
-
-        try {
-            const response = await axios.post('/api/auth/login', {
-                nombreUsuario,
-                password
-            });
-
-           // 1. Guardar en el almacenamiento físico
-            localStorage.setItem('token', response.data.token);
-
-            // 2. ¡CRUCIAL! Actualizar la instancia de la aplicación en memoria
-            window.app.token = response.data.token; 
-
-            // Mostrar éxito y redirigir
-            window.app.showSuccess('Inicio de sesión exitoso');
-            setTimeout(() => {
-                window.app.loadModule('dashboard');
-            }, 1000);
-
-        } catch (error) {
-            let message = 'Error al iniciar sesión';
-            if (error.response && error.response.data && error.response.data.message) {
-                message = error.response.data.message;
-            }
-            window.app.showError(message);
-        } finally {
-            // Ocultar loading
-            loginBtn.disabled = false;
-            spinner.classList.add('d-none');
-        }
-    });
-}
-</script>
+    <!--  Scripts al final del body para que el HTML
+      cargue primero antes de ejecutar JavaScript. Recordatorio que el app.js va primero porque login.js puede usar funciones definidas ahí  -->
+    <script src="../js/app.js"></script>
+    <script src="../js/login.js"></script>
+  </body>
+</html>

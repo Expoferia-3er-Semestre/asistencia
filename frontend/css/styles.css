@@ -1,58 +1,984 @@
-/* Estilos personalizados para el sistema de asistencia */
+/* ── Importar Pico.css desde CDN ── 
+   Pico.css estiliza automáticamente etiquetas HTML
+   sin necesidad de agregar clases en cada elemento */
+@import url("https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css");
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
+/* ── Reset global ──
+   Hace que padding y border se incluyan en el 
+   tamaño total de cada elemento */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-#app {
-    min-height: 100vh;
+/* ── Imágenes responsivas ──
+   Evita que una imagen se salga de su contenedor */
+img {
+  max-width: 100%;
+  height: auto;
 }
 
-.navbar-brand {
-    font-weight: bold;
+/* ── logo del dashboard */
+img.logodash {
+  width: 120px;
+  height: auto;
 }
 
-.card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* ── Tablas responsivas ──
+   Agrega scroll horizontal si la tabla 
+   no cabe en pantalla */
+table {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
 }
 
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+/* ── Contenedor general de páginas internas ──
+   Centra el contenido y limita el ancho máximo */
+.page-wrapper {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
+/* ── Variables de color institucional ──
+   Sobreescribe los colores de Pico.css con los colores del escudo del C.E.N. Roraima */
+:root {
+  --pico-primary: #4a7db5; /* azul principal del escudo */
+  --pico-primary-hover: #3a6a9e; /* azul más oscuro al pasar el mouse */
+  --pico-primary-focus: rgba(74, 125, 181, 0.25); /* sombra de foco en inputs */
+  --pico-font-family: "Segoe UI", sans-serif;
+
+  /* Paleta completa institucional */
+  --cen-azul: #4a7db5; /* azul principal — botones, enlaces, encabezados */
+  --cen-azul-oscuro: #2f5a8a; /* azul más oscuro — hover, énfasis */
+  --cen-azul-claro: #d6e8f7; /* azul muy claro — fondos sutiles */
+
+  --cen-dorado: #e8b84b; /* amarillo/dorado — badges, acentos secundarios */
+  --cen-dorado-oscuro: #b8891e; /* dorado oscuro — texto sobre fondo dorado */
+
+  --cen-verde: #3a7d44; /* verde — estado "presente", éxito */
+  --cen-verde-claro: #d4edda; /* verde claro — fondo de estado presente */
+
+  --cen-rojo: #c0392b; /* rojo — errores, estado "ausente" */
+  --cen-rojo-claro: #fde8e8; /* rojo claro — fondo de estado ausente */
+
+  --cen-naranja: #c97a3a; /* naranja — advertencias, estado "tardanza" */
+
+  --cen-blanco: #ffffff;
+  --cen-gris-suave: #f0f4f8; /* fondo general de páginas */
 }
 
-.form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+/* ── Pantalla de login: fondo ──
+   Centra la tarjeta en toda la pantalla */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: var(--cen-blanco);
 }
 
-.alert {
-    border-radius: 10px;
+/* ── Pantalla de login: tarjeta ──
+   Tarjeta blanca con sombra que contiene el formulario */
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 2.5rem 2rem;
+  background: var(--cen-azul-claro);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
-.loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 200px;
+/* ── Cabecera del login: logo y nombre ──
+   Centra el logo y el nombre de la institución */
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
+/* ── Logo institucional ── */
+.auth-header img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
 }
 
-/* Responsive */
+/* ── Nombre de la institución ── */
+.auth-header h2 {
+  color: var(--cen-azul);
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin: 0 0 0.25rem;
+}
+
+/* ── Subtítulo del sistema #666;── */
+.auth-header p {
+  color: #666;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* ── Mensaje de error del login ──
+   Se muestra en rojo cuando las credenciales fallan */
+.error-msg {
+  color: var(--cen-rojo);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+/* ── Estilos para dashboard.html y asistencia.html ── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+  color: #556a8f;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dashboard-summary,
+.asistencia-panel {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-summary {
+  grid-template-columns: repeat(3, minmax(140px, 1fr));
+}
+
+.stat-card {
+  padding: 1.25rem;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(74, 125, 181, 0.08);
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--cen-azul);
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
+}
+
+.form-note {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+/* ── Responsivo: tablets (768px o menos) ── */
 @media (max-width: 768px) {
-    .container {
-        padding: 15px;
-    }
+  h1 {
+    font-size: 1.5rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  /* En teléfonos pequeños las tablas se convierten en tarjetas apiladas */
+  table thead {
+    display: none;
+  }
+
+  table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--pico-border-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+  }
+
+  table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  /* Muestra el nombre de la columna antes del valor */
+  table td::before {
+    content: attr(data-label);
+    font-weight: 500;
+    color: var(--cen-azul);
+  }
+}
+
+/* ── Responsivo: pantallas pequeñas (480px o menos) ── */
+@media (max-width: 480px) {
+  /* La tarjeta ocupa toda la pantalla en telefono pequeños */
+  .auth-card {
+    padding: 1.5rem 1rem;
+    box-shadow: none;
+    border-radius: 0;
+    max-width: 100%;
+  }
+
+  .auth-header h2 {
+    font-size: 1rem;
+  }
+}
+
+/*comienza estilos para apliacarlos al dashboard.html y asistencia.html */
+
+/* ============================================================
+   Fuentes institucionales
+   ============================================================ */
+body {
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  background-color: var(--cen-gris-suave);
+  min-height: 100vh;
+}
+
+/* ============================================================
+   TOPBAR — barra superior compartida (dashboard + asistencia)
+   ============================================================ */
+
+.topbar {
+  background: var(--cen-blanco);
+  border-bottom: 2px solid var(--cen-azul-claro);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(74, 125, 181, 0.08);
+}
+
+/* Logo + texto de marca */
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.topbar-brand img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.topbar-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.topbar-brand-text strong {
+  font-family: "Lora", serif;
+  font-size: 0.95rem;
+  color: var(--cen-azul);
+}
+
+.topbar-brand-text span {
+  font-size: 0.75rem;
+  color: #7a8fa6;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Lado derecho: nombre usuario + botones */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#topbar-nombre {
+  font-size: 0.875rem;
+  color: #556a8f;
+  font-weight: 500;
+}
+
+/* Botón cerrar sesión */
+.btn-logout {
+  font-size: 0.8rem;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  background: transparent;
+  border: 1.5px solid var(--cen-azul);
+  color: var(--cen-azul);
+  cursor: pointer;
+  font-family: "Source Sans 3", sans-serif;
+  font-weight: 600;
+  transition:
+    background 0.18s,
+    color 0.18s;
+  text-decoration: none;
+}
+
+.btn-logout:hover {
+  background: var(--cen-azul);
+  color: var(--cen-blanco);
+}
+
+/* Botón volver (solo asistencia) */
+.btn-back {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  background: var(--cen-azul-claro);
+  border: none;
+  color: var(--cen-azul);
+  cursor: pointer;
+  font-family: "Source Sans 3", sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.18s;
+}
+
+.btn-back:hover {
+  background: #b8d4ee;
+}
+
+/* ============================================================
+   DASHBOARD — layout y componentes
+   ============================================================ */
+
+/* Área principal */
+.dash-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+/* Encabezado de bienvenida */
+.dash-heading {
+  margin-bottom: 2rem;
+  animation: fadeUp 0.5s ease both;
+}
+
+.dash-heading h1 {
+  font-family: "Lora", serif;
+  font-size: 2rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0 0 0.25rem;
+  line-height: 1.2;
+}
+
+.dash-heading p {
+  color: #556a8f;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Fila de estadísticas */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Tarjeta de estadística */
+.stat-card {
+  background: var(--cen-blanco);
+  border-radius: 14px;
+  padding: 1.5rem 1.25rem;
+  box-shadow: 0 4px 16px rgba(74, 125, 181, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.25rem;
+  animation: fadeUp 0.5s ease both;
+  border-top: 4px solid var(--cen-azul-claro);
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+
+/* Colores de acento por tarjeta */
+.stat-card--azul {
+  border-top-color: var(--cen-azul);
+  animation-delay: 0.05s;
+}
+.stat-card--verde {
+  border-top-color: var(--cen-verde);
+  animation-delay: 0.12s;
+}
+.stat-card--dorado {
+  border-top-color: var(--cen-dorado);
+  animation-delay: 0.19s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(74, 125, 181, 0.14);
+}
+
+.stat-icon {
+  font-size: 1.75rem;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-family: "Lora", serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--cen-azul-oscuro);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  color: #7a8fa6;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+/* Título de módulos */
+.modules-title {
+  font-family: "Lora", serif;
+  font-size: 1.1rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0 0 1rem;
+  animation: fadeUp 0.5s 0.25s ease both;
+}
+
+/* Grid de módulos */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+/* Tarjeta de módulo */
+.module-card {
+  background: var(--cen-blanco);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(74, 125, 181, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s,
+    border-color 0.2s;
+  animation: fadeUp 0.5s ease both;
+  border: 1.5px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.module-card:nth-child(1) {
+  animation-delay: 0.3s;
+}
+.module-card:nth-child(2) {
+  animation-delay: 0.37s;
+}
+.module-card:nth-child(3) {
+  animation-delay: 0.44s;
+}
+
+/* Línea inferior animada al hover */
+.module-card::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--cen-azul);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.module-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(74, 125, 181, 0.13);
+  border-color: var(--cen-azul-claro);
+}
+
+.module-card:hover::before {
+  transform: scaleX(1);
+}
+
+.module-emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.module-card h3 {
+  font-family: "Lora", serif;
+  font-size: 1.05rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0;
+}
+
+.module-card p {
+  font-size: 0.875rem;
+  color: #7a8fa6;
+  margin: 0;
+  flex: 1;
+}
+
+/* Texto "Ir a …" con flecha animada */
+.module-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cen-azul);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.module-link::after {
+  content: "→";
+  transition: transform 0.2s;
+}
+
+.module-card:hover .module-link::after {
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   ASISTENCIA — layout y componentes
+   ============================================================ */
+
+/* Área principal */
+.asist-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+/* Encabezado de página */
+.asist-heading {
+  margin-bottom: 1.75rem;
+  animation: fadeUp 0.45s ease both;
+}
+
+.asist-heading h1 {
+  font-family: "Lora", serif;
+  font-size: 2rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Eyebrow compartido (dashboard + asistencia) */
+.eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #7a8fa6;
+  margin: 0 0 0.3rem;
+}
+
+/* Panel base reutilizable */
+.registro-panel,
+.filters-panel,
+.tabla-panel {
+  background: var(--cen-blanco);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 16px rgba(74, 125, 181, 0.07);
+  margin-bottom: 1.5rem;
+}
+
+.registro-panel {
+  animation: fadeUp 0.45s 0.08s ease both;
+  border-left: 4px solid var(--cen-verde);
+}
+.filters-panel {
+  animation: fadeUp 0.45s 0.15s ease both;
+}
+.tabla-panel {
+  animation: fadeUp 0.45s 0.22s ease both;
+}
+
+/* Títulos internos de panel */
+.registro-panel h2,
+.filters-panel h2,
+.tabla-panel h2 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0 0 1rem;
+}
+
+/* Grid de formulario (registro + filtros) */
+.registro-grid,
+.filters-grid {
+  display: grid;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.registro-grid {
+  grid-template-columns: 1fr 1fr 1fr auto;
+}
+.filters-grid {
+  grid-template-columns: 1fr 1fr 1fr auto;
+}
+
+/* Labels de formulario */
+.registro-grid label,
+.filters-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #556a8f;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Inputs y selects */
+.registro-grid input,
+.registro-grid select,
+.filters-grid input,
+.filters-grid select {
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid #d0dcea;
+  border-radius: 8px;
+  background: var(--cen-blanco);
+  color: #2d3748;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+  width: 100%;
+}
+
+.registro-grid input:focus,
+.registro-grid select:focus {
+  outline: none;
+  border-color: var(--cen-verde);
+  box-shadow: 0 0 0 3px rgba(58, 125, 68, 0.15);
+}
+
+.filters-grid input:focus,
+.filters-grid select:focus {
+  outline: none;
+  border-color: var(--cen-azul);
+  box-shadow: 0 0 0 3px var(--pico-primary-focus);
+}
+
+/* Botón guardar asistencia */
+.btn-registrar {
+  padding: 0.6rem 1.25rem;
+  background: var(--cen-verde);
+  color: var(--cen-blanco);
+  border: none;
+  border-radius: 8px;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    transform 0.15s;
+  white-space: nowrap;
+}
+
+.btn-registrar:hover {
+  background: #2e6437;
+  transform: translateY(-1px);
+}
+
+/* Botón consultar */
+.btn-consultar {
+  padding: 0.6rem 1.5rem;
+  background: var(--cen-azul);
+  color: var(--cen-blanco);
+  border: none;
+  border-radius: 8px;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    transform 0.15s;
+  white-space: nowrap;
+}
+
+.btn-consultar:hover {
+  background: var(--cen-azul-oscuro);
+  transform: translateY(-1px);
+}
+
+/* Estado de carga en botones */
+.btn-registrar[aria-busy="true"],
+.btn-consultar[aria-busy="true"] {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* Mensaje de feedback (éxito / error) */
+.feedback-msg {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.75rem;
+  display: none;
+}
+
+.feedback-msg.success {
+  background: var(--cen-verde-claro);
+  color: var(--cen-verde);
+  display: block;
+}
+
+.feedback-msg.error {
+  background: var(--cen-rojo-claro);
+  color: var(--cen-rojo);
+  display: block;
+}
+
+/* Cabecera de la tabla con contador */
+.tabla-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.tabla-count {
+  font-size: 0.8rem;
+  color: #7a8fa6;
+  font-weight: 600;
+  background: var(--cen-azul-claro);
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+}
+
+/* Tabla de resultados */
+.tabla-container {
+  overflow-x: auto;
+}
+
+/* Sobreescribe el display:block del reset global solo aquí */
+#tabla-asistencia {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+#tabla-asistencia thead th {
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #7a8fa6;
+  font-weight: 600;
+  border-bottom: 2px solid var(--cen-azul-claro);
+  white-space: nowrap;
+}
+
+#tabla-asistencia tbody tr {
+  border-bottom: 1px solid #eef2f7;
+  transition: background 0.15s;
+}
+
+#tabla-asistencia tbody tr:hover {
+  background: #f7fafd;
+}
+
+#tabla-asistencia tbody td {
+  padding: 0.75rem;
+  color: #2d3748;
+  vertical-align: middle;
+}
+
+/* Estado vacío de la tabla */
+.tabla-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #a0afc0;
+  font-size: 0.9rem;
+}
+
+.tabla-empty span {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Badges de estado */
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badge-presente {
+  background: var(--cen-verde-claro);
+  color: var(--cen-verde);
+}
+.badge-ausente {
+  background: var(--cen-rojo-claro);
+  color: var(--cen-rojo);
+}
+.badge-tardanza {
+  background: #fef3e2;
+  color: var(--cen-naranja);
+}
+.badge-justificado {
+  background: #e8f4fd;
+  color: var(--cen-azul);
+}
+
+/* ============================================================
+   ANIMACIÓN base
+   ============================================================ */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — tablets (900px)
+   ============================================================ */
+@media (max-width: 900px) {
+  .filters-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .registro-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  /* El botón ocupa las dos columnas */
+  .filters-grid > .btn-consultar,
+  .registro-grid > .btn-registrar {
+    grid-column: span 2;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — móvil (600px)
+   ============================================================ */
+@media (max-width: 600px) {
+  .stats-row,
+  .modules-grid,
+  .filters-grid,
+  .registro-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filters-grid > .btn-consultar,
+  .registro-grid > .btn-registrar {
+    grid-column: span 1;
+  }
+
+  .dash-heading h1,
+  .asist-heading h1 {
+    font-size: 1.5rem;
+  }
+
+  .dash-main,
+  .asist-main {
+    padding: 1.25rem 1rem 2rem;
+  }
+
+  #topbar-nombre {
+    display: none;
+  }
+
+  /* Tabla → tarjetas apiladas en móvil */
+  #tabla-asistencia thead {
+    display: none;
+  }
+  #tabla-asistencia,
+  #tabla-asistencia tbody,
+  #tabla-asistencia tr,
+  #tabla-asistencia td {
+    display: block;
+  }
+
+  #tabla-asistencia tbody tr {
+    margin-bottom: 0.75rem;
+    border: 1px solid #dce6f0;
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  #tabla-asistencia tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    border: none;
+    font-size: 0.875rem;
+  }
+
+  /* Etiqueta de columna antes del valor */
+  #tabla-asistencia tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--cen-azul);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 }
