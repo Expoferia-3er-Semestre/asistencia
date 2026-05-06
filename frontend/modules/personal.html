@@ -86,9 +86,25 @@
 
 <script>
 async function initPersonal() {
-    await loadPersonalList();
-    await loadDepartamentos();
-    await loadCargos();
+    // Verificación de seguridad
+    const container = document.getElementById('personalList');
+    if (!container) {
+        // Si no está, esperamos un ciclo del navegador y reintentamos una vez
+        console.warn("Reintentando inicialización de Personal...");
+        setTimeout(initPersonal, 50);
+        return;
+    }
+
+    // Ejecutamos las cargas en paralelo para mayor velocidad
+    try {
+        await Promise.all([
+            loadPersonalList(),
+            loadDepartamentos(),
+            loadCargos()
+        ]);
+    } catch (e) {
+        console.error("Error en la inicialización:", e);
+    }
 }
 
 async function loadPersonalList() {
@@ -150,14 +166,18 @@ async function loadPersonalList() {
 }
 
 async function loadDepartamentos() {
+    const select = document.getElementById('departamento');
+    if (!select) return; // Salida de seguridad
+
     try {
         const response = await axios.get('/api/departamentos');
-        const select = document.getElementById('departamento');
-        select.innerHTML = '<option value="">Seleccione un departamento</option>';
-
+        // Construimos todo el string primero
+        let options = '<option value="">Seleccione un departamento</option>';
         response.data.forEach(dep => {
-            select.innerHTML += `<option value="${dep.id}">${dep.nombre}</option>`;
+            options += `<option value="${dep.id}">${dep.nombre}</option>`;
         });
+        // Asignamos una sola vez
+        select.innerHTML = options;
     } catch (error) {
         console.error('Error loading departamentos:', error);
     }
@@ -178,11 +198,17 @@ async function loadCargos() {
 }
 
 function showAddPersonalModal() {
+    const modalElement = document.getElementById('personalModal');
     document.getElementById('personalModalTitle').textContent = 'Agregar Personal';
     document.getElementById('personalForm').reset();
     document.getElementById('personalId').value = '';
 
-    new bootstrap.Modal(document.getElementById('personalModal')).show();
+    // Obtener instancia existente o crear una nueva
+    let modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalElement);
+    }
+    modalInstance.show();
 }
 
 async function editPersonal(id) {

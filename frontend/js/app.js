@@ -40,6 +40,10 @@ class App {
     }
 
     setupAxios() {
+
+        // 1. Configura la URL base para no repetirla en cada fetch
+        axios.defaults.baseURL = 'http://localhost:8080';
+
         // Interceptor para agregar token a todas las requests
         axios.interceptors.request.use(
             (config) => {
@@ -66,44 +70,38 @@ class App {
         );
     }
 
-    async loadModule(moduleName, data = {}, replace = false) {
+        async loadModule(moduleName, data = {}, replace = false) {
         try {
             const response = await fetch(`modules/${moduleName}.html`);
-            if (!response.ok) {
-                throw new Error(`Error loading module: ${response.status}`);
-            }
-
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            
             const html = await response.text();
             const appContainer = document.getElementById('app');
+            
+            // 1. Insertamos el HTML
             appContainer.innerHTML = html;
 
-            // Volver a ejecutar scripts embebidos en el módulo
+            // 2. Procesamos los scripts internos (tu lógica actual)
             const inlineScripts = appContainer.querySelectorAll('script');
             inlineScripts.forEach((oldScript) => {
                 const newScript = document.createElement('script');
-                if (oldScript.src) {
-                    newScript.src = oldScript.src;
-                }
+                if (oldScript.src) newScript.src = oldScript.src;
                 newScript.textContent = oldScript.textContent;
                 oldScript.parentNode.replaceChild(newScript, oldScript);
             });
 
-            // Actualizar historial
-            if (replace) {
-                history.replaceState({ module: moduleName }, '', `#${moduleName}`);
-            } else {
-                history.pushState({ module: moduleName }, '', `#${moduleName}`);
-            }
+            // 3. ESPERA CRUCIAL: Dejamos que el DOM se asiente
+            setTimeout(() => {
+                const scriptFunction = window[`init${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)}`];
+                if (scriptFunction) {
+                    console.log(`Ejecutando init para: ${moduleName}`);
+                    scriptFunction.call(this, data);
+                }
+            }, 50); // 50ms son suficientes para que el DOM esté disponible
 
-            // Ejecutar script del módulo si existe
-            const scriptFunction = window[`init${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)}`];
-            if (scriptFunction) {
-                scriptFunction.call(this, data);
-            }
-
+            // ... resto de tu lógica de historial ...
         } catch (error) {
             console.error('Error loading module:', error);
-            this.showError('Error al cargar el módulo');
         }
     }
 
