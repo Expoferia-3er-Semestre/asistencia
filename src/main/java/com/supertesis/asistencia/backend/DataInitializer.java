@@ -55,6 +55,7 @@ public class DataInitializer implements CommandLineRunner {
                 personal.setCorreo("reo@sistema.com");
                 personal.setCedula("1234567890");
                 personal.setTelefono("0999999999");
+                personal = personalRepository.save(personal);
                 // Crear usuario
                 Usuario usuario = new Usuario();
                 usuario.setNombreUsuario("admin");
