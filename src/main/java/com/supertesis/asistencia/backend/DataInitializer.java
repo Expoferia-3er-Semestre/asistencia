@@ -40,7 +40,6 @@ public class DataInitializer implements CommandLineRunner {
                 Cargo cargo = new Cargo();
                 cargo.setNombreCargo("Administrador");
                 cargo.setDepartamento(departamento);
-                cargo.setActivo(true);
                 cargo = cargoRepository.save(cargo);
 
                 // Crear rol
