@@ -23,8 +23,10 @@ jobs:
     - name: Checkstyle Validation
       run: mvn checkstyle:check
       env:
-        APP_JWT_SECRET: ${{ secrets.JWT_SECRET_KEY }} # Si usas Secrets de GitHub
+        APP_JWT_SECRET: ${{ secrets.JWT_SECRET }} # Si usas Secrets de GitHub
         APP_JWT_EXPIRATION: 86400000
+        # Si quieres forzar el perfil de test
+        SPRING_PROFILES_ACTIVE: test
 
     - name: Build and Test with Maven
       # Eliminamos -DskipTests para que tus pruebas con H2 se ejecuten en el CI

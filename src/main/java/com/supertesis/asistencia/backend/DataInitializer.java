@@ -33,12 +33,14 @@ public class DataInitializer implements CommandLineRunner {
                 Departamento departamento = new Departamento();
                 departamento.setNombre("Recursos Humanos");
                 departamento.setDescripcion("Departamento de gestión del personal");
+                departamento.setActivo(true);
                 departamento = departamentoRepository.save(departamento);
 
                 // Crear cargo
                 Cargo cargo = new Cargo();
                 cargo.setNombreCargo("Administrador");
                 cargo.setDepartamento(departamento);
+                cargo.setActivo(true);
                 cargo = cargoRepository.save(cargo);
 
                 // Crear rol
