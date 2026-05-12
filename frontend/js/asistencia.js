@@ -1,13 +1,9 @@
+/* asistencia.js */
+
 document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
+  verificarSesion(); // app.js — redirige si no hay token
 
-  // Sin sesión → redirige al login
-  if (!token) {
-    window.location.href = "../index.html";
-    return;
-  }
-
-  // Fecha de hoy como valor por defecto en todos los date inputs
+  // Fecha de hoy por defecto en los tres inputs de fecha
   const hoy = new Date().toISOString().split("T")[0];
   document.getElementById("reg-fecha").value = hoy;
   document.getElementById("filtro-fecha-desde").value = hoy;
@@ -17,17 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarDepartamentos();
 });
 
-/* ── Helpers ────────────────────────────────────────────── */
+/* ── Feedback visual ──────────────────────────────────── */
 
-/* Cabecera de autenticación reutilizable */
-function getHeaders() {
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  };
-}
-
-/* Muestra mensaje de éxito o error y lo oculta a los 4 s */
+/* Muestra mensaje de éxito o error y lo oculta a los 4s */
 function mostrarFeedback(id, mensaje, tipo) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -47,21 +35,18 @@ function badgeEstado(estado) {
     TARDANZA: "badge-tardanza",
     JUSTIFICADO: "badge-justificado",
   };
-  // Primera letra mayúscula, resto minúscula
   const etiqueta = estado
     ? estado.charAt(0) + estado.slice(1).toLowerCase()
     : "—";
   return `<span class="badge ${clases[estado] || ""}">${etiqueta}</span>`;
 }
 
-/* ── Carga de selects ───────────────────────────────────── */
+/* ── Carga de selects ─────────────────────────────────── */
 
 /* Llena el select de personal para el formulario de registro */
 async function cargarPersonal() {
   try {
-    const res = await fetch("http://localhost:8080/api/personal", {
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/personal`, { headers: getHeaders() }); // app.js
     if (!res.ok) return;
 
     const lista = await res.json();
@@ -84,9 +69,9 @@ async function cargarPersonal() {
 /* Llena el select de departamentos para el filtro */
 async function cargarDepartamentos() {
   try {
-    const res = await fetch("http://localhost:8080/api/departamentos", {
+    const res = await fetch(`${API_BASE}/departamentos`, {
       headers: getHeaders(),
-    });
+    }); // app.js
     if (!res.ok) return;
 
     const lista = await res.json();
@@ -103,7 +88,7 @@ async function cargarDepartamentos() {
   }
 }
 
-/* ── Registrar asistencia ───────────────────────────────── */
+/* ── Registrar asistencia ─────────────────────────────── */
 
 async function registrarAsistencia() {
   const personalId = document.getElementById("reg-personal").value;
@@ -111,7 +96,6 @@ async function registrarAsistencia() {
   const estado = document.getElementById("reg-estado").value;
   const btn = document.getElementById("btn-registrar");
 
-  // Validación simple
   if (!personalId || !fecha || !estado) {
     mostrarFeedback(
       "feedback-registro",
@@ -121,14 +105,13 @@ async function registrarAsistencia() {
     return;
   }
 
-  // Estado de carga
   btn.setAttribute("aria-busy", "true");
   btn.textContent = "Guardando…";
 
   try {
-    const res = await fetch("http://localhost:8080/api/asistencia", {
+    const res = await fetch(`${API_BASE}/asistencia`, {
       method: "POST",
-      headers: getHeaders(),
+      headers: getHeaders(), // app.js
       // Ajusta el body según lo que espere tu backend
       body: JSON.stringify({ personalId, fecha, estado }),
     });
@@ -136,10 +119,10 @@ async function registrarAsistencia() {
     if (res.ok) {
       mostrarFeedback(
         "feedback-registro",
-        "✅ Asistencia registrada correctamente.",
+        "Asistencia registrada correctamente.",
         "success",
       );
-      consultarAsistencias(); // refresca la tabla automáticamente
+      consultarAsistencias(); // refresca la tabla
     } else {
       const err = await res.json().catch(() => ({}));
       mostrarFeedback(
@@ -160,7 +143,7 @@ async function registrarAsistencia() {
   }
 }
 
-/* ── Consultar asistencias ──────────────────────────────── */
+/* ── Consultar asistencias ────────────────────────────── */
 
 async function consultarAsistencias() {
   const desde = document.getElementById("filtro-fecha-desde").value;
@@ -168,24 +151,36 @@ async function consultarAsistencias() {
   const depto = document.getElementById("filtro-depto").value;
   const btn = document.getElementById("btn-consultar");
 
-  // Construye query string solo con los filtros que tienen valor
+  // Validación — ambas fechas son obligatorias
+  if (!desde || !hasta) {
+    mostrarFeedback(
+      "feedback-consulta",
+      "Selecciona las fechas para consultar.",
+      "error",
+    );
+    return;
+  }
+
   const params = new URLSearchParams();
-  if (desde) params.append("fechaDesde", desde);
-  if (hasta) params.append("fechaHasta", hasta);
+  params.append("fechaDesde", desde);
+  params.append("fechaHasta", hasta);
   if (depto) params.append("departamentoId", depto);
 
   btn.setAttribute("aria-busy", "true");
   btn.textContent = "Consultando…";
 
   try {
-    const res = await fetch(
-      `http://localhost:8080/api/asistencia?${params.toString()}`,
-      { headers: getHeaders() },
-    );
-
+    const res = await fetch(`${API_BASE}/asistencia?${params.toString()}`, {
+      headers: getHeaders(), // app.js
+    });
     renderTabla(res.ok ? await res.json() : []);
   } catch (err) {
     console.error("Error consultando asistencias:", err);
+    mostrarFeedback(
+      "feedback-consulta",
+      "Error de conexión con el servidor.",
+      "error",
+    );
     renderTabla([]);
   } finally {
     btn.removeAttribute("aria-busy");
@@ -193,7 +188,7 @@ async function consultarAsistencias() {
   }
 }
 
-/* ── Render de la tabla ─────────────────────────────────── */
+/* ── Render tabla ─────────────────────────────────────── */
 
 function renderTabla(datos) {
   const tbody = document.getElementById("tbody-asistencia");
@@ -201,7 +196,6 @@ function renderTabla(datos) {
 
   count.textContent = `${datos.length} registro${datos.length !== 1 ? "s" : ""}`;
 
-  // Sin resultados → mensaje vacío
   if (!datos.length) {
     tbody.innerHTML = `
       <tr>
@@ -215,8 +209,7 @@ function renderTabla(datos) {
     return;
   }
 
-  // Genera filas — ajusta los campos según tu API
-  /// Para mas adelante acordarme de ajustar según los nombres reales que devuelva la API. Los campos p.nombre, p.apellido, r.personalNombre
+  // Recordatorio mas adelante: ajustar los campos según los nombres reales que devuelva la API
   tbody.innerHTML = datos
     .map((r) => {
       const nombre = r.personalNombre || r.nombre || `ID ${r.personalId}`;
@@ -233,12 +226,4 @@ function renderTabla(datos) {
       </tr>`;
     })
     .join("");
-}
-
-/* ── Logout ─────────────────────────────────────────────── */
-
-function logout() {
-  localStorage.clear();
-  window.location.href = "../index.html";
-  /*"../index.html";*/
 }

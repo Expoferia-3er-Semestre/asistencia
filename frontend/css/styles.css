@@ -70,6 +70,17 @@ table {
   --cen-gris-suave: #f0f4f8; /* fondo general de páginas */
 }
 
+/* ── tipografía para el login ──
+   se le aplica al formulario asi tendra mismo estilo como el dashboard */
+.auth-card article {
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+.auth-header h2 {
+  font-family: "Lora", serif;
+  font-size: 1.15rem;
+}
+
 /* ── Pantalla de login: fondo ──
    Centra la tarjeta en toda la pantalla */
 .auth-wrapper {
@@ -664,8 +675,21 @@ body {
 .registro-grid {
   grid-template-columns: 1fr 1fr 1fr auto;
 }
+
+/* Botón guardar — misma altura que los inputs */
+.registro-grid .btn-registrar {
+  height: 42px;
+  align-self: end;
+}
+
 .filters-grid {
   grid-template-columns: 1fr 1fr 1fr auto;
+}
+
+/* Botón consultar — misma altura que los inputs */
+.filters-grid .btn-consultar {
+  height: 42px;
+  align-self: end;
 }
 
 /* Labels de formulario */
@@ -980,5 +1004,647 @@ body {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+}
+
+/* ============================================================
+   index.html — página pública
+   ============================================================ */
+
+/* Fondo blanco para la página pública */
+.public-page {
+  background-color: var(--cen-blanco);
+}
+
+/* Navbar pública */
+.pub-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: var(--cen-blanco);
+  border-bottom: 2px solid var(--cen-azul-claro);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(74, 125, 181, 0.07);
+}
+
+.pub-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  font-family: "Lora", serif;
+  font-size: 1.05rem;
+  color: var(--cen-azul);
+  font-weight: 700;
+}
+
+.pub-brand img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* Botón login en la navbar pública */
+.pub-btn-login {
+  font-size: 0.85rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 6px;
+  border: 1.5px solid var(--cen-azul);
+  color: var(--cen-azul);
+  background: transparent;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+
+.pub-btn-login:hover {
+  background: var(--cen-azul);
+  color: var(--cen-blanco);
+}
+
+/* ── Hero ── */
+.pub-hero {
+  background: linear-gradient(
+    135deg,
+    var(--cen-azul-oscuro) 0%,
+    var(--cen-azul) 100%
+  );
+  color: var(--cen-blanco);
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+}
+
+.pub-hero-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  animation: fadeUp 0.6s ease both;
+}
+
+.pub-hero .eyebrow {
+  color: var(--cen-dorado);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+}
+
+.pub-hero h1 {
+  font-family: "Lora", serif;
+  font-size: 2.6rem;
+  line-height: 1.2;
+  margin: 0.5rem 0 1rem;
+  color: var(--cen-blanco);
+}
+
+.pub-hero-sub {
+  font-size: 1.05rem;
+  opacity: 0.88;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* Botón CTA del hero */
+.pub-btn-cta {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: var(--cen-dorado);
+  color: var(--cen-azul-oscuro);
+  font-weight: 700;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition:
+    background 0.18s,
+    transform 0.15s;
+}
+
+.pub-btn-cta:hover {
+  background: var(--cen-dorado-oscuro);
+  color: var(--cen-blanco);
+  transform: translateY(-2px);
+}
+
+/* ── Contenedor general de secciones públicas ── */
+.pub-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ── Misión / Visión / Valores ── */
+.pub-mv {
+  padding: 4rem 0;
+  background: var(--cen-gris-suave);
+}
+
+.pub-mv .pub-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+/* Tarjeta de misión/visión */
+.mv-card {
+  background: var(--cen-blanco);
+  border-radius: 14px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 4px 16px rgba(74, 125, 181, 0.07);
+  text-align: center;
+  animation: fadeUp 0.5s ease both;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  border-top: 4px solid var(--cen-azul);
+}
+
+.mv-card:nth-child(2) {
+  border-top-color: var(--cen-dorado);
+  animation-delay: 0.1s;
+}
+.mv-card:nth-child(3) {
+  border-top-color: var(--cen-verde);
+  animation-delay: 0.2s;
+}
+
+.mv-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(74, 125, 181, 0.12);
+}
+
+.mv-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.mv-card h2 {
+  font-family: "Lora", serif;
+  font-size: 1.2rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0 0 0.75rem;
+}
+
+.mv-card p {
+  font-size: 0.9rem;
+  color: #556a8f;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Noticias ── */
+.pub-news {
+  padding: 4rem 0;
+  background: var(--cen-blanco);
+}
+
+.pub-section-title {
+  font-family: "Lora", serif;
+  font-size: 1.6rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0.25rem 0 2rem;
+}
+
+/* Grid de noticias */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+/* Tarjeta de noticia */
+.news-card {
+  background: var(--cen-gris-suave);
+  border-radius: 14px;
+  padding: 1.5rem;
+  border-left: 4px solid var(--cen-azul);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  animation: fadeUp 0.5s ease both;
+}
+
+.news-card:nth-child(2) {
+  animation-delay: 0.1s;
+  border-left-color: var(--cen-dorado);
+}
+.news-card:nth-child(3) {
+  animation-delay: 0.2s;
+  border-left-color: var(--cen-verde);
+}
+
+.news-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(74, 125, 181, 0.1);
+}
+
+.news-date {
+  font-size: 0.75rem;
+  color: #7a8fa6;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.news-card h3 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0 0 0.5rem;
+}
+
+.news-card p {
+  font-size: 0.875rem;
+  color: #556a8f;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Footer ── */
+.pub-footer {
+  background: var(--cen-azul-oscuro);
+  color: rgba(255, 255, 255, 0.75);
+  padding: 2rem 0;
+}
+
+.pub-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: "Lora", serif;
+  font-size: 0.95rem;
+  color: var(--cen-blanco);
+}
+
+.footer-brand img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* logo blanco */
+}
+
+.footer-copy {
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+/* ============================================================
+   personal.html + departamentos.html — layout compartido
+   ============================================================ */
+
+/* Área principal de módulos internos */
+.mod-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+/* Encabezado con título + botón de acción */
+.mod-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.45s ease both;
+}
+
+.mod-heading h1 {
+  font-family: "Lora", serif;
+  font-size: 2rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Buscador */
+.search-bar {
+  margin-bottom: 1.25rem;
+  animation: fadeUp 0.45s 0.08s ease both;
+}
+
+.search-bar input {
+  width: 100%;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.95rem;
+  padding: 0.65rem 1rem;
+  border: 1.5px solid #d0dcea;
+  border-radius: 8px;
+  background: var(--cen-blanco);
+  color: #2d3748;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--cen-azul);
+  box-shadow: 0 0 0 3px var(--pico-primary-focus);
+}
+
+/* Botones de acción primario y secundario */
+.btn-primary {
+  padding: 0.55rem 1.25rem;
+  background: var(--cen-azul);
+  color: var(--cen-blanco);
+  border: none;
+  border-radius: 8px;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    transform 0.15s;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  background: var(--cen-azul-oscuro);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  padding: 0.55rem 1.25rem;
+  background: transparent;
+  color: var(--cen-azul);
+  border: 1.5px solid var(--cen-azul);
+  border-radius: 8px;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.btn-secondary:hover {
+  background: var(--cen-azul-claro);
+}
+
+/* Botón de editar (pequeño, en tabla) */
+.btn-edit {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  background: var(--cen-azul-claro);
+  color: var(--cen-azul);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: "Source Sans 3", sans-serif;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.btn-edit:hover {
+  background: #b8d4ee;
+}
+
+/* Botón de eliminar (pequeño, en tabla) */
+.btn-delete {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  background: var(--cen-rojo-claro);
+  color: var(--cen-rojo);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: "Source Sans 3", sans-serif;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.btn-delete:hover {
+  background: #f5c6c6;
+}
+
+/* Grid de tarjetas de departamentos */
+.deptos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.45s 0.08s ease both;
+}
+
+/* Tarjeta de departamento */
+.depto-card {
+  background: var(--cen-blanco);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 16px rgba(74, 125, 181, 0.07);
+  border-left: 4px solid var(--cen-azul);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.depto-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(74, 125, 181, 0.13);
+}
+
+.depto-card h3 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0 0 0.35rem;
+}
+
+.depto-card p {
+  font-size: 0.85rem;
+  color: #7a8fa6;
+  margin: 0;
+}
+
+.depto-card .depto-count {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cen-azul);
+  background: var(--cen-azul-claro);
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+}
+
+/* ============================================================
+   Modal compartido (personal + departamentos)
+   ============================================================ */
+
+/* Overlay oscuro de fondo */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+}
+
+/* Ventana modal REVISAR*/
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 201;
+  background: var(--cen-blanco);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  animation: fadeUp 0.3s ease both;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Cuando el modal está activo */
+.modal.active,
+.modal-overlay.active {
+  display: block;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 0;
+}
+
+.modal-header h3 {
+  font-family: "Lora", serif;
+  font-size: 1.1rem;
+  color: var(--cen-azul-oscuro);
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #7a8fa6;
+  line-height: 1;
+  padding: 0.25rem;
+  transition: color 0.15s;
+}
+
+.modal-close:hover {
+  color: var(--cen-rojo);
+}
+
+.modal-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Labels dentro del modal */
+.modal-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #556a8f;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Inputs y select dentro del modal */
+.modal-body input,
+.modal-body select,
+.modal-body textarea {
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid #d0dcea;
+  border-radius: 8px;
+  background: var(--cen-blanco);
+  color: #2d3748;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+  width: 100%;
+  resize: vertical;
+}
+
+.modal-body input:focus,
+.modal-body select:focus,
+.modal-body textarea:focus {
+  outline: none;
+  border-color: var(--cen-azul);
+  box-shadow: 0 0 0 3px var(--pico-primary-focus);
+}
+
+/* Grid de 2 columnas dentro del modal */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.5rem;
+}
+
+/* ============================================================
+   RESPONSIVE — index.html
+   ============================================================ */
+@media (max-width: 768px) {
+  .pub-mv .pub-container,
+  .news-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pub-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .pub-footer-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — personal + departamentos
+   ============================================================ */
+@media (max-width: 768px) {
+  .deptos-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .mod-heading h1 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .deptos-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal {
+    max-width: calc(100% - 2rem);
+  }
+  .mod-main {
+    padding: 1.25rem 1rem 2rem;
   }
 }

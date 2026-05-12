@@ -1,288 +1,169 @@
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1>Gestión de Personal</h1>
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal — C.E.N. Roraima</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-            <button class="btn btn-success mb-3" onclick="showAddPersonalModal()">
-                <i class="fas fa-plus"></i> Agregar Personal
-            </button>
-
-            <div class="card">
-                <div class="card-header">
-                    Lista de Personal
-                </div>
-                <div class="card-body">
-                    <div id="loading" class="loading d-none">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">Cargando...</span>
-                        </div>
-                    </div>
-
-                    <div id="personalList">
-                        <!-- Aquí se cargará la lista de personal -->
-                    </div>
-                </div>
-            </div>
+  <body>
+    <!-- Barra superior -->
+    <header class="topbar">
+      <a class="topbar-brand" href="dashboard.html">
+        <img
+          src="../img/logo.svg.png"
+          alt="Logo C.E.N. Roraima"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="topbar-brand-text">
+          <strong>C.E.N. Roraima</strong>
+          <span>Control de asistencia</span>
         </div>
-    </div>
-</div>
+      </a>
+      <div class="topbar-right">
+        <a href="dashboard.html" class="btn-back">← Dashboard</a>
+        <a
+          href="../index.html"
+          class="btn-logout"
+          onclick="
+            logout();
+            return false;
+          "
+        >
+          Cerrar sesión
+        </a>
+      </div>
+    </header>
 
-<!-- Modal para agregar/editar personal -->
-<div class="modal fade" id="personalModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="personalModalTitle">Agregar Personal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="personalForm">
-                    <input type="hidden" id="personalId">
-                    <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="apellido" class="form-label">Apellido</label>
-                        <input type="text" class="form-control" id="apellido" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="cedula" class="form-label">Cédula</label>
-                        <input type="text" class="form-control" id="cedula" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="correo" class="form-label">Correo</label>
-                        <input type="email" class="form-control" id="correo">
-                    </div>
-                    <div class="mb-3">
-                        <label for="telefono" class="form-label">Teléfono</label>
-                        <input type="text" class="form-control" id="telefono">
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="activo" checked>
-                        <label class="form-check-label" for="activo">Activo</label>
-                    </div>
-                    <div class="mb-3">
-                        <label for="departamento" class="form-label">Departamento</label>
-                        <select class="form-control" id="departamento" required>
-                            <!-- Opciones se cargarán dinámicamente -->
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="cargo" class="form-label">Cargo</label>
-                        <select class="form-control" id="cargo" required>
-                            <!-- Opciones se cargarán dinámicamente -->
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="savePersonal()">Guardar</button>
-            </div>
+    <main class="mod-main">
+      <!-- Encabezado de página -->
+      <div class="mod-heading">
+        <div>
+          <h1>Personal</h1>
         </div>
+        <!-- Botón para abrir el formulario de creación -->
+        <button class="btn-primary" onclick="abrirModal()">+ Agregar</button>
+      </div>
+
+      <!-- Buscador rápido -->
+      <div class="search-bar">
+        <input
+          type="search"
+          id="buscador"
+          placeholder="Buscar por nombre, cédula o departamento…"
+          oninput="filtrarTabla()"
+        />
+      </div>
+
+      <!-- Tabla de personal -->
+      <section class="tabla-panel">
+        <div class="tabla-header">
+          <h2>Listado de personal</h2>
+          <span class="tabla-count" id="tabla-count">0 registros</span>
+        </div>
+
+        <div class="tabla-container">
+          <table id="tabla-personal">
+            <thead>
+              <tr>
+                <th>Nombre completo</th>
+                <th>Cédula</th>
+                <th>Cargo</th>
+                <th>Departamento</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-personal">
+              <!-- Se llena dinámicamente por personal.js 👥 -->
+              <tr>
+                <td colspan="5">
+                  <div class="tabla-empty">
+                    <span></span>
+                    Cargando personal…
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- ── Modal: crear / editar personal ── -->
+    <div class="modal-overlay" id="modal-overlay" onclick="cerrarModal()"></div>
+
+    <div
+      class="modal"
+      id="modal-personal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-titulo"
+    >
+      <div class="modal-header">
+        <h3 id="modal-titulo">Agregar personal</h3>
+        <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Id oculto para saber si es edición -->
+        <input type="hidden" id="form-id" />
+
+        <div class="form-grid-2">
+          <label>
+            Nombre
+            <input type="text" id="form-nombre" placeholder="Nombre" />
+          </label>
+          <label>
+            Apellido
+            <input type="text" id="form-apellido" placeholder="Apellido" />
+          </label>
+        </div>
+
+        <div class="form-grid-2">
+          <label>
+            Cédula
+            <input type="text" id="form-cedula" placeholder="V-00000000" />
+          </label>
+          <label>
+            Cargo
+            <input type="text" id="form-cargo" placeholder="Ej: Docente" />
+          </label>
+        </div>
+
+        <label>
+          Departamento
+          <select id="form-depto">
+            <option value="">Seleccionar…</option>
+          </select>
+        </label>
+
+        <!-- Mensaje de error interno del modal -->
+        <p id="modal-error" class="feedback-msg" role="alert"></p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+        <button
+          class="btn-primary"
+          id="btn-guardar"
+          onclick="guardarPersonal()"
+        >
+          Guardar
+        </button>
+      </div>
     </div>
-</div>
 
-<script>
-async function initPersonal() {
-    // Verificación de seguridad
-    const container = document.getElementById('personalList');
-    if (!container) {
-        // Si no está, esperamos un ciclo del navegador y reintentamos una vez
-        console.warn("Reintentando inicialización de Personal...");
-        setTimeout(initPersonal, 50);
-        return;
-    }
-
-    // Ejecutamos las cargas en paralelo para mayor velocidad
-    try {
-        await Promise.all([
-            loadPersonalList(),
-            loadDepartamentos(),
-            loadCargos()
-        ]);
-    } catch (e) {
-        console.error("Error en la inicialización:", e);
-    }
-}
-
-async function loadPersonalList() {
-    const loading = document.getElementById('loading');
-    const personalList = document.getElementById('personalList');
-
-    loading.classList.remove('d-none');
-
-    try {
-        const response = await axios.get('/api/personal');
-        const personal = response.data;
-
-        let html = `
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Email</th>
-                        <th>Departamento</th>
-                        <th>Cargo</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        personal.forEach(p => {
-            html += `
-                <tr>
-                    <td>${p.id}</td>
-                    <td>${p.nombre}</td>
-                    <td>${p.apellido}</td>
-                    <td>${p.email}</td>
-                    <td>${p.departamento ? p.departamento.nombre : 'N/A'}</td>
-                    <td>${p.cargo ? p.cargo.nombre : 'N/A'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="editPersonal(${p.id})">Editar</button>
-                        <button class="btn btn-sm btn-danger" onclick="deletePersonal(${p.id})">Eliminar</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        html += `
-                </tbody>
-            </table>
-        `;
-
-        personalList.innerHTML = html;
-
-    } catch (error) {
-        window.app.showError('Error al cargar la lista de personal');
-        console.error(error);
-    } finally {
-        loading.classList.add('d-none');
-    }
-}
-
-async function loadDepartamentos() {
-    const select = document.getElementById('departamento');
-    if (!select) return; // Salida de seguridad
-
-    try {
-        const response = await axios.get('/api/departamentos');
-        // Construimos todo el string primero
-        let options = '<option value="">Seleccione un departamento</option>';
-        response.data.forEach(dep => {
-            options += `<option value="${dep.id}">${dep.nombre}</option>`;
-        });
-        // Asignamos una sola vez
-        select.innerHTML = options;
-    } catch (error) {
-        console.error('Error loading departamentos:', error);
-    }
-}
-
-async function loadCargos() {
-    try {
-        const response = await axios.get('/api/cargos');
-        const select = document.getElementById('cargo');
-        select.innerHTML = '<option value="">Seleccione un cargo</option>';
-
-        response.data.forEach(cargo => {
-            select.innerHTML += `<option value="${cargo.id}">${cargo.nombre}</option>`;
-        });
-    } catch (error) {
-        console.error('Error loading cargos:', error);
-    }
-}
-
-function showAddPersonalModal() {
-    const modalElement = document.getElementById('personalModal');
-    document.getElementById('personalModalTitle').textContent = 'Agregar Personal';
-    document.getElementById('personalForm').reset();
-    document.getElementById('personalId').value = '';
-
-    // Obtener instancia existente o crear una nueva
-    let modalInstance = bootstrap.Modal.getInstance(modalElement);
-    if (!modalInstance) {
-        modalInstance = new bootstrap.Modal(modalElement);
-    }
-    modalInstance.show();
-}
-
-async function editPersonal(id) {
-    try {
-        const response = await axios.get(`/api/personal/${id}`);
-        const personal = response.data;
-
-        document.getElementById('personalModalTitle').textContent = 'Editar Personal';
-        document.getElementById('personalId').value = personal.id;
-        document.getElementById('nombre').value = personal.nombre;
-        document.getElementById('apellido').value = personal.apellido;
-        document.getElementById('cedula').value = personal.cedula || '';
-        document.getElementById('correo').value = personal.correo || '';
-        document.getElementById('telefono').value = personal.telefono || '';
-        document.getElementById('activo').checked = personal.activo != null ? personal.activo : true;
-        document.getElementById('departamento').value = personal.departamento ? personal.departamento.id : '';
-        document.getElementById('cargo').value = personal.cargo ? personal.cargo.id : '';
-
-        new bootstrap.Modal(document.getElementById('personalModal')).show();
-
-    } catch (error) {
-        window.app.showError('Error al cargar datos del personal');
-    }
-}
-
-async function savePersonal() {
-    const form = document.getElementById('personalForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
-    const personalData = {
-        nombre: document.getElementById('nombre').value,
-        apellido: document.getElementById('apellido').value,
-        cedula: document.getElementById('cedula').value,
-        correo: document.getElementById('correo').value,
-        telefono: document.getElementById('telefono').value,
-        activo: document.getElementById('activo').checked,
-        departamento: { id: parseInt(document.getElementById('departamento').value) },
-        cargo: { id: parseInt(document.getElementById('cargo').value) }
-    };
-
-    const personalId = document.getElementById('personalId').value;
-
-    try {
-        if (personalId) {
-            await axios.put(`/api/personal/${personalId}`, personalData);
-            window.app.showSuccess('Personal actualizado exitosamente');
-        } else {
-            await axios.post('/api/personal', personalData);
-            window.app.showSuccess('Personal agregado exitosamente');
-        }
-
-        bootstrap.Modal.getInstance(document.getElementById('personalModal')).hide();
-        await loadPersonalList();
-
-    } catch (error) {
-        window.app.showError('Error al guardar el personal');
-        console.error(error);
-    }
-}
-
-async function deletePersonal(id) {
-    if (!confirm('¿Está seguro de eliminar este registro?')) {
-        return;
-    }
-
-    try {
-        await axios.delete(`/api/personal/${id}`);
-        window.app.showSuccess('Personal eliminado exitosamente');
-        await loadPersonalList();
-    } catch (error) {
-        window.app.showError('Error al eliminar el personal');
-    }
-}
-</script>
+    <!-- app.js primero, luego el js de la página -->
+    <script src="../js/app.js"></script>
+    <script src="../js/personal.js"></script>
+  </body>
+</html>
