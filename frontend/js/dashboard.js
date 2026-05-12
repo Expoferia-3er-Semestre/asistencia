@@ -1,17 +1,10 @@
+/* dashboard.js */
+
 document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
+  verificarSesion(); // app.js — redirige si no hay token
 
-  // Sin sesión → redirige al login
-  if (!token) {
-    window.location.href = "../index.html";
-    return;
-  }
-
-  // Muestra el nombre en topbar y saludo
-  const nombre =
-    localStorage.getItem("nombre") || localStorage.getItem("username");
-  const nombreLimpio = nombre && nombre !== "undefined" ? nombre : null;
-
+  // Muestra nombre en topbar y saludo
+  const nombreLimpio = getNombre(); // app.js
   const saludoEl = document.getElementById("bienvenida-texto");
   const topbarNomEl = document.getElementById("topbar-nombre");
 
@@ -30,10 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* Carga los 3 contadores desde el backend */
 async function cargarEstadisticas() {
-  const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
   const fecha = new Date().toISOString().split("T")[0];
 
-  // Helper: actualiza texto de un elemento por id
+  // Actualiza el texto de un elemento por id
   const setVal = (id, val) => {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
@@ -41,9 +33,9 @@ async function cargarEstadisticas() {
 
   try {
     const [resPersonal, resAsistencia, resDeptos] = await Promise.all([
-      fetch("http://localhost:8080/api/personal", { headers }),
-      fetch(`http://localhost:8080/api/asistencia?fecha=${fecha}`, { headers }),
-      fetch("http://localhost:8080/api/departamentos", { headers }),
+      fetch(`${API_BASE}/personal`, { headers: getHeaders() }), // app.js
+      fetch(`${API_BASE}/asistencia?fecha=${fecha}`, { headers: getHeaders() }),
+      fetch(`${API_BASE}/departamentos`, { headers: getHeaders() }),
     ]);
 
     setVal(
@@ -56,16 +48,9 @@ async function cargarEstadisticas() {
     );
     setVal("totalDeptos", resDeptos.ok ? (await resDeptos.json()).length : "—");
   } catch (err) {
-    // Si falla la red muestra guión en los tres contadores
     console.error("Error cargando estadísticas:", err);
     ["totalPersonal", "totalAsistencias", "totalDeptos"].forEach((id) =>
       setVal(id, "—"),
     );
   }
-}
-
-/* Cierra sesión y limpia localStorage */
-function logout() {
-  localStorage.clear();
-  window.location.href = "../index.html";
 }

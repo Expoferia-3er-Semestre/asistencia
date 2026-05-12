@@ -1,29 +1,142 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Asistencia</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Axios -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <div class="position-fixed top-0 end-0 m-3" style="z-index: 1050;">
-        <button class="btn btn-secondary btn-sm me-1" onclick="window.app.goBack()">Atrás</button>
-        <button class="btn btn-secondary btn-sm" onclick="window.app.goForward()">Adelante</button>
-    </div>
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>C.E.N. Lcda. Roraima Asansa Escándela</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <!-- Tipografía institucional -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-    <div id="app">
-        <!-- Aquí se cargarán los módulos dinámicamente -->
-    </div>
+  <body class="public-page">
+    <!-- ── Navbar pública ── -->
+    <header class="pub-navbar">
+      <a class="pub-brand" href="index.html">
+        <img
+          src="img/logo.svg.png"
+          alt="Logo C.E.N. Roraima"
+          onerror="this.style.display = 'none'"
+        />
+        <span>C.E.N. Roraima</span>
+      </a>
+      <!-- Acceso al sistema -->
+      <a href="modules/login.html" class="pub-btn-login">Iniciar sesión</a>
+    </header>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="js/app.js"></script>
-</body>
+    <!-- ── Hero ── -->
+    <section class="pub-hero">
+      <div class="pub-hero-inner">
+        <p class="eyebrow">Bienvenidos</p>
+        <h1>C.E.N. Lcda. Roraima<br />Asansa Escándela</h1>
+        <p class="pub-hero-sub">
+          Formando ciudadanos con valores, excelencia académica y compromiso
+          social.
+        </p>
+        <!--<a href="modules/login.html" class="pub-btn-cta"
+          >Preinscripción o se deja aca el boton para loguearse (Acceder al sistema)</a
+        >-->
+      </div>
+    </section>
+
+    <!-- ── Misión / Visión ── -->
+    <section class="pub-mv">
+      <div class="pub-container">
+        <article class="mv-card">
+          <div class="mv-icon">🎯</div> 
+          <h2>Misión</h2>
+          <p>
+            Brindar una educación integral de calidad que forme personas
+            críticas, responsables y comprometidas con su comunidad,
+            fundamentada en valores éticos y el respeto mutuo.
+          </p>
+        </article>
+
+        <article class="mv-card">
+          <div class="mv-icon">🌟</div>
+          <h2>Visión</h2>
+          <p>
+            Ser una institución educativa de referencia regional, reconocida por
+            su excelencia académica, innovación pedagógica y por el impacto
+            positivo de sus egresados en la sociedad.
+          </p>
+        </article>
+
+        <article class="mv-card">
+          <div class="mv-icon">⚖️</div>
+          <h2>Valores</h2>
+          <p>
+            Respeto, honestidad, solidaridad, responsabilidad y excelencia son
+            los pilares que guían cada acción dentro de nuestra comunidad
+            educativa.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Noticias ── -->
+    <section class="pub-news">
+      <div class="pub-container">
+        <!--<p class="eyebrow">Institución</p>-->
+        <h2 class="pub-section-title">Últimas noticias</h2>
+
+        <!-- Las noticias se cargan aquí desde index.js -->
+        <div class="news-grid" id="news-grid">
+          <!-- Tarjeta estática de ejemplo mientras no haya backend de noticias -->
+          <article class="news-card">
+            <div class="news-date">Enero 2026</div>
+            <h3>Inicio del año escolar 2025–2026</h3>
+            <p>
+              Damos la bienvenida a todos los estudiantes y docentes al nuevo
+              año escolar con actividades de integración y jornadas de
+              orientación.
+            </p>
+          </article>
+
+          <article class="news-card">
+            <div class="news-date">Abril 2026</div>
+            <h3>Jornada de salud comunitaria</h3>
+            <p>
+              Nuestra institución participó activamente en la jornada de salud
+              organizada por la alcaldía, apoyando a más de 200 familias del
+              sector.
+            </p>
+          </article>
+
+          <article class="news-card">
+            <div class="news-date">Mayo 2026</div>
+            <h3>Reconocimiento a docentes destacados</h3>
+            <p>
+              En el marco del Día del Maestro, se reconoció la labor de cinco
+              docentes que sobresalieron por su dedicación y compromiso.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer class="pub-footer">
+      <div class="pub-container pub-footer-inner">
+        <div class="footer-brand">
+          <img
+            src="img/logo.svg.png"
+            alt="Logo"
+            onerror="this.style.display = 'none'"
+          />
+          <span>C.E.N. Lcda. Roraima Asansa Escándela</span>
+        </div>
+        <p class="footer-copy">
+          © 2026 · Control de Asistencia · Todos los derechos reservados.
+        </p>
+      </div>
+    </footer>
+
+    <!-- index.js solo si hay lógica dinámica de noticias <script src="js/index.js"></script>-->
+  </body>
 </html>
