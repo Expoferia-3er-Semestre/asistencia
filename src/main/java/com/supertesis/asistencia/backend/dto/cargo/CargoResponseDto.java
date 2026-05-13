@@ -1,12 +1,9 @@
 package com.supertesis.asistencia.backend.dto.cargo;
 
-/**
- * Representación simplificada del departamento dentro del cargo
- */
-record DepartamentoSencilloDto(Integer id, String nombre) {}
+import com.supertesis.asistencia.backend.dto.RelacionSencillaDto;
 
 public record CargoResponseDto(
     Integer id,
-    String nombreCargo,
-    DepartamentoSencilloDto departamento
+    String nombre,
+    RelacionSencillaDto departamento
 ) {}

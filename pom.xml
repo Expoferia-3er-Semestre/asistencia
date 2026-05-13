@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>25</java.version>
 		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+		<lombok.version>1.18.46</lombok.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -67,6 +68,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version> <!-- Use the property here! -->
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -153,28 +155,28 @@
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.11.0</version>
+            <version>3.15.0</version>
             <configuration>
                 <source>25</source> <!-- Asegúrate de que coincida con tu versión de Java -->
                 <target>25</target>
                 <annotationProcessorPaths>
-                    <!-- 1. MapStruct Processor -->
-                    <path>
-                        <groupId>org.mapstruct</groupId>
-                        <artifactId>mapstruct-processor</artifactId>
-                        <version>1.5.5.Final</version>
-                    </path>
                     <!-- 2. Lombok Processor -->
                     <path>
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok</artifactId>
-                        <version>1.18.30</version> <!-- Verifica tu versión de Lombok -->
+                        <version>${lombok.version}</version> <!-- Verifica tu versión de Lombok -->
                     </path>
                     <!-- 3. Binding entre Lombok y MapStruct (INDISPENSABLE) -->
                     <path>
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok-mapstruct-binding</artifactId>
                         <version>0.2.0</version>
+                    </path>
+                    <!-- 1. MapStruct Processor -->
+                    <path>
+                        <groupId>org.mapstruct</groupId>
+                        <artifactId>mapstruct-processor</artifactId>
+                        <version>1.5.5.Final</version>
                     </path>
                 </annotationProcessorPaths>
             </configuration>

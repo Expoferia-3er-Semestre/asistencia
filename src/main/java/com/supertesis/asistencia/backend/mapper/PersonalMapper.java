@@ -13,7 +13,7 @@ public interface PersonalMapper {
     
     // De Entidad a Respuesta (Para mostrar al usuario)
     @Mapping(source = "cargo.id", target = "cargo.id")
-    @Mapping(source = "cargo.nombreCargo", target = "cargo.nombre")
+    @Mapping(source = "cargo.nombre", target = "cargo.nombre")
     @Mapping(source = "departamento.id", target = "departamento.id")
     @Mapping(source = "departamento.nombre", target = "departamento.nombre")
     PersonalResponseDto toResponseDto(Personal entity);

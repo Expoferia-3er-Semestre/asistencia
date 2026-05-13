@@ -42,7 +42,7 @@ public class CargoService {
     @Transactional
     public Cargo update(Integer id, Cargo updatedCargo) {
         Cargo existing = findById(id);
-        existing.setNombreCargo(updatedCargo.getNombreCargo());
+        existing.setNombre(updatedCargo.getNombre());
         existing.setDepartamento(updatedCargo.getDepartamento());
         return cargoRepository.save(existing);
     }

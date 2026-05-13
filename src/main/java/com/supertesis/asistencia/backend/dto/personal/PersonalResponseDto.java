@@ -2,6 +2,8 @@ package com.supertesis.asistencia.backend.dto.personal;
 
 import java.time.LocalDate;
 
+import com.supertesis.asistencia.backend.dto.RelacionSencillaDto;
+
 /**
  * Record para respuestas detalladas de Personal.
  * Incluye objetos anidados para Cargo y Departamento.
@@ -18,12 +20,4 @@ public record PersonalResponseDto(
     LocalDate fechaEgreso,
     LocalDate fechaIngreso,
     Boolean activo
-) {}
-
-/**
- * Record auxiliar para no enviar la entidad completa
- */
-record RelacionSencillaDto(
-    Integer id, 
-    String nombre
 ) {}
