@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <!-- tema claro de Pico.css -->
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Hace que el sitio sea responsivo en telefono-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar sesión — C.E.N. Roraima Asansa Escándela</title>
+
+    <!-- usamos la misma tipografia para el dashboard y asistencia -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/styles.css" />
+    <!-- Importamos nuestros estilos (Pico.css viene dentro de styles.css)-->
+  </head>
+
+  <body>
+    <!--  auth-wrapper: centra la tarjeta verticalmente en toda la pantalla -->
+    <div class="auth-wrapper">
+      <!-- auth-card: la tarjeta blanca que contiene el formulario de login -->
+      <div class="auth-card">
+        <!--auth-header: sección superior con el logo y nombre de la institución -->
+        <div class="auth-header">
+          <!--Logo si no existe el archivo, lo oculta para que no rompa la página.-->
+          <img
+            src="../img/logo.svg.png"
+            alt="Logo C.E.N. Roraima Asansa Escándela"
+            onerror="this.style.display = 'none'"
+          />
+
+          <h2>C.E.N. Lcda. Roraima Asansa Escándela</h2>
+
+          <p>Control de asistencia</p>
+        </div>
+
+        <!-- article: componente de Pico.css que genera automáticamente la tarjeta con padding y borde
+        -->
+        <article>
+          <!--  Mensaje de error — oculto por defecto.
+            login.js lo muestra si las credenciales fallan -->
+          <p
+            id="error-msg"
+            class="error-msg"
+            style="display: none"
+            role="alert"
+            aria-live="assertive"
+          ></p>
+          <!--<p id="error-msg" class="error-msg" style="display: none"></p>
+
+          <!-- Campo de nombre de usuario -->
+          <label for="usuario">Usuario</label>
+          <input
+            type="text"
+            id="usuario"
+            name="usuario"
+            placeholder="Tu nombre de usuario"
+            required
+            autofocus
+          />
+
+          <!-- Campo de contraseña — oculta el texto al escribir -->
+          <label for="password">Contraseña</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Tu contraseña"
+            required
+          />
+
+          <!--  Botón de login -->
+          <button
+            id="btn-login"
+            type="button"
+            onclick="iniciarSesion()"
+            style="width: 100%; margin-top: 0.5rem"
+          >
+            Iniciar sesión
+          </button>
+        </article>
+      </div>
+    </div>
+
+    <!--  Scripts al final del body para que el HTML
+      cargue primero antes de ejecutar JavaScript. Recordatorio que el app.js va primero porque login.js puede usar funciones definidas ahí  -->
+    <script src="../js/app.js"></script>
+    <script src="../js/login.js"></script>
+  </body>
+</html>

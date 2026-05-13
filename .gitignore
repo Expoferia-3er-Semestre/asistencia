@@ -33,3 +33,4 @@ build/
 .vscode/
 
 src/main/resources/application.properties
+src/main/resources/bd/asistencia_v2.sql

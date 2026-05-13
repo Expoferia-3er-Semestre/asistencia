@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asistencia — C.E.N. Roraima</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <!-- Tipografía institucional -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- Barra superior fija -->
+    <header class="topbar">
+      <!-- Logo + nombre -->
+      <a class="topbar-brand" href="dashboard.html">
+        <img
+          src="../img/logo.svg.png"
+          alt="Logo C.E.N. Roraima"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="topbar-brand-text">
+          <strong>C.E.N. Roraima</strong>
+          <span>Control de asistencia</span>
+        </div>
+      </a>
+
+      <!-- Volver al dashboard + logout -->
+      <div class="topbar-right">
+        <a href="dashboard.html" class="btn-back">← Dashboard</a>
+        <a
+          href="../index.html"
+          class="btn-logout"
+          onclick="
+            logout();
+            return false;
+          "
+        >
+          Cerrar sesión
+        </a>
+      </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="asist-main">
+      <!-- Encabezado de página -->
+      <div class="asist-heading">
+        <p class="eyebrow"></p>
+        <h1>Registro de Asistencia</h1>
+      </div>
+
+      <!-- Panel: registrar nueva asistencia -->
+      <section class="registro-panel">
+        <h2>Registrar asistencia</h2>
+
+        <div class="registro-grid">
+          <label>
+            Personal
+            <select id="reg-personal">
+              <option value="">Seleccionar…</option>
+            </select>
+          </label>
+
+          <label>
+            Fecha
+            <input type="date" id="reg-fecha" />
+          </label>
+
+          <label>
+            Estado
+            <select id="reg-estado">
+              <option value="PRESENTE">Presente</option>
+              <option value="AUSENTE">Ausente</option>
+              <option value="TARDANZA">Tardanza</option>
+              <option value="JUSTIFICADO">Justificado</option>
+            </select>
+          </label>
+
+          <!-- Botón guardar -->
+          <button
+            class="btn-registrar"
+            id="btn-registrar"
+            onclick="registrarAsistencia()"
+          >
+            Guardar
+          </button>
+        </div>
+
+        <!-- Mensaje de éxito o error al registrar -->
+        <p
+          id="feedback-registro"
+          class="feedback-msg"
+          role="alert"
+          aria-live="assertive"
+        ></p>
+      </section>
+
+      <!-- Panel: filtros de consulta -->
+      <section class="filters-panel">
+        <h2>Consultar asistencias</h2>
+
+        <div class="filters-grid">
+          <label>
+            Fecha desde
+            <input type="date" id="filtro-fecha-desde" />
+          </label>
+
+          <label>
+            Fecha hasta
+            <input type="date" id="filtro-fecha-hasta" />
+          </label>
+
+          <label>
+            Departamento
+            <select id="filtro-depto">
+              <option value="">Todos</option>
+            </select>
+          </label>
+
+          <!-- Botón buscar -->
+          <button
+            class="btn-consultar"
+            id="btn-consultar"
+            onclick="consultarAsistencias()"
+          >
+            Consultar
+          </button>
+        </div>
+        <!-- Mensaje de validación al consultar -->
+        <p id="feedback-consulta" class="feedback-msg" role="alert" aria-live="assertive"></p>
+      </section>
+      </section>
+
+      <!-- Panel: tabla de resultados -->
+      <section class="tabla-panel">
+        <div class="tabla-header">
+          <h2>Resultados</h2>
+          <span class="tabla-count" id="tabla-count">0 registros</span>
+        </div>
+
+        <div class="tabla-container">
+          <table id="tabla-asistencia">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Departamento</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-asistencia">
+              <!-- Estado inicial vacío 📋 en span va-->
+              <tr>
+                <td colspan="4" class="tabla-empty">
+                  <span></span>
+                  Usa los filtros para consultar registros.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="../js/asistencia.js"></script>
+    <script src="../js/asistencia.js"></script>
+  </body>
+</html>

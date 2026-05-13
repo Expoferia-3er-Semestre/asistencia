@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal — C.E.N. Roraima</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- Barra superior -->
+    <header class="topbar">
+      <a class="topbar-brand" href="dashboard.html">
+        <img
+          src="../img/logo.svg.png"
+          alt="Logo C.E.N. Roraima"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="topbar-brand-text">
+          <strong>C.E.N. Roraima</strong>
+          <span>Control de asistencia</span>
+        </div>
+      </a>
+      <div class="topbar-right">
+        <a href="dashboard.html" class="btn-back">← Dashboard</a>
+        <a
+          href="../index.html"
+          class="btn-logout"
+          onclick="
+            logout();
+            return false;
+          "
+        >
+          Cerrar sesión
+        </a>
+      </div>
+    </header>
+
+    <main class="mod-main">
+      <!-- Encabezado de página -->
+      <div class="mod-heading">
+        <div>
+          <h1>Personal</h1>
+        </div>
+        <!-- Botón para abrir el formulario de creación -->
+        <button class="btn-primary" onclick="abrirModal()">+ Agregar</button>
+      </div>
+
+      <!-- Buscador rápido -->
+      <div class="search-bar">
+        <input
+          type="search"
+          id="buscador"
+          placeholder="Buscar por nombre, cédula o departamento…"
+          oninput="filtrarTabla()"
+        />
+      </div>
+
+      <!-- Tabla de personal -->
+      <section class="tabla-panel">
+        <div class="tabla-header">
+          <h2>Listado de personal</h2>
+          <span class="tabla-count" id="tabla-count">0 registros</span>
+        </div>
+
+        <div class="tabla-container">
+          <table id="tabla-personal">
+            <thead>
+              <tr>
+                <th>Nombre completo</th>
+                <th>Cédula</th>
+                <th>Cargo</th>
+                <th>Departamento</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-personal">
+              <!-- Se llena dinámicamente por personal.js 👥 -->
+              <tr>
+                <td colspan="5">
+                  <div class="tabla-empty">
+                    <span></span>
+                    Cargando personal…
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- ── Modal: crear / editar personal ── -->
+    <div class="modal-overlay" id="modal-overlay" onclick="cerrarModal()"></div>
+
+    <div
+      class="modal"
+      id="modal-personal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-titulo"
+    >
+      <div class="modal-header">
+        <h3 id="modal-titulo">Agregar personal</h3>
+        <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Id oculto para saber si es edición -->
+        <input type="hidden" id="form-id" />
+
+        <div class="form-grid-2">
+          <label>
+            Nombre
+            <input type="text" id="form-nombre" placeholder="Nombre" />
+          </label>
+          <label>
+            Apellido
+            <input type="text" id="form-apellido" placeholder="Apellido" />
+          </label>
+        </div>
+
+        <div class="form-grid-2">
+          <label>
+            Cédula
+            <input type="text" id="form-cedula" placeholder="V-00000000" />
+          </label>
+          <label>
+            Cargo
+            <input type="text" id="form-cargo" placeholder="Ej: Docente" />
+          </label>
+        </div>
+
+        <label>
+          Departamento
+          <select id="form-depto">
+            <option value="">Seleccionar…</option>
+          </select>
+        </label>
+
+        <!-- Mensaje de error interno del modal -->
+        <p id="modal-error" class="feedback-msg" role="alert"></p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+        <button
+          class="btn-primary"
+          id="btn-guardar"
+          onclick="guardarPersonal()"
+        >
+          Guardar
+        </button>
+      </div>
+    </div>
+
+    <!-- app.js primero, luego el js de la página -->
+    <script src="../js/app.js"></script>
+    <script src="../js/personal.js"></script>
+  </body>
+</html>
