@@ -46,7 +46,7 @@ public class SetupController {
 
             // Crear cargo
             Cargo cargo = new Cargo();
-            cargo.setNombreCargo("Administrador");
+            cargo.setNombre("Administrador");
             cargo.setDepartamento(departamento);
             cargo = cargoRepository.save(cargo);
 
