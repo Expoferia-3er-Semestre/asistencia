@@ -11,5 +11,5 @@ public interface CargoRepository extends JpaRepository<Cargo, Integer> {
 
     List<Cargo> findByDepartamentoId(Integer departamentoId);
 
-    List<Cargo> findByNombreCargoContaining(String nombreCargo);
+    List<Cargo> findByNombreContaining(String nombreCargo);
 }

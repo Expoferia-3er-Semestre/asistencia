@@ -28,7 +28,7 @@ public class Cargo {
     private Integer id;
 
     @Column(name = "nombre_cargo", nullable = false, length = 100)
-    private String nombreCargo;
+    private String nombre;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departamento_id")
