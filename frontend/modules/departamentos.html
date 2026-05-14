@@ -1,192 +1,144 @@
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1>Gestión de Departamentos</h1>
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Departamentos — C.E.N. Roraima</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-            <button class="btn btn-success mb-3" onclick="showAddDepartamentoModal()">
-                <i class="fas fa-plus"></i> Agregar Departamento
-            </button>
-
-            <div class="card">
-                <div class="card-header">
-                    Lista de Departamentos
-                </div>
-                <div class="card-body">
-                    <div id="loading" class="loading d-none">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">Cargando...</span>
-                        </div>
-                    </div>
-
-                    <div id="departamentoList">
-                        <!-- Aquí se cargará la lista de departamentos -->
-                    </div>
-                </div>
-            </div>
+  <body>
+    <!-- Barra superior -->
+    <header class="topbar">
+      <a class="topbar-brand" href="dashboard.html">
+        <img
+          src="../img/logo.svg.png"
+          alt="Logo C.E.N. Roraima"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="topbar-brand-text">
+          <strong>C.E.N. Roraima</strong>
+          <span>Control de asistencia</span>
         </div>
-    </div>
-</div>
+      </a>
+      <div class="topbar-right">
+        <a href="dashboard.html" class="btn-back">← Dashboard</a>
+        <a
+          href="../index.html"
+          class="btn-logout"
+          onclick="
+            logout();
+            return false;
+          "
+        >
+          Cerrar sesión
+        </a>
+      </div>
+    </header>
 
-<!-- Modal para agregar/editar departamento -->
-<div class="modal fade" id="departamentoModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="departamentoModalTitle">Agregar Departamento</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="departamentoForm">
-                    <input type="hidden" id="departamentoId">
-                    <div class="mb-3">
-                        <label for="nombreDep" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombreDep" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="descripcionDep" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcionDep" rows="3"></textarea>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="activoDep" checked>
-                        <label class="form-check-label" for="activoDep">Activo</label>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="saveDepartamento()">Guardar</button>
-            </div>
+    <main class="mod-main">
+      <!-- Encabezado de página -->
+      <div class="mod-heading">
+        <div>
+          <h1>Departamentos</h1>
         </div>
+        <!-- Botón para abrir el formulario de creación -->
+        <button class="btn-primary" onclick="abrirModal()">+ Agregar</button>
+      </div>
+
+      <!-- Tarjetas de departamentos -->
+      <div class="deptos-grid" id="deptos-grid">
+        <!-- Se llena dinámicamente por departamentos.js -->
+        <div class="tabla-empty">
+          <!--<span>🏢</span> -->
+          <!--Cargando departamentos… -->
+        </div>
+      </div>
+
+      <!-- Tabla de departamentos para verlos en detalle -->
+      <section class="tabla-panel">
+        <div class="tabla-header">
+          <h2>Listado de áreas</h2>
+          <span class="tabla-count" id="tabla-count">0 áreas</span>
+        </div>
+
+        <div class="tabla-container">
+          <table id="tabla-deptos">
+            <thead>
+              <tr>
+                <th>Nombre del área</th>
+                <th>Descripción</th>
+                <th>Personal asignado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-deptos">
+              <!-- Se llena dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- ── Modal: crear / editar departamento ── -->
+    <div class="modal-overlay" id="modal-overlay" onclick="cerrarModal()"></div>
+
+    <div
+      class="modal"
+      id="modal-depto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-titulo"
+    >
+      <div class="modal-header">
+        <h3 id="modal-titulo">Agregar departamento</h3>
+        <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Id oculto para saber si es edición -->
+        <input type="hidden" id="form-id" />
+
+        <label>
+          Nombre del área
+          <input
+            type="text"
+            id="form-nombre"
+            placeholder="Ej: Coordinación académica"
+          />
+        </label>
+
+        <label>
+          Descripción
+          <textarea
+            id="form-descripcion"
+            rows="3"
+            placeholder="Breve descripción del área…"
+          ></textarea>
+        </label>
+
+        <!-- Mensaje de error interno del modal -->
+        <p id="modal-error" class="feedback-msg" role="alert"></p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-primary" id="btn-guardar" onclick="guardarDepto()">
+          Guardar
+        </button>
+      </div>
     </div>
-</div>
 
-<script>
-async function initDepartamentos() {
-    await loadDepartamentoList();
-}
-
-async function loadDepartamentoList() {
-    const loading = document.getElementById('loading');
-    const departamentoList = document.getElementById('departamentoList');
-
-    loading.classList.remove('d-none');
-
-    try {
-        const response = await axios.get('/api/departamentos');
-        const departamentos = response.data;
-
-        let html = `
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        departamentos.forEach(dep => {
-            html += `
-                <tr>
-                    <td>${dep.id}</td>
-                    <td>${dep.nombre}</td>
-                    <td>${dep.descripcion || 'N/A'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="editDepartamento(${dep.id})">Editar</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteDepartamento(${dep.id})">Eliminar</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        html += `
-                </tbody>
-            </table>
-        `;
-
-        departamentoList.innerHTML = html;
-
-    } catch (error) {
-        window.app.showError('Error al cargar la lista de departamentos');
-        console.error(error);
-    } finally {
-        loading.classList.add('d-none');
-    }
-}
-
-function showAddDepartamentoModal() {
-    document.getElementById('departamentoModalTitle').textContent = 'Agregar Departamento';
-    document.getElementById('departamentoForm').reset();
-    document.getElementById('departamentoId').value = '';
-
-    new bootstrap.Modal(document.getElementById('departamentoModal')).show();
-}
-
-async function editDepartamento(id) {
-    try {
-        const response = await axios.get(`/api/departamentos/${id}`);
-        const departamento = response.data;
-
-        document.getElementById('departamentoModalTitle').textContent = 'Editar Departamento';
-        document.getElementById('departamentoId').value = departamento.id;
-        document.getElementById('nombreDep').value = departamento.nombre;
-        document.getElementById('descripcionDep').value = departamento.descripcion || '';
-        document.getElementById('activoDep').checked = departamento.activo != null ? departamento.activo : true;
-
-        new bootstrap.Modal(document.getElementById('departamentoModal')).show();
-
-    } catch (error) {
-        window.app.showError('Error al cargar datos del departamento');
-    }
-}
-
-async function saveDepartamento() {
-    const form = document.getElementById('departamentoForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
-    const departamentoData = {
-        nombre: document.getElementById('nombreDep').value,
-        descripcion: document.getElementById('descripcionDep').value,
-        activo: document.getElementById('activoDep').checked
-    };
-
-    const departamentoId = document.getElementById('departamentoId').value;
-
-    try {
-        if (departamentoId) {
-            await axios.put(`/api/departamentos/${departamentoId}`, departamentoData);
-            window.app.showSuccess('Departamento actualizado exitosamente');
-        } else {
-            await axios.post('/api/departamentos', departamentoData);
-            window.app.showSuccess('Departamento agregado exitosamente');
-        }
-
-        bootstrap.Modal.getInstance(document.getElementById('departamentoModal')).hide();
-        await loadDepartamentoList();
-
-    } catch (error) {
-        window.app.showError('Error al guardar el departamento');
-        console.error(error);
-    }
-}
-
-async function deleteDepartamento(id) {
-    if (!confirm('¿Está seguro de eliminar este departamento?')) {
-        return;
-    }
-
-    try {
-        await axios.delete(`/api/departamentos/${id}`);
-        window.app.showSuccess('Departamento eliminado exitosamente');
-        await loadDepartamentoList();
-    } catch (error) {
-        window.app.showError('Error al eliminar el departamento');
-    }
-}
-</script>
+    <!-- app.js primero, luego el js de la página -->
+    <script src="../js/app.js"></script>
+    <script src="../js/departamentos.js"></script>
+  </body>
+</html>
