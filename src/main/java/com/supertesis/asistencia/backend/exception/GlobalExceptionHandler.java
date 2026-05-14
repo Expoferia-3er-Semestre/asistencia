@@ -4,6 +4,7 @@ package com.supertesis.asistencia.backend.exception;
 // GlobalExceptionHandler.java
 // Production-ready global exception handler
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,8 +12,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 @RestControllerAdvice
@@ -68,6 +73,20 @@ public class GlobalExceptionHandler {
                         .path(request.getRequestURI())
                         .traceId(UUID.randomUUID().toString())
                         // Aquí podrías usar tu propiedad 'app.include-error-details' para añadir ex.getMessage() si estás en dev
+                        .build());
+        }
+
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(ErrorResponse.builder()
+                        .timestamp(Instant.now())
+                        .status(HttpStatus.CONFLICT.value())
+                        .error("DATABASE_INTEGRITY_CONFLICT")
+                        .message("No se puede realizar la operación: el registro tiene dependencias activas (Personal o Cargos asociados).")
+                        .path(request.getRequestURI())
+                        .traceId(UUID.randomUUID().toString())
                         .build());
         }
 
