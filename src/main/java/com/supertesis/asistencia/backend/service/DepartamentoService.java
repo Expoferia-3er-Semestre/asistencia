@@ -1,12 +1,18 @@
 package com.supertesis.asistencia.backend.service;
 
+import com.supertesis.asistencia.backend.dto.departamento.DepartamentoRequestDto;
+import com.supertesis.asistencia.backend.dto.departamento.DepartamentoResponseDto;
 import com.supertesis.asistencia.backend.entity.Departamento;
+import com.supertesis.asistencia.backend.exception.ConflictException;
+import com.supertesis.asistencia.backend.exception.ResourceNotFoundException;
+import com.supertesis.asistencia.backend.mapper.DepartamentoMapper;
 import com.supertesis.asistencia.backend.repository.DepartamentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,50 +20,67 @@ import java.util.List;
 public class DepartamentoService {
 
     private final DepartamentoRepository departamentoRepository;
+    private final DepartamentoMapper deptoMapper;
 
-    public List<Departamento> findAll() {
-        return departamentoRepository.findAll();
+    public List<DepartamentoResponseDto> findAll() {
+        return departamentoRepository.findAll().stream()
+                        .map(deptoMapper::toResponseDto)
+                        .toList();
     }
 
-    public Departamento findById(Integer id) {
+    public DepartamentoResponseDto findById(Integer id) {
         return departamentoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Departamento no encontrado con id " + id));
+                .map(deptoMapper::toResponseDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Departamento", id.toString()));
     }
 
-    public List<Departamento> findActive() {
-        return departamentoRepository.findByActivoTrue();
+    public List<DepartamentoResponseDto> findActive() {
+        return departamentoRepository.findByActivoTrue().stream()
+                .map(deptoMapper::toResponseDto)
+                .toList();
     }
 
-    public List<Departamento> findByNombreContaining(String nombre) {
-        return departamentoRepository.findByNombreContaining(nombre);
-    }
-
-    @Transactional
-    public Departamento save(Departamento departamento) {
-        if (departamento.getId() == null && departamentoRepository.existsByNombre(departamento.getNombre())) {
-            throw new IllegalArgumentException("Ya existe un departamento con nombre " + departamento.getNombre());
-        }
-        if (departamento.getActivo() == null) {
-            departamento.setActivo(true);
-        }
-        return departamentoRepository.save(departamento);
+    public List<DepartamentoResponseDto> findByNombreContaining(String nombre) {
+        return departamentoRepository.findByNombreContaining(nombre).stream()
+                .map(deptoMapper::toResponseDto)
+                .toList();
     }
 
     @Transactional
-    public Departamento update(Integer id, Departamento updatedDepartamento) {
-        Departamento existing = findById(id);
-        existing.setNombre(updatedDepartamento.getNombre());
-        existing.setDescripcion(updatedDepartamento.getDescripcion());
-        if (updatedDepartamento.getActivo() != null) {
-            existing.setActivo(updatedDepartamento.getActivo());
+    public DepartamentoResponseDto save(DepartamentoRequestDto request) {
+        if (departamentoRepository.existsByNombre(request.nombre())) {
+            throw new ConflictException("Departamento", "nombre", request.nombre());
         }
-        return departamentoRepository.save(existing);
+
+        Departamento departamentoSave = deptoMapper.toEntity((request));
+
+        departamentoSave.setActivo(true); // Por defecto, activo es true
+    
+        return deptoMapper.toResponseDto(departamentoRepository.save(departamentoSave));
+    }
+
+    @Transactional
+    public DepartamentoResponseDto update(Integer id, DepartamentoRequestDto updatedDepartamento) {
+        Departamento existing = departamentoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Departamento", id.toString()));
+        
+        if (departamentoRepository.existsByNombre(updatedDepartamento.nombre()) && !existing.getNombre().equals(updatedDepartamento.nombre())) {
+             throw new ConflictException("Departamento", "nombre", updatedDepartamento.nombre());
+        }
+        existing.setNombre(updatedDepartamento.nombre());
+        existing.setDescripcion(updatedDepartamento.descripcion());
+
+        if (updatedDepartamento.activo() != null) {
+            existing.setActivo(updatedDepartamento.activo());
+        }
+        
+        return deptoMapper.toResponseDto(departamentoRepository.save(existing));
     }
 
     @Transactional
     public void deleteById(Integer id) {
         if (!departamentoRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Departamento no encontrado con id " + id);
+            throw new ResourceNotFoundException("Departamento", id.toString());
         }
         departamentoRepository.deleteById(id);
     }

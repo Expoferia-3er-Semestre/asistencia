@@ -1,8 +1,15 @@
 package com.supertesis.asistencia.backend.controller;
 
+import com.supertesis.asistencia.backend.dto.departamento.DepartamentoRequestDto;
+import com.supertesis.asistencia.backend.dto.departamento.DepartamentoResponseDto;
 import com.supertesis.asistencia.backend.entity.Departamento;
 import com.supertesis.asistencia.backend.service.DepartamentoService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,31 +20,31 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DepartamentoController {
 
-    private final DepartamentoService departamentoService;
+    private final DepartamentoService deptoService;
 
     @GetMapping
-    public ResponseEntity<List<Departamento>> findAll() {
-        return ResponseEntity.ok(departamentoService.findAll());
+    public ResponseEntity<List<DepartamentoResponseDto>> findAll() {
+        return ResponseEntity.ok(deptoService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Departamento> findById(@PathVariable Integer id) {
-        return ResponseEntity.ok(departamentoService.findById(id));
+    public ResponseEntity<DepartamentoResponseDto> findById(@PathVariable Integer id) {
+        return ResponseEntity.ok(deptoService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Departamento> save(@RequestBody Departamento departamento) {
-        return ResponseEntity.ok(departamentoService.save(departamento));
+    public ResponseEntity<DepartamentoResponseDto> save(@Valid @RequestBody DepartamentoRequestDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(deptoService.save(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Departamento> update(@PathVariable Integer id, @RequestBody Departamento departamento) {
-        return ResponseEntity.ok(departamentoService.update(id, departamento));
+    public ResponseEntity<DepartamentoResponseDto> update(@PathVariable Integer id, @Valid @RequestBody DepartamentoRequestDto request) {
+        return ResponseEntity.ok(deptoService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
-        departamentoService.deleteById(id);
+        deptoService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }
