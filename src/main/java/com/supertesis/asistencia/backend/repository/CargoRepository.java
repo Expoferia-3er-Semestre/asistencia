@@ -12,4 +12,7 @@ public interface CargoRepository extends JpaRepository<Cargo, Integer> {
     List<Cargo> findByDepartamentoId(Integer departamentoId);
 
     List<Cargo> findByNombreContaining(String nombreCargo);
+
+    boolean existsByNombre(String nombre);
+
 }
