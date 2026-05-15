@@ -2,14 +2,12 @@ package com.supertesis.asistencia.backend.controller;
 
 import com.supertesis.asistencia.backend.dto.departamento.DepartamentoRequestDto;
 import com.supertesis.asistencia.backend.dto.departamento.DepartamentoResponseDto;
-import com.supertesis.asistencia.backend.entity.Departamento;
 import com.supertesis.asistencia.backend.service.DepartamentoService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
