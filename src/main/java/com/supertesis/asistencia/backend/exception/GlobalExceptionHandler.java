@@ -61,8 +61,33 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
         System.err.println("\n[DATABASE ERROR] DataIntegrityViolationException atrapada!");
-        System.err.println("Detalle técnico: " + ex.getMostSpecificCause().getMessage());
+        
+        // Obtener el mensaje más específico de la excepción
+        String causaTecnica = ex.getMostSpecificCause() != null ? 
+                              ex.getMostSpecificCause().getMessage() : ex.getMessage();
+                              
+        System.err.println("Detalle técnico: " + causaTecnica);
         System.out.println("Path: " + request.getRequestURI());
+
+        // Mensaje por defecto en caso de que no coincida con ninguna FK conocida
+        String mensajeUsuario = "No se puede realizar la operación porque el registro está relacionado con otros datos del sistema.";
+
+        // Analizar la causa para personalizar el mensaje según la Foreign Key
+        if (causaTecnica != null) {
+            if (causaTecnica.contains("fk_cargo_departamento")) {
+                mensajeUsuario = "No se puede eliminar el departamento: tiene cargos asociados.";
+            } else if (causaTecnica.contains("fk_personal_cargo")) {
+                mensajeUsuario = "No se puede eliminar el cargo: tiene personal asociado.";
+            } else if (causaTecnica.contains("fk_at_turno")) {
+                mensajeUsuario = "No se puede eliminar el turno: está asignado a personal.";
+            } else if (causaTecnica.contains("fk_sp_tipo")) {
+                mensajeUsuario = "No se puede eliminar el tipo de ausencia: tiene solicitudes.";
+            } else if (causaTecnica.contains("fk_ea_dispositivo")) {
+                mensajeUsuario = "No se puede eliminar el dispositivo: tiene eventos registrados.";
+            } else if (causaTecnica.contains("fk_usuario_rol")) {
+                mensajeUsuario = "No se puede eliminar el rol: tiene usuarios asignados.";
+            }
+        }
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -70,7 +95,7 @@ public class GlobalExceptionHandler {
                 .timestamp(Instant.now())
                 .status(HttpStatus.CONFLICT.value())
                 .error("DATABASE_INTEGRITY_CONFLICT")
-                .message("No se puede realizar la operación: el registro tiene dependencias activas (Personal o Cargos asociados).")
+                .message(mensajeUsuario)
                 .path(request.getRequestURI())
                 .traceId(UUID.randomUUID().toString())
                 .build());
