@@ -75,9 +75,18 @@ public class PersonalService {
         if (personalRepository.existsByCedula(request.cedula())) {
             throw new ConflictException("Personal", "cedula", request.cedula());
         }
+
+        Departamento departamento = departamentoRepository.findById(request.departamentoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Departamento", request.departamentoId().toString()));
+
+        Cargo cargo = cargoRepository.findById(request.cargoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", request.cargoId().toString()));
+
         Personal personal = personalMapper.toEntityCreate(request);
         personal.setActivo(true);
-        
+        personal.setDepartamento(departamento);
+        personal.setCargo(cargo);
+
         return personalMapper.toResponseDto(personalRepository.save(personal));
     }
 
