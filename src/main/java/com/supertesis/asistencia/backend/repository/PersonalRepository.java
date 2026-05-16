@@ -28,10 +28,7 @@ public interface PersonalRepository extends JpaRepository<Personal, Integer> {
     List<Personal> findByCargoId(Integer cargoId);
 
     // Personal activo
-    List<Personal> findByActivoTrue();
-
-    // Personal inactivo
-    List<Personal> findByActivoFalse();
+    List<Personal> findByActivo(Boolean activo);
 
     // Consulta personalizada con JOIN
     @Query("SELECT p FROM Personal p JOIN p.departamento d WHERE d.nombre = :departamentoNombre")

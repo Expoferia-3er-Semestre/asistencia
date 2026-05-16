@@ -3,7 +3,7 @@ package com.supertesis.asistencia.backend.dto.personal;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
-public record PersonalRequestDto(
+public record PersonalCreateRequestDto(
     @NotBlank(message = "El nombre es obligatorio")
     String nombre,
 
@@ -26,11 +26,5 @@ public record PersonalRequestDto(
     Integer departamentoId,
 
     @NotNull(message = "La fecha de ingreso es obligatoria")
-    LocalDate fechaIngreso,
-
-    @NotNull(message = "La fecha de egreso es obligatoria")
-    LocalDate fechaEgreso,
-
-    @NotNull(message = "El estado activo es obligatorio")
-    Boolean activo
+    LocalDate fechaIngreso
 ) {}
