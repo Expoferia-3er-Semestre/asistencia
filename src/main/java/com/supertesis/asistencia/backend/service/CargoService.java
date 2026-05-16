@@ -8,6 +8,8 @@ import com.supertesis.asistencia.backend.mapper.CargoMapper;
 import com.supertesis.asistencia.backend.repository.CargoRepository;
 import com.supertesis.asistencia.backend.repository.DepartamentoRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,13 +48,15 @@ public class CargoService {
 
     @Transactional
     public CargoResponseDto save(CargoRequestDto request) {
+
+        // 1. Validar si ya existe el nombre en ese departamento
+        if (cargoRepository.existsByNombreAndDepartamentoId(request.nombre(), request.departamentoId())) {
+            throw new ConflictException("Cargo en departamento", "nombre", request.nombre());
+        }
         
         Departamento departamento = departamentoRepository.findById(request.departamentoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Departamento", request.departamentoId().toString()));
         
-        if (cargoRepository.existsByNombre(request.nombre())) {
-            throw new ConflictException("Cargo", "nombre", request.nombre());
-        }
         
         Cargo cargo = cargoMapper.toEntity(request);
         cargo.setDepartamento(departamento); // Aseguramos la relación
@@ -62,6 +66,11 @@ public class CargoService {
 
     @Transactional
     public CargoResponseDto update(Integer id, CargoRequestDto updated) {
+
+        // Validar si ya existe el nombre en ese departamento, pero en otro cargo distinto al que se está editando
+        if (cargoRepository.existsByNombreAndDepartamentoIdAndIdNot(updated.nombre(), updated.departamentoId(), id)) {
+            throw new ConflictException("Cargo en departamento", "nombre", updated.nombre());
+        }
         Cargo existing = cargoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", id.toString()));
         
