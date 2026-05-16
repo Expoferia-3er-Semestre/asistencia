@@ -66,9 +66,17 @@ public class PersonalController {
         return ResponseEntity.ok(personalService.update(id, request));
     }
 
+    // Este elimina lógicamente (Inactivación/Despedir)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         personalService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Este reincorpora (Reactivación/Recontratar)
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<Void> reactivarPersonal(@PathVariable Integer id) {
+        personalService.reactivar(id);
         return ResponseEntity.noContent().build();
     }
 

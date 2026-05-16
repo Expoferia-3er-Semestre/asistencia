@@ -156,9 +156,26 @@ public class PersonalService {
 
     @Transactional
     public void deleteById(Integer id) {
-        if (!personalRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Personal", id.toString());
+        
+        // 1. Aplicar borrado lógico en lugar de un DELETE real
+        Personal personal = personalRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Personal", id.toString()));
+        personal.setActivo(false);
+        
+        // 2. Guardar los cambios
+        personalRepository.save(personal);
+    }
+
+    @Transactional
+    public void reactivar(Integer id) {
+        Personal personal = personalRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Personal", id.toString()));
+        
+        if (personal.getActivo()) {
+            throw new IllegalStateException("El empleado ya se encuentra activo.");
         }
-        personalRepository.deleteById(id);
+        
+        personal.setActivo(true);
+        personalRepository.save(personal);
     }
 }
