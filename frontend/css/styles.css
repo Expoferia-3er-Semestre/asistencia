@@ -1820,6 +1820,7 @@ body {
 .modal-body textarea {
   font-family: "Source Sans 3", sans-serif;
   font-size: 0.9rem;
+  height: 53px;
   padding: 0.55rem 0.75rem;
   border: 1.5px solid #d0dcea;
   border-radius: 8px;
