@@ -11,10 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function cargarPersonal() {
   try {
-    const res = await fetch(`${API_BASE}/personal`, { headers: getHeaders() }); // app.js
-    if (!res.ok) throw new Error("Sin respuesta del servidor");
+    const res = await api.get("/api/personal"); // cookie viaja sola
+    listaPersonal = res.data;
 
-    listaPersonal = await res.json();
     renderTabla(listaPersonal);
   } catch (err) {
     console.error("Error cargando personal:", err);
@@ -25,15 +24,10 @@ async function cargarPersonal() {
 /* Llena el select de departamentos dentro del modal */
 async function cargarDeptosEnModal() {
   try {
-    const res = await fetch(`${API_BASE}/departamentos`, {
-      headers: getHeaders(),
-    }); // app.js
-    if (!res.ok) return;
-
-    const deptos = await res.json();
+    const res = await api.get("/api/departamentos"); // cookie viaja sola
     const sel = document.getElementById("form-depto");
 
-    deptos.forEach((d) => {
+    res.data.forEach((d) => {
       const opt = document.createElement("option");
       opt.value = d.id;
       opt.textContent = d.nombre;
@@ -65,6 +59,7 @@ function renderTabla(datos) {
     return;
   }
 
+  /* Ajustar los campos según la API */
   tbody.innerHTML = datos
     .map((p) => {
       // Si cargo es objeto, intenta sacar .nombre; si es string lo usa directo
@@ -191,19 +186,14 @@ async function guardarPersonal() {
   btn.textContent = "Guardando…";
 
   try {
-    const res = await fetch(url, {
-      method,
-      headers: getHeaders(), // app.js
-      body: JSON.stringify(body),
-    });
-
-    if (res.ok) {
-      cerrarModal();
-      cargarPersonal(); // refresca la tabla
+    /* cookie viaja sola — sin headers manuales */
+    if (esEdicion) {
+      await api.put(`/api/personal/${id}`, body);
     } else {
-      const err = await res.json().catch(() => ({}));
-      mostrarModalError(err.message || "No se pudo guardar el registro.");
+      await api.post("/api/personal", body);
     }
+    cerrarModal();
+    cargarPersonal();
   } catch {
     mostrarModalError("Error de conexión con el servidor.");
   } finally {
@@ -218,18 +208,10 @@ async function eliminarPersonal(id) {
   if (!confirm("¿Seguro que deseas eliminar este registro?")) return;
 
   try {
-    const res = await fetch(`${API_BASE}/personal/${id}`, {
-      method: "DELETE",
-      headers: getHeaders(), // app.js
-    });
-
-    if (res.ok) {
-      cargarPersonal();
-    } else {
-      alert("No se pudo eliminar el registro.");
-    }
+    await api.delete(`/api/personal/${id}`); // cookie viaja sola
+    cargarPersonal();
   } catch {
-    alert("Error de conexión con el servidor.");
+    alert("No se pudo eliminar el registro.");
   }
 }
 

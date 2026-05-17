@@ -46,10 +46,7 @@ function badgeEstado(estado) {
 /* Llena el select de personal para el formulario de registro */
 async function cargarPersonal() {
   try {
-    const res = await fetch(`${API_BASE}/personal`, { headers: getHeaders() }); // app.js
-    if (!res.ok) return;
-
-    const lista = await res.json();
+    const res = await api.get("/api/personal"); // cookie viaja sola
     const sel = document.getElementById("reg-personal");
 
     lista.forEach((p) => {
@@ -69,12 +66,7 @@ async function cargarPersonal() {
 /* Llena el select de departamentos para el filtro */
 async function cargarDepartamentos() {
   try {
-    const res = await fetch(`${API_BASE}/departamentos`, {
-      headers: getHeaders(),
-    }); // app.js
-    if (!res.ok) return;
-
-    const lista = await res.json();
+    const res = await api.get("/api/departamentos"); // cookie viaja sola
     const sel = document.getElementById("filtro-depto");
 
     lista.forEach((d) => {
@@ -109,34 +101,18 @@ async function registrarAsistencia() {
   btn.textContent = "Guardando…";
 
   try {
-    const res = await fetch(`${API_BASE}/asistencia`, {
-      method: "POST",
-      headers: getHeaders(), // app.js
-      // Ajusta el body según lo que espere tu backend
-      body: JSON.stringify({ personalId, fecha, estado }),
-    });
-
-    if (res.ok) {
-      mostrarFeedback(
-        "feedback-registro",
-        "Asistencia registrada correctamente.",
-        "success",
-      );
-      consultarAsistencias(); // refresca la tabla
-    } else {
-      const err = await res.json().catch(() => ({}));
-      mostrarFeedback(
-        "feedback-registro",
-        err.message || "No se pudo registrar la asistencia.",
-        "error",
-      );
-    }
-  } catch {
+    /* cookie viaja sola — sin headers manuales */
+    await api.post("/api/asistencia", { personalId, fecha, estado });
     mostrarFeedback(
       "feedback-registro",
-      "Error de conexión con el servidor.",
-      "error",
+      "✅ Asistencia registrada correctamente.",
+      "success",
     );
+    consultarAsistencias();
+  } catch (err) {
+    const msg =
+      err.response?.data?.message || "No se pudo registrar la asistencia.";
+    mostrarFeedback("feedback-registro", msg, "error");
   } finally {
     btn.removeAttribute("aria-busy");
     btn.textContent = "Guardar";
@@ -161,19 +137,16 @@ async function consultarAsistencias() {
     return;
   }
 
-  const params = new URLSearchParams();
-  params.append("fechaDesde", desde);
-  params.append("fechaHasta", hasta);
-  if (depto) params.append("departamentoId", depto);
+  /* Axios acepta params como objeto — más limpio que URLSearchParams */
+  const params = { fechaDesde: desde, fechaHasta: hasta };
+  if (depto) params.departamentoId = depto;
 
   btn.setAttribute("aria-busy", "true");
   btn.textContent = "Consultando…";
 
   try {
-    const res = await fetch(`${API_BASE}/asistencia?${params.toString()}`, {
-      headers: getHeaders(), // app.js
-    });
-    renderTabla(res.ok ? await res.json() : []);
+    const res = await api.get("/api/asistencia", { params }); // cookie viaja sola
+    renderTabla(res.data);
   } catch (err) {
     console.error("Error consultando asistencias:", err);
     mostrarFeedback(
