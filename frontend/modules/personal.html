@@ -48,8 +48,19 @@
         <div>
           <h1>Personal</h1>
         </div>
-        <!-- Botón para abrir el formulario de creación -->
-        <button class="btn-primary" onclick="abrirModal()">+ Agregar</button>
+        <div class="mod-heading-actions">
+          <label class="switch switch-inline">
+            <input
+              type="checkbox"
+              id="mostrar-inactivos"
+              onchange="filtrarTabla()"
+            />
+            <span class="slider"></span>
+            <span class="switch-label">Mostrar inactivos</span>
+          </label>
+          <!-- Botón para abrir el formulario de creación -->
+          <button class="btn-primary" onclick="abrirModal()">+ Agregar</button>
+        </div>
       </div>
 
       <!-- Buscador rápido -->

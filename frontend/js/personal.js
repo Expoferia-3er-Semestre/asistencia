@@ -1,6 +1,11 @@
 /* Cache local para filtrar sin volver a llamar al backend */
 let listaPersonal = [];
 
+function getPersonalVisibles() {
+  const mostrarInactivos = document.getElementById("mostrar-inactivos")?.checked;
+  return listaPersonal.filter((p) => mostrarInactivos || p.activo);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesion(); // app.js — redirige si no hay token
   cargarPersonal();
@@ -15,7 +20,7 @@ async function cargarPersonal() {
     if (!res.ok) throw new Error("Sin respuesta del servidor");
 
     listaPersonal = await res.json();
-    renderTabla(listaPersonal);
+    renderTabla(getPersonalVisibles());
   } catch (err) {
     console.error("Error cargando personal:", err);
     renderTabla([]);
@@ -66,7 +71,16 @@ function renderTabla(datos) {
     return;
   }
 
-  tbody.innerHTML = datos
+  const ordenados = [...datos].sort((a, b) => {
+    if (a.activo === b.activo) {
+      const nombreA = `${a.nombre || ""} ${a.apellido || ""}`.trim().toLowerCase();
+      const nombreB = `${b.nombre || ""} ${b.apellido || ""}`.trim().toLowerCase();
+      return nombreA.localeCompare(nombreB, "es", { sensitivity: "base" });
+    }
+    return a.activo ? -1 : 1;
+  });
+
+  tbody.innerHTML = ordenados
     .map((p) => {
       const cargo =
         typeof p.cargo === "object"
@@ -103,7 +117,7 @@ function renderTabla(datos) {
 
 function filtrarTabla() {
   const q = document.getElementById("buscador").value.toLowerCase();
-  const filtrados = listaPersonal.filter((p) =>
+  const filtrados = getPersonalVisibles().filter((p) =>
     `${p.nombre} ${p.apellido} ${p.cedula} ${p.departamentoNombre || ""}`
       .toLowerCase()
       .includes(q),

@@ -1360,6 +1360,17 @@ body {
   line-height: 1.2;
 }
 
+.mod-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.mod-heading-filter {
+  margin: 0;
+}
+
 /* Buscador */
 .search-bar {
   margin-bottom: 1.25rem;
@@ -1384,6 +1395,26 @@ body {
   outline: none;
   border-color: var(--cen-azul);
   box-shadow: 0 0 0 3px var(--pico-primary-focus);
+}
+
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.search-bar__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #52606d;
+  font-size: 0.95rem;
+}
+
+.search-bar__filter input {
+  width: auto;
+  margin: 0;
 }
 
 /* Botones de acción primario y secundario */
@@ -1470,6 +1501,35 @@ body {
   height: 20px;
   min-width: 40px;
   flex-shrink: 0;
+}
+
+.switch.switch-inline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  min-width: unset;
+  padding-right: 0;
+  gap: 0.55rem;
+}
+
+.switch.switch-inline .slider {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  margin-right: 0;
+}
+
+.switch.switch-inline .slider:before {
+  top: 3px;
+  left: 3px;
+}
+
+.switch-label {
+  font-size: 0.95rem;
+  color: #334d6e;
+  white-space: nowrap;
 }
 
 .switch input {
