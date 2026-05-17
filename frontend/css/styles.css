@@ -1714,14 +1714,19 @@ body {
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   z-index: 200;
+
+  /* Agregamos Flexbox para centrar todo lo que esté adentro */
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;       /* Margen de seguridad para pantallas pequeñas */
 }
 
 /* Ventana modal REVISAR*/
 .modal {
   display: none;
   position: fixed;
-  top: 50%;
-  left: 50%;
+  inset: 0;
+  margin: auto;
   transform: translate(-50%, -50%);
   z-index: 201;
   background: var(--cen-blanco);
@@ -1732,6 +1737,11 @@ body {
   animation: fadeUp 0.3s ease both;
   max-height: 90vh;
   overflow-y: auto;
+
+  /* Ajustes para tu pantalla de 1366x768px */
+  height: fit-content;            /* Evita que se estire a lo alto de la pantalla */
+  max-height: calc(100vh - 3rem); /* No permite que se salga de la pantalla */
+  flex-direction: column;
 }
 
 /* Cuando el modal está activo */
