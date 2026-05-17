@@ -19,37 +19,29 @@ async function iniciarSesion() {
   errorMsg.style.display = "none";
 
   try {
-    /* Enviamos las credenciales al backend como JSON mediante una petición POST */
-    const response = await fetch("http://localhost:8080/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombreUsuario: usuario, password: password }),
+    /* api viene de api.js — withCredentials:true hace que el navegador
+       guarde la cookie httpOnly que manda el backend */
+    const res = await api.post("/api/auth/login", {
+      nombreUsuario: usuario,
+      password: password,
     });
 
-    /* Si el servidor responde con error (401, 403, etc.) mostramos mensaje de credenciales incorrectas */
-    if (!response.ok) {
-      mostrarError("Usuario o contraseña incorrectos.");
-      return;
-    }
-
-    /* Convertimos la respuesta del servidor a objeto JavaScript
-       data contendrá: { token, rol, nombre } */
-    const data = await response.json();
-
-    // Guardar token y datos del usuario
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("rol", data.roles[0]);
-    // El backend devuelve 'nombreUsuario' en la respuesta (ver JwtResponse.java)
-    const nombreUsuario = data.nombreUsuario || data.username || data.nombre || usuario;
-    localStorage.setItem("nombre", nombreUsuario);
-    console.log("Token guardado:", data.token ? "OK" : "FALLO");
-    console.log("Nombre guardado:", nombreUsuario);
+    /* El token ya NO se guarda — viaja solo en la cookie httpOnly
+       Solo guardamos el nombre para mostrarlo en el dashboard */
+    const nombre =
+      res.data.nombreUsuario || res.data.username || res.data.nombre || usuario;
+    localStorage.setItem("nombre", nombre);
 
     // Redirigir según rol despues de la expoferia, por ahora vamos directo al dashboard
     window.location.href = "../modules/dashboard.html";
-  } catch (error) {
-    /* Si hay un error de red (servidor apagado, sin internet) mostramos un mensaje al usuario */
-    mostrarError("No se pudo conectar con el servidor. Intenta de nuevo.");
+    
+  } catch (err) {
+    /* Axios lanza error si el status no es 2xx */
+    if (err.response?.status === 401 || err.response?.status === 403) {
+      mostrarError("Usuario o contraseña incorrectos.");
+    } else {
+      mostrarError("No se pudo conectar con el servidor. Intenta de nuevo.");
+    }
   } finally {
     btn.removeAttribute("aria-busy");
     btn.textContent = "Iniciar sesión";
@@ -61,6 +53,13 @@ function mostrarError(msg) {
   const errorMsg = document.getElementById("error-msg");
   errorMsg.textContent = msg;
   errorMsg.style.display = "block";
+}
+
+/* Oculta el mensaje de error */
+function ocultarError() {
+  const el = document.getElementById("error-msg");
+  el.style.display = "none";
+  el.textContent   = "";
 }
 
 // Login con Enter
