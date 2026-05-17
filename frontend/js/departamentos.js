@@ -10,12 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function cargarDeptos() {
   try {
-    const res = await fetch(`${API_BASE}/departamentos`, {
-      headers: getHeaders(),
-    }); // app.js
-    if (!res.ok) throw new Error("Sin respuesta del servidor");
+    const res = await api.get("/api/departamentos"); // cookie viaja sola
+    listaDeptos = res.data;
 
-    listaDeptos = await res.json();
     renderCards(listaDeptos);
     renderTabla(listaDeptos);
   } catch (err) {
@@ -139,30 +136,22 @@ async function guardarDepto() {
 
   const body = { nombre, descripcion };
   const esEdicion = !!id;
-  const url = esEdicion
-    ? `${API_BASE}/departamentos/${id}`
-    : `${API_BASE}/departamentos`;
-  const method = esEdicion ? "PUT" : "POST";
 
   btn.setAttribute("aria-busy", "true");
   btn.textContent = "Guardando…";
 
   try {
-    const res = await fetch(url, {
-      method,
-      headers: getHeaders(), // app.js
-      body: JSON.stringify(body),
-    });
-
-    if (res.ok) {
-      cerrarModal();
-      cargarDeptos(); // refresca tarjetas y tabla
+    /* cookie viaja sola — sin headers manuales */
+    if (esEdicion) {
+      await api.put(`/api/departamentos/${id}`, body);
     } else {
-      const err = await res.json().catch(() => ({}));
-      mostrarModalError(err.message || "No se pudo guardar el área.");
+      await api.post("/api/departamentos", body);
     }
-  } catch {
-    mostrarModalError("Error de conexión con el servidor.");
+    cerrarModal();
+    cargarDeptos();
+  } catch (err) {
+    const msg = err.response?.data?.message || "No se pudo guardar el área.";
+    mostrarModalError(msg);
   } finally {
     btn.removeAttribute("aria-busy");
     btn.textContent = "Guardar";
@@ -175,18 +164,10 @@ async function eliminarDepto(id) {
   if (!confirm("¿Seguro que deseas eliminar esta área?")) return;
 
   try {
-    const res = await fetch(`${API_BASE}/departamentos/${id}`, {
-      method: "DELETE",
-      headers: getHeaders(), // app.js
-    });
-
-    if (res.ok) {
-      cargarDeptos();
-    } else {
-      alert("No se pudo eliminar el área.");
-    }
+    await api.delete(`/api/departamentos/${id}`); // cookie viaja sola
+    cargarDeptos();
   } catch {
-    alert("Error de conexión con el servidor.");
+    alert("No se pudo eliminar el área.");
   }
 }
 
