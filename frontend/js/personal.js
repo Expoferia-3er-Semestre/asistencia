@@ -1,5 +1,6 @@
 /* Cache local para filtrar sin volver a llamar al backend */
 let listaPersonal = [];
+let listaCargos = [];
 
 function getPersonalVisibles() {
   const mostrarInactivos = document.getElementById("mostrar-inactivos")?.checked;
@@ -10,6 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
   verificarSesion(); // app.js — redirige si no hay token
   cargarPersonal();
   cargarDeptosEnModal();
+  cargarCargosEnModal();
+  // Al cambiar departamento en el modal, filtrar cargos disponibles
+  const deptoSel = document.getElementById("form-depto");
+  if (deptoSel) {
+    deptoSel.addEventListener("change", (e) => filtrarCargosPorDepto(e.target.value));
+  }
 });
 
 /* ── Carga ────────────── */
@@ -49,6 +56,54 @@ async function cargarDeptosEnModal() {
     console.error("Error cargando departamentos:", err);
   }
 }
+
+  /* Llena el select de cargos dentro del modal */
+  async function cargarCargosEnModal() {
+    try {
+      const res = await fetch(`${API_BASE}/cargos`, { headers: getHeaders() });
+      if (!res.ok) return;
+
+      const cargos = await res.json();
+      listaCargos = cargos;
+      const sel = document.getElementById("form-cargo");
+      const previous = sel.value;
+      // Populate according to currently selected departamento (if any)
+      filtrarCargosPorDepto(document.getElementById("form-depto").value || "");
+      if (previous) sel.value = previous;
+    } catch (err) {
+      console.error("Error cargando cargos:", err);
+    }
+  }
+
+  /**
+   * Llena el select de `form-cargo` filtrando por departamento (si se pasa)
+   * @param {string|number} deptoId
+   */
+  function filtrarCargosPorDepto(deptoId) {
+    const sel = document.getElementById("form-cargo");
+    if (!sel) return;
+    sel.innerHTML = `<option value="">Seleccionar…</option>`;
+
+    const idNum = deptoId ? Number(deptoId) : null;
+    listaCargos.forEach((c) => {
+      // Determinar departamentoId del cargo (puede venir como objeto o campo directo)
+      let cargoDeptoId = null;
+      if (c.departamento && typeof c.departamento === "object") {
+        cargoDeptoId = c.departamento.id;
+      } else if (typeof c.departamentoId !== "undefined") {
+        cargoDeptoId = c.departamentoId;
+      } else if (typeof c.departamento !== "undefined") {
+        cargoDeptoId = c.departamento;
+      }
+
+      if (!idNum || Number(cargoDeptoId) === idNum) {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.nombre || c.descripcion || "—";
+        sel.appendChild(opt);
+      }
+    });
+  }
 
 /* ── Render tabla ─────────── */
 
@@ -148,6 +203,8 @@ function limpiarFormulario() {
     "form-cargo",
   ].forEach((id) => (document.getElementById(id).value = ""));
   document.getElementById("form-depto").value = "";
+  // Restaurar listado completo o vacío de cargos
+  filtrarCargosPorDepto("");
   const err = document.getElementById("modal-error");
   err.className = "feedback-msg";
   err.textContent = "";
@@ -159,10 +216,8 @@ function editarPersonal(id) {
   if (!p) return;
 
   // Extrae cargo limpio — puede venir como objeto o string
-  const cargoVal =
-    typeof p.cargo === "object"
-      ? p.cargo?.nombre || p.cargo?.descripcion || ""
-      : p.cargo || "";
+  const cargoId =
+    typeof p.cargo === "object" ? p.cargo?.id || "" : p.cargoId || "";
 
   // Extrae id de departamento para seleccionar en el select
   const deptoId =
@@ -174,8 +229,10 @@ function editarPersonal(id) {
   document.getElementById("form-nombre").value = p.nombre || "";
   document.getElementById("form-apellido").value = p.apellido || "";
   document.getElementById("form-cedula").value = p.cedula || "";
-  document.getElementById("form-cargo").value = cargoVal;
   document.getElementById("form-depto").value = deptoId;
+  // Filtrar cargos según el departamento y luego seleccionar el cargo actual
+  filtrarCargosPorDepto(deptoId);
+  document.getElementById("form-cargo").value = cargoId;
 
   abrirModal("Editar personal");
 }
@@ -187,7 +244,10 @@ async function guardarPersonal() {
   const nombre = document.getElementById("form-nombre").value.trim();
   const apellido = document.getElementById("form-apellido").value.trim();
   const cedula = document.getElementById("form-cedula").value.trim();
-  const cargo = document.getElementById("form-cargo").value.trim();
+  const cargoId = document.getElementById("form-cargo").value;
+  const cargoName = cargoId
+    ? document.getElementById("form-cargo").selectedOptions?.[0]?.textContent || null
+    : null;
   const deptoId = document.getElementById("form-depto").value;
   const btn = document.getElementById("btn-guardar");
 
@@ -196,14 +256,31 @@ async function guardarPersonal() {
     return;
   }
 
+  const esEdicion = !!id;
+
+  const existing = esEdicion ? listaPersonal.find((x) => String(x.id) === String(id)) : null;
+
   const body = {
     nombre,
     apellido,
     cedula,
-    cargo,
-    departamentoId: deptoId || null,
+    cargo: cargoName,
+    cargoId: cargoId ? Number(cargoId) : null,
+    departamentoId: deptoId ? Number(deptoId) : null,
+    fechaIngreso: (esEdicion && existing?.fechaIngreso) 
+    ? existing.fechaIngreso 
+    : new Date().toISOString().split('T')[0],
   };
-  const esEdicion = !!id;
+  // Si es edición, preservar el estado 'activo' del registro existente;
+  // si es creación, establecer activo = true por defecto
+  if (esEdicion) {
+    const existing = listaPersonal.find((x) => String(x.id) === String(id));
+    if (existing && typeof existing.activo !== "undefined") {
+      body.activo = existing.activo;
+    }
+  } else {
+    body.activo = true;
+  }
   const url = esEdicion ? `${API_BASE}/personal/${id}` : `${API_BASE}/personal`;
   const method = esEdicion ? "PUT" : "POST";
 
@@ -232,12 +309,19 @@ async function guardarPersonal() {
   }
 }
 
-/* ── Eliminar ─────────────────────────────────────────── */
+/* ── Activar/Desactivar ─────────────────────────────────────────── */
 
 async function togglePersonalStatus(checkbox, activo, id) {
-  const confirmado = activo
-    ? confirm("¿Seguro que deseas desactivar este empleado?")
-    : confirm("¿Seguro que deseas reactivar este empleado?");
+  const confirmado = await showConfirmation(
+    activo
+      ? "¿Seguro que deseas desactivar este empleado?"
+      : "¿Seguro que deseas reactivar este empleado?",
+    {
+      title: activo ? "Desactivar empleado" : "Reactivar empleado",
+      confirmText: activo ? "Desactivar" : "Activar",
+      cancelText: "Cancelar",
+    },
+  );
   if (!confirmado) {
     checkbox.checked = activo;
     return;

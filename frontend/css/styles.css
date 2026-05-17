@@ -1820,6 +1820,8 @@ body {
     box-shadow 0.18s;
   width: 100%;
   resize: vertical;
+  box-sizing: border-box;
+  min-height: 42px;
 }
 
 .modal-body input:focus,
