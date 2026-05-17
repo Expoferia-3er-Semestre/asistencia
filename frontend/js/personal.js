@@ -82,7 +82,14 @@ async function cargarDeptosEnModal() {
   function filtrarCargosPorDepto(deptoId) {
     const sel = document.getElementById("form-cargo");
     if (!sel) return;
-    sel.innerHTML = `<option value="">Seleccionar…</option>`;
+    sel.innerHTML = `<option value="">Seleccionar...</option>`;
+
+    if (!deptoId){
+      sel.disabled = true;
+      return;
+    }
+
+    sel.disabled = false;
 
     const idNum = deptoId ? Number(deptoId) : null;
     listaCargos.forEach((c) => {
@@ -101,7 +108,7 @@ async function cargarDeptosEnModal() {
         opt.value = c.id;
         opt.textContent = c.nombre || c.descripcion || "—";
         sel.appendChild(opt);
-      }
+      } 
     });
   }
 
