@@ -25,13 +25,14 @@ async function cargarPersonal() {
 /* Llena el select de departamentos dentro del modal */
 async function cargarDeptosEnModal() {
   try {
-    const res = await fetch(`${API_BASE}/departamentos`, {
+    const res = await fetch(`${API_BASE}/departamentos/activos`, {
       headers: getHeaders(),
     }); // app.js
     if (!res.ok) return;
 
     const deptos = await res.json();
     const sel = document.getElementById("form-depto");
+    sel.innerHTML = `<option value="">Seleccionar…</option>`;
 
     deptos.forEach((d) => {
       const opt = document.createElement("option");
@@ -55,7 +56,7 @@ function renderTabla(datos) {
   if (!datos.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5">
+        <td colspan="6">
           <div class="tabla-empty">
             <span>👥</span>
             No hay personal registrado.
@@ -67,13 +68,11 @@ function renderTabla(datos) {
 
   tbody.innerHTML = datos
     .map((p) => {
-      // Si cargo es objeto, intenta sacar .nombre; si es string lo usa directo
       const cargo =
         typeof p.cargo === "object"
           ? p.cargo?.nombre || p.cargo?.descripcion || "—"
           : p.cargo || "—";
 
-      // Si departamento es objeto, saca .nombre
       const depto =
         typeof p.departamento === "object"
           ? p.departamento?.nombre || "—"
@@ -86,8 +85,15 @@ function renderTabla(datos) {
         <td data-label="Cargo">${cargo}</td>
         <td data-label="Departamento">${depto}</td>
         <td data-label="Acciones">
-          <button class="btn-edit"   onclick="editarPersonal(${p.id})">Editar</button>
-          <button class="btn-delete" onclick="eliminarPersonal(${p.id})">Eliminar</button>
+          <button class="btn-edit" onclick="editarPersonal(${p.id})">Editar</button>
+        </td>
+        <td data-label="Estado">
+          <div class="switch-cell">
+            <label class="switch">
+              <input type="checkbox" ${p.activo ? "checked" : ""} onchange="togglePersonalStatus(this, ${p.activo}, ${p.id})" />
+              <span class="slider"></span>
+            </label>
+          </div>
         </td>
       </tr>`;
     })
@@ -214,23 +220,41 @@ async function guardarPersonal() {
 
 /* ── Eliminar ─────────────────────────────────────────── */
 
-async function eliminarPersonal(id) {
-  if (!confirm("¿Seguro que deseas eliminar este registro?")) return;
+async function togglePersonalStatus(checkbox, activo, id) {
+  const confirmado = activo
+    ? confirm("¿Seguro que deseas desactivar este empleado?")
+    : confirm("¿Seguro que deseas reactivar este empleado?");
+  if (!confirmado) {
+    checkbox.checked = activo;
+    return;
+  }
+
+  const url = activo
+    ? `${API_BASE}/personal/${id}`
+    : `${API_BASE}/personal/${id}/reactivar`;
+  const method = activo ? "DELETE" : "PATCH";
 
   try {
-    const res = await fetch(`${API_BASE}/personal/${id}`, {
-      method: "DELETE",
+    const res = await fetch(url, {
+      method,
       headers: getHeaders(), // app.js
     });
 
     if (res.ok) {
       cargarPersonal();
     } else {
-      alert("No se pudo eliminar el registro.");
+      const err = await res.json().catch(() => ({}));
+      alert(err.message || "No se pudo actualizar el estado.");
+      checkbox.checked = activo;
     }
   } catch {
     alert("Error de conexión con el servidor.");
+    checkbox.checked = activo;
   }
+}
+
+async function eliminarPersonal(id) {
+  return togglePersonalStatus(id, true);
 }
 
 /* ── Helpers ──────────────────── */

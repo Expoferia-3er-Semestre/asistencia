@@ -24,6 +24,8 @@ public interface PersonalRepository extends JpaRepository<Personal, Integer> {
     // Búsqueda por departamento
     List<Personal> findByDepartamentoId(Integer departamentoId);
 
+    boolean existsByDepartamentoIdAndActivoTrue(Integer departamentoId);
+
     // Búsqueda por cargo
     List<Personal> findByCargoId(Integer cargoId);
 

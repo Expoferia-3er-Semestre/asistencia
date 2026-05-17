@@ -7,6 +7,7 @@ import com.supertesis.asistencia.backend.exception.ConflictException;
 import com.supertesis.asistencia.backend.exception.ResourceNotFoundException;
 import com.supertesis.asistencia.backend.mapper.DepartamentoMapper;
 import com.supertesis.asistencia.backend.repository.DepartamentoRepository;
+import com.supertesis.asistencia.backend.repository.PersonalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.List;
 public class DepartamentoService {
 
     private final DepartamentoRepository departamentoRepository;
+    private final PersonalRepository personalRepository;
     private final DepartamentoMapper deptoMapper;
 
     public List<DepartamentoResponseDto> findAll() {
@@ -77,9 +79,31 @@ public class DepartamentoService {
 
     @Transactional
     public void deleteById(Integer id) {
-        if (!departamentoRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Departamento", id.toString());
+        Departamento departamento = departamentoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Departamento", id.toString()));
+
+        if (personalRepository.existsByDepartamentoIdAndActivoTrue(id)) {
+            throw new ConflictException("Departamento", "activo",
+                    "No se puede desactivar el departamento porque tiene personal activo asociado.");
         }
-        departamentoRepository.deleteById(id);
+
+        departamento.setActivo(false);
+        departamentoRepository.save(departamento);
+    }
+
+    @Transactional
+    public void desactivar(Integer id) {
+        deleteById(id);
+    }
+
+    @Transactional
+    public void activar(Integer id) {
+        Departamento departamento = departamentoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Departamento", id.toString()));
+        if (Boolean.TRUE.equals(departamento.getActivo())) {
+            return;
+        }
+        departamento.setActivo(true);
+        departamentoRepository.save(departamento);
     }
 }

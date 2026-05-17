@@ -62,7 +62,7 @@ function renderTabla(datos) {
   if (!datos.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="4">
+        <td colspan="5">
           <div class="tabla-empty">
             <span>🏢</span>
             No hay áreas registradas.
@@ -73,19 +73,26 @@ function renderTabla(datos) {
   }
 
   tbody.innerHTML = datos
-    .map(
-      (d) => `
+    .map((d) => {
+      return `
     <tr>
       <td data-label="Nombre">${d.nombre}</td>
       <td data-label="Descripción">${d.descripcion || "—"}</td>
       <td data-label="Personal">${d.totalPersonal ?? 0}</td>
       <td data-label="Acciones">
-        <button class="btn-edit"   onclick="editarDepto(${d.id})">Editar</button>
-        <button class="btn-delete" onclick="eliminarDepto(${d.id})">Eliminar</button>
+      <button class="btn-edit" onclick="editarDepto(${d.id})">Editar</button>
+      </td>
+      <td data-label="Estado">
+        <div class="switch-cell">
+          <label class="switch">
+            <input type="checkbox" ${d.activo ? "checked" : ""} onchange="toggleDeptoStatus(this, ${d.activo}, ${d.id})" />
+            <span class="slider"></span>
+          </label>
+        </div>
       </td>
     </tr>
-  `,
-    )
+  `;
+    })
     .join("");
 }
 
@@ -169,24 +176,43 @@ async function guardarDepto() {
   }
 }
 
-/* ── Eliminar ─────────────────────────────────────────── */
+/* ── Activar/Desactivar ────────────────────────────────── */
 
-async function eliminarDepto(id) {
-  if (!confirm("¿Seguro que deseas eliminar esta área?")) return;
+async function toggleDeptoStatus(checkbox, activo, id) {
+  const confirmado = await showConfirmation(
+    activo
+      ? "¿Seguro que deseas desactivar este departamento?"
+      : "¿Seguro que deseas activar este departamento?",
+    {
+      title: activo ? "Desactivar departamento" : "Activar departamento",
+      confirmText: activo ? "Desactivar" : "Activar",
+      cancelText: "Cancelar",
+    },
+  );
+  if (!confirmado) {
+    checkbox.checked = activo;
+    return;
+  }
+
+  const action = activo ? "desactivar" : "activar";
+  const url = `${API_BASE}/departamentos/${id}/${action}`;
 
   try {
-    const res = await fetch(`${API_BASE}/departamentos/${id}`, {
-      method: "DELETE",
-      headers: getHeaders(), // app.js
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: getHeaders(),
     });
 
     if (res.ok) {
       cargarDeptos();
     } else {
-      alert("No se pudo eliminar el área.");
+      const err = await res.json().catch(() => ({}));
+      alert(err.message || "No se pudo actualizar el estado del departamento.");
+      checkbox.checked = activo;
     }
   } catch {
     alert("Error de conexión con el servidor.");
+    checkbox.checked = activo;
   }
 }
 
