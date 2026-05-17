@@ -923,6 +923,39 @@ body {
   }
 }
 
+@keyframes bubbleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bubbleOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+.bubble-enter {
+  animation: bubbleIn 0.32s cubic-bezier(0.25, 1.25, 0.5, 1) both;
+}
+
+.bubble-leave {
+  animation: bubbleOut 0.28s ease both;
+}
+
 /* ============================================================
    RESPONSIVE — tablets (900px)
    ============================================================ */
@@ -1548,12 +1581,42 @@ body {
   border-left: 4px solid var(--cen-azul);
   transition:
     transform 0.2s,
-    box-shadow 0.2s;
+    box-shadow 0.2s,
+    opacity 0.2s,
+    background 0.2s;
 }
 
 .depto-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(74, 125, 181, 0.13);
+}
+
+.depto-card--inactive {
+  opacity: 0.45;
+  background: rgba(228, 233, 241, 0.95);
+  border-left-color: #9aa8c2;
+}
+
+.depto-card--inactive:hover {
+  transform: none;
+  box-shadow: 0 4px 16px rgba(74, 125, 181, 0.07);
+}
+
+.depto-row--highlight {
+  animation: deptoRowPulse 1.3s ease-in-out 2 forwards;
+}
+
+.depto-row--highlight td {
+  animation: deptoRowPulse 1.3s ease-in-out 2 forwards;
+}
+
+@keyframes deptoRowPulse {
+  0%, 100% {
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+  33%, 66% {
+    background-color: rgba(220, 250, 255, 0.7);
+  }
 }
 
 .depto-card h3 {

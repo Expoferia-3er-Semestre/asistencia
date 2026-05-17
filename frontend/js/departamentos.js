@@ -28,27 +28,35 @@ async function cargarDeptos() {
 
 function renderCards(datos) {
   const grid = document.getElementById("deptos-grid");
-
-  if (!datos.length) {
-    grid.innerHTML = `
+  const placeholder = `
       <div class="tabla-empty">
         <span>🏢</span>
         No hay departamentos registrados.
       </div>`;
+
+  const departamentosOrdenados = datos
+    .slice()
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
+
+  if (!departamentosOrdenados.length) {
+    grid.innerHTML = placeholder;
     return;
   }
 
-  grid.innerHTML = datos
-    .map(
-      (d) => `
-    <div class="depto-card">
-      <h3>${d.nombre}</h3>
-      <p>${d.descripcion || "Sin descripción"}</p>
-      <span class="depto-count">${d.totalPersonal ?? 0} persona${d.totalPersonal !== 1 ? "s" : ""}</span>
-    </div>
-  `,
-    )
+  const html = departamentosOrdenados
+    .map((d) => {
+      const estadoClass = d.activo ? "" : "depto-card--inactive";
+      return `
+        <div class="depto-card ${estadoClass}" data-id="${d.id}" onclick="seleccionarDepto(${d.id})">
+          <h3>${d.nombre}</h3>
+          <p>${d.descripcion || "Sin descripción"}</p>
+          <span class="depto-count">${d.totalPersonal ?? 0} persona${d.totalPersonal !== 1 ? "s" : ""}</span>
+        </div>
+      `;
+    })
     .join("");
+
+  grid.innerHTML = html;
 }
 
 /* ── Render tabla ─────────────────────────────────────── */
@@ -72,10 +80,17 @@ function renderTabla(datos) {
     return;
   }
 
-  tbody.innerHTML = datos
+  const ordenados = [...datos].sort((a, b) => {
+    if (a.activo === b.activo) {
+      return a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
+    }
+    return a.activo ? -1 : 1;
+  });
+
+  tbody.innerHTML = ordenados
     .map((d) => {
       return `
-    <tr>
+    <tr data-id="${d.id}">
       <td data-label="Nombre">${d.nombre}</td>
       <td data-label="Descripción">${d.descripcion || "—"}</td>
       <td data-label="Personal">${d.totalPersonal ?? 0}</td>
@@ -94,6 +109,24 @@ function renderTabla(datos) {
   `;
     })
     .join("");
+}
+
+function seleccionarDepto(id) {
+  const fila = document.querySelector(`#tbody-deptos tr[data-id="${id}"]`);
+  if (!fila) return;
+
+  fila.scrollIntoView({ behavior: "smooth", block: "center" });
+  fila.classList.remove("depto-row--highlight");
+  if (fila._highlightTimeout) {
+    clearTimeout(fila._highlightTimeout);
+  }
+
+  void fila.offsetWidth;
+  fila.classList.add("depto-row--highlight");
+  fila._highlightTimeout = setTimeout(() => {
+    fila.classList.remove("depto-row--highlight");
+    fila._highlightTimeout = null;
+  }, 5000);
 }
 
 /* ── Modal ────────────────────────────────────────────── */
