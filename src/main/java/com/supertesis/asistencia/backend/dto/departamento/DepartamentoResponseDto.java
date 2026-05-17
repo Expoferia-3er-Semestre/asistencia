@@ -5,7 +5,7 @@ package com.supertesis.asistencia.backend.dto.departamento;
  * Se usa Record por su inmutabilidad y sintaxis concisa.
  */
 public record DepartamentoResponseDto(
-    Long id,
+    Integer id,
     String nombre,
     String descripcion,
     Boolean activo
