@@ -206,6 +206,8 @@ function limpiarFormulario() {
     "form-id",
     "form-nombre",
     "form-apellido",
+    "form-telefono",
+    "form-correo",
     "form-cedula",
     "form-cargo",
   ].forEach((id) => (document.getElementById(id).value = ""));
@@ -235,6 +237,8 @@ function editarPersonal(id) {
   document.getElementById("form-id").value = p.id;
   document.getElementById("form-nombre").value = p.nombre || "";
   document.getElementById("form-apellido").value = p.apellido || "";
+  document.getElementById("form-telefono").value = p.telefono || "";
+  document.getElementById("form-correo").value = p.correo || "";
   document.getElementById("form-cedula").value = p.cedula || "";
   document.getElementById("form-depto").value = deptoId;
   // Filtrar cargos según el departamento y luego seleccionar el cargo actual
@@ -273,6 +277,8 @@ async function guardarPersonal() {
     nombre,
     apellido,
     cedula,
+    telefono,
+    correo,
     cargo: cargoName,
     cargoId: cargoId ? Number(cargoId) : null,
     departamentoId: deptoId ? Number(deptoId) : null,
