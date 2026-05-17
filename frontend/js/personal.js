@@ -243,6 +243,8 @@ async function guardarPersonal() {
   const id = document.getElementById("form-id").value;
   const nombre = document.getElementById("form-nombre").value.trim();
   const apellido = document.getElementById("form-apellido").value.trim();
+  const telefono = document.getElementById("form-telefono").value.trim();
+  const correo = document.getElementById("form-correo").value.trim();
   const cedula = document.getElementById("form-cedula").value.trim();
   const cargoId = document.getElementById("form-cargo").value;
   const cargoName = cargoId
