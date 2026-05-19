@@ -923,6 +923,39 @@ body {
   }
 }
 
+@keyframes bubbleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bubbleOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+.bubble-enter {
+  animation: bubbleIn 0.32s cubic-bezier(0.25, 1.25, 0.5, 1) both;
+}
+
+.bubble-leave {
+  animation: bubbleOut 0.28s ease both;
+}
+
 /* ============================================================
    RESPONSIVE — tablets (900px)
    ============================================================ */
@@ -1327,6 +1360,17 @@ body {
   line-height: 1.2;
 }
 
+.mod-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.mod-heading-filter {
+  margin: 0;
+}
+
 /* Buscador */
 .search-bar {
   margin-bottom: 1.25rem;
@@ -1351,6 +1395,26 @@ body {
   outline: none;
   border-color: var(--cen-azul);
   box-shadow: 0 0 0 3px var(--pico-primary-focus);
+}
+
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.search-bar__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #52606d;
+  font-size: 0.95rem;
+}
+
+.search-bar__filter input {
+  width: auto;
+  margin: 0;
 }
 
 /* Botones de acción primario y secundario */
@@ -1428,6 +1492,137 @@ body {
   background: #f5c6c6;
 }
 
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 20px;
+  min-width: 40px;
+  flex-shrink: 0;
+}
+
+.switch.switch-inline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  min-width: unset;
+  padding-right: 0;
+  gap: 0.55rem;
+}
+
+.switch.switch-inline .slider {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  margin-right: 0;
+}
+
+.switch.switch-inline .slider:before {
+  top: 3px;
+  left: 3px;
+}
+
+.switch-label {
+  font-size: 0.95rem;
+  color: #334d6e;
+  white-space: nowrap;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f8d7da;
+  border-radius: 999px;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  border: 1px solid #f5c2c7;
+  box-sizing: border-box;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.slider:hover {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  top: 3px;
+  left: 3px;
+  background: #ffffff;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+}
+
+.switch input:focus + .slider {
+  outline: 2px solid rgba(74, 125, 181, 0.35);
+  outline-offset: 3px;
+}
+
+.switch input:not(:checked) + .slider:hover {
+  background: #f5c6c6;
+  border-color: #ec9fa4;
+}
+
+.switch input:checked + .slider {
+  background: var(--cen-verde-claro);
+  border-color: rgba(58, 125, 68, 0.4);
+}
+
+.switch input:checked + .slider:hover {
+  background: #cde8d2;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+.switch-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 40px;
+}
+
+.switch-state {
+  display: none;
+}
+
+/* Botón de reactivar con misma forma que eliminar, pero verde */
+.btn-reactivar {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  background: var(--cen-verde-claro);
+  color: var(--cen-verde);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: "Source Sans 3", sans-serif;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.btn-reactivar:hover {
+  background: #cce7cf;
+}
+
 /* Grid de tarjetas de departamentos */
 .deptos-grid {
   display: grid;
@@ -1446,12 +1641,42 @@ body {
   border-left: 4px solid var(--cen-azul);
   transition:
     transform 0.2s,
-    box-shadow 0.2s;
+    box-shadow 0.2s,
+    opacity 0.2s,
+    background 0.2s;
 }
 
 .depto-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(74, 125, 181, 0.13);
+}
+
+.depto-card--inactive {
+  opacity: 0.45;
+  background: rgba(228, 233, 241, 0.95);
+  border-left-color: #9aa8c2;
+}
+
+.depto-card--inactive:hover {
+  transform: none;
+  box-shadow: 0 4px 16px rgba(74, 125, 181, 0.07);
+}
+
+.depto-row--highlight {
+  animation: deptoRowPulse 1.3s ease-in-out 2 forwards;
+}
+
+.depto-row--highlight td {
+  animation: deptoRowPulse 1.3s ease-in-out 2 forwards;
+}
+
+@keyframes deptoRowPulse {
+  0%, 100% {
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+  33%, 66% {
+    background-color: rgba(220, 250, 255, 0.7);
+  }
 }
 
 .depto-card h3 {
@@ -1489,14 +1714,19 @@ body {
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   z-index: 200;
+
+  /* Agregamos Flexbox para centrar todo lo que esté adentro */
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;       /* Margen de seguridad para pantallas pequeñas */
 }
 
 /* Ventana modal REVISAR*/
 .modal {
   display: none;
   position: fixed;
-  top: 50%;
-  left: 50%;
+  inset: 0;
+  margin: auto;
   transform: translate(-50%, -50%);
   z-index: 201;
   background: var(--cen-blanco);
@@ -1507,12 +1737,33 @@ body {
   animation: fadeUp 0.3s ease both;
   max-height: 90vh;
   overflow-y: auto;
+
+  /* Ajustes para tu pantalla de 1366x768px */
+  height: fit-content;            /* Evita que se estire a lo alto de la pantalla */
+  max-height: calc(100vh - 3rem); /* No permite que se salga de la pantalla */
+  flex-direction: column;
 }
 
 /* Cuando el modal está activo */
 .modal.active,
 .modal-overlay.active {
   display: block;
+}
+
+#confirm-overlay.active {
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+#confirm-modal {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: min(100%, 420px);
+  max-width: 420px;
+  margin: 0;
 }
 
 .modal-header {
@@ -1569,6 +1820,7 @@ body {
 .modal-body textarea {
   font-family: "Source Sans 3", sans-serif;
   font-size: 0.9rem;
+  height: 53px;
   padding: 0.55rem 0.75rem;
   border: 1.5px solid #d0dcea;
   border-radius: 8px;
@@ -1579,6 +1831,8 @@ body {
     box-shadow 0.18s;
   width: 100%;
   resize: vertical;
+  box-sizing: border-box;
+  min-height: 42px;
 }
 
 .modal-body input:focus,

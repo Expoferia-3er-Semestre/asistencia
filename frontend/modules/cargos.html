@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Departamentos — C.E.N. Roraima</title>
+    <title>Cargos — C.E.N. Roraima</title>
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,7 +14,6 @@
   </head>
 
   <body>
-    <!-- Barra superior -->
     <header class="topbar">
       <a class="topbar-brand" href="dashboard.html">
         <img
@@ -32,10 +31,7 @@
         <a
           href="../index.html"
           class="btn-logout"
-          onclick="
-            logout();
-            return false;
-          "
+          onclick="logout(); return false;"
         >
           Cerrar sesión
         </a>
@@ -43,105 +39,86 @@
     </header>
 
     <main class="mod-main">
-      <!-- Encabezado de página -->
       <div class="mod-heading">
         <div>
-          <h1>Departamentos</h1>
+          <h1>Cargos</h1>
         </div>
-        <!-- Botón para abrir el formulario de creación -->
         <button class="btn-primary" onclick="abrirModal()">+ Agregar</button>
       </div>
 
-      <!-- Tarjetas de departamentos -->
-      <div class="deptos-grid" id="deptos-grid">
-        <!-- Se llena dinámicamente por departamentos.js -->
-        <div class="tabla-empty">
-          <!--<span>🏢</span> -->
-          <!--Cargando departamentos… -->
-        </div>
-      </div>
-
-      <!-- Tabla de departamentos para verlos en detalle -->
       <section class="tabla-panel">
         <div class="tabla-header">
-          <h2>Listado de áreas</h2>
-          <span class="tabla-count" id="tabla-count">0 áreas</span>
+          <h2>Listado de cargos</h2>
+          <span class="tabla-count" id="tabla-count">0 cargos</span>
         </div>
 
         <div class="tabla-container">
-          <table id="tabla-deptos">
+          <table id="tabla-cargos">
             <thead>
               <tr>
-                <th>Nombre del área</th>
-                <th>Descripción</th>
-                <th>Personal asignado</th>
+                <th>Nombre del cargo</th>
+                <th>Departamento</th>
                 <th>Acciones</th>
-                <th>Estado</th>
               </tr>
             </thead>
-            <tbody id="tbody-deptos">
-              <!-- Se llena dinámicamente -->
+            <tbody id="tbody-cargos">
+              <tr>
+                <td colspan="3">
+                  <div class="tabla-empty">
+                    <span>🧾</span>
+                    Cargando cargos…
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
       </section>
     </main>
 
-    <!-- ── Modal: crear / editar departamento ── -->
     <div class="modal-overlay" id="modal-overlay" onclick="cerrarModal()"></div>
 
     <div
       class="modal"
-      id="modal-depto"
+      id="modal-cargo"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-titulo"
     >
       <div class="modal-header">
-        <h3 id="modal-titulo">Agregar departamento</h3>
+        <h3 id="modal-titulo">Agregar cargo</h3>
         <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">
           ✕
         </button>
       </div>
 
       <div class="modal-body">
-        <!-- Id oculto para saber si es edición -->
         <input type="hidden" id="form-id" />
 
         <label>
-          Nombre del área
-          <input
-            type="text"
-            id="form-nombre"
-            placeholder="Ej: Coordinación académica"
-          />
+          Nombre del cargo
+          <input type="text" id="form-nombre" placeholder="Ej: Docente" />
         </label>
 
         <label>
-          Descripción
-          <textarea
-            id="form-descripcion"
-            rows="3"
-            placeholder="Breve descripción del área…"
-          ></textarea>
+          Departamento
+          <select id="form-depto">
+            <option value="">Seleccionar…</option>
+          </select>
         </label>
 
-        <!-- Mensaje de error interno del modal -->
         <p id="modal-error" class="feedback-msg" role="alert"></p>
       </div>
 
       <div class="modal-footer">
         <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
-        <button class="btn-primary" id="btn-guardar" onclick="guardarDepto()">
+        <button class="btn-primary" id="btn-guardar" onclick="guardarCargo()">
           Guardar
         </button>
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="../js/api.js"></script>
-    <!-- app.js primero, luego el js de la página -->
     <script src="../js/app.js"></script>
-    <script src="../js/departamentos.js"></script>
+    <script src="../js/cargos.js"></script>
   </body>
 </html>

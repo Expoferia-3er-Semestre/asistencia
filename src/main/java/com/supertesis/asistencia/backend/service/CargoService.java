@@ -9,7 +9,6 @@ import com.supertesis.asistencia.backend.repository.CargoRepository;
 import com.supertesis.asistencia.backend.repository.DepartamentoRepository;
 import lombok.RequiredArgsConstructor;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

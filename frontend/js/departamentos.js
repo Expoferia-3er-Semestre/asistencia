@@ -25,27 +25,35 @@ async function cargarDeptos() {
 
 function renderCards(datos) {
   const grid = document.getElementById("deptos-grid");
-
-  if (!datos.length) {
-    grid.innerHTML = `
+  const placeholder = `
       <div class="tabla-empty">
         <span>🏢</span>
         No hay departamentos registrados.
       </div>`;
+
+  const departamentosOrdenados = datos
+    .slice()
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
+
+  if (!departamentosOrdenados.length) {
+    grid.innerHTML = placeholder;
     return;
   }
 
-  grid.innerHTML = datos
-    .map(
-      (d) => `
-    <div class="depto-card">
-      <h3>${d.nombre}</h3>
-      <p>${d.descripcion || "Sin descripción"}</p>
-      <span class="depto-count">${d.totalPersonal ?? 0} persona${d.totalPersonal !== 1 ? "s" : ""}</span>
-    </div>
-  `,
-    )
+  const html = departamentosOrdenados
+    .map((d) => {
+      const estadoClass = d.activo ? "" : "depto-card--inactive";
+      return `
+        <div class="depto-card ${estadoClass}" data-id="${d.id}" onclick="seleccionarDepto(${d.id})">
+          <h3>${d.nombre}</h3>
+          <p>${d.descripcion || "Sin descripción"}</p>
+          <span class="depto-count">${d.totalPersonal ?? 0} persona${d.totalPersonal !== 1 ? "s" : ""}</span>
+        </div>
+      `;
+    })
     .join("");
+
+  grid.innerHTML = html;
 }
 
 /* ── Render tabla ─────────────────────────────────────── */
@@ -59,7 +67,7 @@ function renderTabla(datos) {
   if (!datos.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="4">
+        <td colspan="5">
           <div class="tabla-empty">
             <span>🏢</span>
             No hay áreas registradas.
@@ -69,21 +77,53 @@ function renderTabla(datos) {
     return;
   }
 
-  tbody.innerHTML = datos
-    .map(
-      (d) => `
-    <tr>
+  const ordenados = [...datos].sort((a, b) => {
+    if (a.activo === b.activo) {
+      return a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
+    }
+    return a.activo ? -1 : 1;
+  });
+
+  tbody.innerHTML = ordenados
+    .map((d) => {
+      return `
+    <tr data-id="${d.id}">
       <td data-label="Nombre">${d.nombre}</td>
       <td data-label="Descripción">${d.descripcion || "—"}</td>
       <td data-label="Personal">${d.totalPersonal ?? 0}</td>
       <td data-label="Acciones">
-        <button class="btn-edit"   onclick="editarDepto(${d.id})">Editar</button>
-        <button class="btn-delete" onclick="eliminarDepto(${d.id})">Eliminar</button>
+      <button class="btn-edit" onclick="editarDepto(${d.id})">Editar</button>
+      </td>
+      <td data-label="Estado">
+        <div class="switch-cell">
+          <label class="switch">
+            <input type="checkbox" ${d.activo ? "checked" : ""} onchange="toggleDeptoStatus(this, ${d.activo}, ${d.id})" />
+            <span class="slider"></span>
+          </label>
+        </div>
       </td>
     </tr>
-  `,
-    )
+  `;
+    })
     .join("");
+}
+
+function seleccionarDepto(id) {
+  const fila = document.querySelector(`#tbody-deptos tr[data-id="${id}"]`);
+  if (!fila) return;
+
+  fila.scrollIntoView({ behavior: "smooth", block: "center" });
+  fila.classList.remove("depto-row--highlight");
+  if (fila._highlightTimeout) {
+    clearTimeout(fila._highlightTimeout);
+  }
+
+  void fila.offsetWidth;
+  fila.classList.add("depto-row--highlight");
+  fila._highlightTimeout = setTimeout(() => {
+    fila.classList.remove("depto-row--highlight");
+    fila._highlightTimeout = null;
+  }, 5000);
 }
 
 /* ── Modal ────────────────────────────────────────────── */
@@ -158,12 +198,43 @@ async function guardarDepto() {
   }
 }
 
-/* ── Eliminar ─────────────────────────────────────────── */
+/* ── Activar/Desactivar ────────────────────────────────── */
 
-async function eliminarDepto(id) {
-  if (!confirm("¿Seguro que deseas eliminar esta área?")) return;
+async function toggleDeptoStatus(checkbox, activo, id) {
+  const confirmado = await showConfirmation(
+    activo
+      ? "¿Seguro que deseas desactivar este departamento?"
+      : "¿Seguro que deseas activar este departamento?",
+    {
+      title: activo ? "Desactivar departamento" : "Activar departamento",
+      confirmText: activo ? "Desactivar" : "Activar",
+      cancelText: "Cancelar",
+    },
+  );
+  if (!confirmado) {
+    checkbox.checked = activo;
+    return;
+  }
+
+  const action = activo ? "desactivar" : "activar";
+  const url = `${API_BASE}/departamentos/${id}/${action}`;
 
   try {
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: getHeaders(),
+    });
+
+    if (res.ok) {
+      cargarDeptos();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert(err.message || "No se pudo actualizar el estado del departamento.");
+      checkbox.checked = activo;
+    }
+  } catch {
+    alert("Error de conexión con el servidor.");
+    checkbox.checked = activo;
     await api.delete(`/api/departamentos/${id}`); // cookie viaja sola
     cargarDeptos();
   } catch {

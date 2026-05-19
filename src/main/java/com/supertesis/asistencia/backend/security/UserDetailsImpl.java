@@ -1,6 +1,5 @@
 package com.supertesis.asistencia.backend.security;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -18,7 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDetailsImpl implements UserDetails, Serializable {
+public class UserDetailsImpl implements UserDetails {
 
     private Integer id;
     private String username;

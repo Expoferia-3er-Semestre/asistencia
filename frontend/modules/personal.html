@@ -48,8 +48,19 @@
         <div>
           <h1>Personal</h1>
         </div>
-        <!-- Botón para abrir el formulario de creación -->
-        <button class="btn-primary" onclick="abrirModal()">+ Agregar</button>
+        <div class="mod-heading-actions">
+          <label class="switch switch-inline">
+            <input
+              type="checkbox"
+              id="mostrar-inactivos"
+              onchange="filtrarTabla()"
+            />
+            <span class="slider"></span>
+            <span class="switch-label">Mostrar inactivos</span>
+          </label>
+          <!-- Botón para abrir el formulario de creación -->
+          <button class="btn-primary" onclick="abrirModal()">+ Agregar</button>
+        </div>
       </div>
 
       <!-- Buscador rápido -->
@@ -78,12 +89,13 @@
                 <th>Cargo</th>
                 <th>Departamento</th>
                 <th>Acciones</th>
+                <th>Estado</th>
               </tr>
             </thead>
             <tbody id="tbody-personal">
               <!-- Se llena dinámicamente por personal.js 👥 -->
               <tr>
-                <td colspan="5">
+                <td colspan="6">
                   <div class="tabla-empty">
                     <span></span>
                     Cargando personal…
@@ -130,12 +142,25 @@
 
         <div class="form-grid-2">
           <label>
+            Correo
+            <input type="email" id="form-correo" placeholder="Correo electrónico" />
+          </label>
+          <label>
+            Numero de teléfono
+            <input type="tel" id="form-telefono" placeholder="Número de teléfono"/>
+          </label>
+        </div>
+
+        <div class="form-grid-2">
+          <label>
             Cédula
             <input type="text" id="form-cedula" placeholder="V-00000000" />
           </label>
           <label>
             Cargo
-            <input type="text" id="form-cargo" placeholder="Ej: Docente" />
+            <select id="form-cargo">
+              <option value="">Seleccionar…</option>
+            </select>
           </label>
         </div>
 

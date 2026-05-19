@@ -1,10 +1,22 @@
 /* Cache local para filtrar sin volver a llamar al backend */
 let listaPersonal = [];
+let listaCargos = [];
+
+function getPersonalVisibles() {
+  const mostrarInactivos = document.getElementById("mostrar-inactivos")?.checked;
+  return listaPersonal.filter((p) => mostrarInactivos || p.activo);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesion(); // app.js — redirige si no hay token
   cargarPersonal();
   cargarDeptosEnModal();
+  cargarCargosEnModal();
+  // Al cambiar departamento en el modal, filtrar cargos disponibles
+  const deptoSel = document.getElementById("form-depto");
+  if (deptoSel) {
+    deptoSel.addEventListener("change", (e) => filtrarCargosPorDepto(e.target.value));
+  }
 });
 
 /* ── Carga ────────────── */
@@ -14,6 +26,8 @@ async function cargarPersonal() {
     const res = await api.get("/api/personal"); // cookie viaja sola
     listaPersonal = res.data;
 
+    listaPersonal = await res.json();
+    renderTabla(getPersonalVisibles());
     renderTabla(listaPersonal);
   } catch (err) {
     console.error("Error cargando personal:", err);
@@ -24,8 +38,15 @@ async function cargarPersonal() {
 /* Llena el select de departamentos dentro del modal */
 async function cargarDeptosEnModal() {
   try {
+    const res = await fetch(`${API_BASE}/departamentos/activos`, {
+      headers: getHeaders(),
+    }); // app.js
+    if (!res.ok) return;
+
+    const deptos = await res.json();
     const res = await api.get("/api/departamentos"); // cookie viaja sola
     const sel = document.getElementById("form-depto");
+    sel.innerHTML = `<option value="">Seleccionar…</option>`;
 
     res.data.forEach((d) => {
       const opt = document.createElement("option");
@@ -38,6 +59,61 @@ async function cargarDeptosEnModal() {
   }
 }
 
+  /* Llena el select de cargos dentro del modal */
+  async function cargarCargosEnModal() {
+    try {
+      const res = await fetch(`${API_BASE}/cargos`, { headers: getHeaders() });
+      if (!res.ok) return;
+
+      const cargos = await res.json();
+      listaCargos = cargos;
+      const sel = document.getElementById("form-cargo");
+      const previous = sel.value;
+      // Populate according to currently selected departamento (if any)
+      filtrarCargosPorDepto(document.getElementById("form-depto").value || "");
+      if (previous) sel.value = previous;
+    } catch (err) {
+      console.error("Error cargando cargos:", err);
+    }
+  }
+
+  /**
+   * Llena el select de `form-cargo` filtrando por departamento (si se pasa)
+   * @param {string|number} deptoId
+   */
+  function filtrarCargosPorDepto(deptoId) {
+    const sel = document.getElementById("form-cargo");
+    if (!sel) return;
+    sel.innerHTML = `<option value="">Seleccionar...</option>`;
+
+    if (!deptoId){
+      sel.disabled = true;
+      return;
+    }
+
+    sel.disabled = false;
+
+    const idNum = deptoId ? Number(deptoId) : null;
+    listaCargos.forEach((c) => {
+      // Determinar departamentoId del cargo (puede venir como objeto o campo directo)
+      let cargoDeptoId = null;
+      if (c.departamento && typeof c.departamento === "object") {
+        cargoDeptoId = c.departamento.id;
+      } else if (typeof c.departamentoId !== "undefined") {
+        cargoDeptoId = c.departamentoId;
+      } else if (typeof c.departamento !== "undefined") {
+        cargoDeptoId = c.departamento;
+      }
+
+      if (!idNum || Number(cargoDeptoId) === idNum) {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.nombre || c.descripcion || "—";
+        sel.appendChild(opt);
+      } 
+    });
+  }
+
 /* ── Render tabla ─────────── */
 
 function renderTabla(datos) {
@@ -49,7 +125,7 @@ function renderTabla(datos) {
   if (!datos.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5">
+        <td colspan="6">
           <div class="tabla-empty">
             <span>👥</span>
             No hay personal registrado.
@@ -59,16 +135,24 @@ function renderTabla(datos) {
     return;
   }
 
+  const ordenados = [...datos].sort((a, b) => {
+    if (a.activo === b.activo) {
+      const nombreA = `${a.nombre || ""} ${a.apellido || ""}`.trim().toLowerCase();
+      const nombreB = `${b.nombre || ""} ${b.apellido || ""}`.trim().toLowerCase();
+      return nombreA.localeCompare(nombreB, "es", { sensitivity: "base" });
+    }
+    return a.activo ? -1 : 1;
+  });
+
+  tbody.innerHTML = ordenados
   /* Ajustar los campos según la API */
   tbody.innerHTML = datos
     .map((p) => {
-      // Si cargo es objeto, intenta sacar .nombre; si es string lo usa directo
       const cargo =
         typeof p.cargo === "object"
           ? p.cargo?.nombre || p.cargo?.descripcion || "—"
           : p.cargo || "—";
 
-      // Si departamento es objeto, saca .nombre
       const depto =
         typeof p.departamento === "object"
           ? p.departamento?.nombre || "—"
@@ -81,8 +165,15 @@ function renderTabla(datos) {
         <td data-label="Cargo">${cargo}</td>
         <td data-label="Departamento">${depto}</td>
         <td data-label="Acciones">
-          <button class="btn-edit"   onclick="editarPersonal(${p.id})">Editar</button>
-          <button class="btn-delete" onclick="eliminarPersonal(${p.id})">Eliminar</button>
+          <button class="btn-edit" onclick="editarPersonal(${p.id})">Editar</button>
+        </td>
+        <td data-label="Estado">
+          <div class="switch-cell">
+            <label class="switch">
+              <input type="checkbox" ${p.activo ? "checked" : ""} onchange="togglePersonalStatus(this, ${p.activo}, ${p.id})" />
+              <span class="slider"></span>
+            </label>
+          </div>
         </td>
       </tr>`;
     })
@@ -92,7 +183,7 @@ function renderTabla(datos) {
 
 function filtrarTabla() {
   const q = document.getElementById("buscador").value.toLowerCase();
-  const filtrados = listaPersonal.filter((p) =>
+  const filtrados = getPersonalVisibles().filter((p) =>
     `${p.nombre} ${p.apellido} ${p.cedula} ${p.departamentoNombre || ""}`
       .toLowerCase()
       .includes(q),
@@ -119,10 +210,14 @@ function limpiarFormulario() {
     "form-id",
     "form-nombre",
     "form-apellido",
+    "form-telefono",
+    "form-correo",
     "form-cedula",
     "form-cargo",
   ].forEach((id) => (document.getElementById(id).value = ""));
   document.getElementById("form-depto").value = "";
+  // Restaurar listado completo o vacío de cargos
+  filtrarCargosPorDepto("");
   const err = document.getElementById("modal-error");
   err.className = "feedback-msg";
   err.textContent = "";
@@ -134,10 +229,8 @@ function editarPersonal(id) {
   if (!p) return;
 
   // Extrae cargo limpio — puede venir como objeto o string
-  const cargoVal =
-    typeof p.cargo === "object"
-      ? p.cargo?.nombre || p.cargo?.descripcion || ""
-      : p.cargo || "";
+  const cargoId =
+    typeof p.cargo === "object" ? p.cargo?.id || "" : p.cargoId || "";
 
   // Extrae id de departamento para seleccionar en el select
   const deptoId =
@@ -148,9 +241,13 @@ function editarPersonal(id) {
   document.getElementById("form-id").value = p.id;
   document.getElementById("form-nombre").value = p.nombre || "";
   document.getElementById("form-apellido").value = p.apellido || "";
+  document.getElementById("form-telefono").value = p.telefono || "";
+  document.getElementById("form-correo").value = p.correo || "";
   document.getElementById("form-cedula").value = p.cedula || "";
-  document.getElementById("form-cargo").value = cargoVal;
   document.getElementById("form-depto").value = deptoId;
+  // Filtrar cargos según el departamento y luego seleccionar el cargo actual
+  filtrarCargosPorDepto(deptoId);
+  document.getElementById("form-cargo").value = cargoId;
 
   abrirModal("Editar personal");
 }
@@ -161,8 +258,13 @@ async function guardarPersonal() {
   const id = document.getElementById("form-id").value;
   const nombre = document.getElementById("form-nombre").value.trim();
   const apellido = document.getElementById("form-apellido").value.trim();
+  const telefono = document.getElementById("form-telefono").value.trim();
+  const correo = document.getElementById("form-correo").value.trim();
   const cedula = document.getElementById("form-cedula").value.trim();
-  const cargo = document.getElementById("form-cargo").value.trim();
+  const cargoId = document.getElementById("form-cargo").value;
+  const cargoName = cargoId
+    ? document.getElementById("form-cargo").selectedOptions?.[0]?.textContent || null
+    : null;
   const deptoId = document.getElementById("form-depto").value;
   const btn = document.getElementById("btn-guardar");
 
@@ -171,14 +273,33 @@ async function guardarPersonal() {
     return;
   }
 
+  const esEdicion = !!id;
+
+  const existing = esEdicion ? listaPersonal.find((x) => String(x.id) === String(id)) : null;
+
   const body = {
     nombre,
     apellido,
     cedula,
-    cargo,
-    departamentoId: deptoId || null,
+    telefono,
+    correo,
+    cargo: cargoName,
+    cargoId: cargoId ? Number(cargoId) : null,
+    departamentoId: deptoId ? Number(deptoId) : null,
+    fechaIngreso: (esEdicion && existing?.fechaIngreso) 
+    ? existing.fechaIngreso 
+    : new Date().toISOString().split('T')[0],
   };
-  const esEdicion = !!id;
+  // Si es edición, preservar el estado 'activo' del registro existente;
+  // si es creación, establecer activo = true por defecto
+  if (esEdicion) {
+    const existing = listaPersonal.find((x) => String(x.id) === String(id));
+    if (existing && typeof existing.activo !== "undefined") {
+      body.activo = existing.activo;
+    }
+  } else {
+    body.activo = true;
+  }
   const url = esEdicion ? `${API_BASE}/personal/${id}` : `${API_BASE}/personal`;
   const method = esEdicion ? "PUT" : "POST";
 
@@ -202,17 +323,54 @@ async function guardarPersonal() {
   }
 }
 
-/* ── Eliminar ─────────────────────────────────────────── */
+/* ── Activar/Desactivar ─────────────────────────────────────────── */
 
-async function eliminarPersonal(id) {
-  if (!confirm("¿Seguro que deseas eliminar este registro?")) return;
+async function togglePersonalStatus(checkbox, activo, id) {
+  const confirmado = await showConfirmation(
+    activo
+      ? "¿Seguro que deseas desactivar este empleado?"
+      : "¿Seguro que deseas reactivar este empleado?",
+    {
+      title: activo ? "Desactivar empleado" : "Reactivar empleado",
+      confirmText: activo ? "Desactivar" : "Activar",
+      cancelText: "Cancelar",
+    },
+  );
+  if (!confirmado) {
+    checkbox.checked = activo;
+    return;
+  }
+
+  const url = activo
+    ? `${API_BASE}/personal/${id}`
+    : `${API_BASE}/personal/${id}/reactivar`;
+  const method = activo ? "DELETE" : "PATCH";
 
   try {
+    const res = await fetch(url, {
+      method,
+      headers: getHeaders(), // app.js
+    });
+
+    if (res.ok) {
+      cargarPersonal();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert(err.message || "No se pudo actualizar el estado.");
+      checkbox.checked = activo;
+    }
+  } catch {
+    alert("Error de conexión con el servidor.");
+    checkbox.checked = activo;
     await api.delete(`/api/personal/${id}`); // cookie viaja sola
     cargarPersonal();
   } catch {
     alert("No se pudo eliminar el registro.");
   }
+}
+
+async function eliminarPersonal(id) {
+  return togglePersonalStatus(id, true);
 }
 
 /* ── Helpers ──────────────────── */

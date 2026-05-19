@@ -40,6 +40,23 @@ public class DepartamentoController {
         return ResponseEntity.ok(deptoService.update(id, request));
     }
 
+    @PatchMapping("/{id}/desactivar")
+    public ResponseEntity<Void> desactivar(@PathVariable Integer id) {
+        deptoService.desactivar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/activar")
+    public ResponseEntity<Void> activar(@PathVariable Integer id) {
+        deptoService.activar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/activos")
+    public ResponseEntity<List<DepartamentoResponseDto>> findActive() {
+        return ResponseEntity.ok(deptoService.findActive());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         deptoService.deleteById(id);
