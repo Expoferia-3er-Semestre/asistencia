@@ -217,28 +217,15 @@ async function toggleDeptoStatus(checkbox, activo, id) {
   }
 
   const action = activo ? "desactivar" : "activar";
-  const url = `${API_BASE}/departamentos/${id}/${action}`;
 
   try {
-    const res = await fetch(url, {
-      method: "PATCH",
-      headers: getHeaders(),
-    });
-
-    if (res.ok) {
-      cargarDeptos();
-    } else {
-      const err = await res.json().catch(() => ({}));
-      alert(err.message || "No se pudo actualizar el estado del departamento.");
-      checkbox.checked = activo;
-    }
-  } catch {
-    alert("Error de conexión con el servidor.");
-    checkbox.checked = activo;
-    await api.delete(`/api/departamentos/${id}`); // cookie viaja sola
+    // Si usas tu cliente 'api' (Axios) configurado con cookies
+    await api.patch(`/api/departamentos/${id}/${action}`);
     cargarDeptos();
-  } catch {
-    alert("No se pudo eliminar el área.");
+  } catch (err) {
+    const msg = err.response?.data?.message || "No se pudo actualizar el estado del departamento.";
+    alert(msg);
+    checkbox.checked = activo;
   }
 }
 
