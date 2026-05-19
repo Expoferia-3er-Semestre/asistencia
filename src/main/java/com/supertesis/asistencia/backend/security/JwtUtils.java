@@ -2,6 +2,7 @@ package com.supertesis.asistencia.backend.security;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 import io.jsonwebtoken.Claims;
@@ -62,4 +63,15 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    public String generateTokenWithClaims(String subject, Map<String, Object> claims, long expirationMillis) {
+    return Jwts.builder()
+            .setClaims(claims)
+            .setSubject(subject)
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
+            .signWith(SignatureAlgorithm.HS256, jwtSecret) // Usa tu clave secreta existente
+            .compact();
+}
+
 }

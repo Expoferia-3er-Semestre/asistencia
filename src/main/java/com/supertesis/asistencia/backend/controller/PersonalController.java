@@ -3,16 +3,20 @@ package com.supertesis.asistencia.backend.controller;
 import com.supertesis.asistencia.backend.dto.personal.PersonalCreateRequestDto;
 import com.supertesis.asistencia.backend.dto.personal.PersonalResponseDto;
 import com.supertesis.asistencia.backend.dto.personal.PersonalUpdateRequestDto;
+import com.supertesis.asistencia.backend.security.QrTokenService;
 import com.supertesis.asistencia.backend.service.PersonalService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/personal")
@@ -20,6 +24,15 @@ import java.util.List;
 public class PersonalController {
 
     private final PersonalService personalService;
+    @Autowired
+    private QrTokenService qrTokenService;
+
+    @PreAuthorize("hasRole('Administrador')") 
+    @GetMapping("/{id}/qr-token")
+    public ResponseEntity<Map<String, Object>> getQrToken(@PathVariable("id") Integer id) {
+        Map<String, Object> response = qrTokenService.generateQrToken(id);
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping
     public ResponseEntity<List<PersonalResponseDto>> findAll() {
@@ -79,5 +92,7 @@ public class PersonalController {
         personalService.reactivar(id);
         return ResponseEntity.noContent().build();
     }
+
+    
 
 }
