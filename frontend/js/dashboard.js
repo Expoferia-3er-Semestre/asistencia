@@ -1,7 +1,7 @@
 /* dashboard.js */
 
 document.addEventListener("DOMContentLoaded", () => {
-  verificarSesion(); // app.js — redirige si no hay token
+  verificarSesion(); // app.js
 
   // Muestra nombre en topbar y saludo
   const nombreLimpio = getNombre(); // app.js
@@ -32,21 +32,16 @@ async function cargarEstadisticas() {
   };
 
   try {
+    /* api de api.js — cookie viaja sola, sin headers manuales */
     const [resPersonal, resAsistencia, resDeptos] = await Promise.all([
-      fetch(`${API_BASE}/personal`, { headers: getHeaders() }), // app.js
-      fetch(`${API_BASE}/asistencia?fecha=${fecha}`, { headers: getHeaders() }),
-      fetch(`${API_BASE}/departamentos`, { headers: getHeaders() }),
+      api.get("/api/personal"),
+      api.get(`/api/asistencia?fecha=${fecha}`),
+      api.get("/api/departamentos"),
     ]);
 
-    setVal(
-      "totalPersonal",
-      resPersonal.ok ? (await resPersonal.json()).length : "—",
-    );
-    setVal(
-      "totalAsistencias",
-      resAsistencia.ok ? (await resAsistencia.json()).length : "—",
-    );
-    setVal("totalDeptos", resDeptos.ok ? (await resDeptos.json()).length : "—");
+    setVal("totalPersonal", resPersonal.data.length);
+    setVal("totalAsistencias", resAsistencia.data.length);
+    setVal("totalDeptos", resDeptos.data.length);
   } catch (err) {
     console.error("Error cargando estadísticas:", err);
     ["totalPersonal", "totalAsistencias", "totalDeptos"].forEach((id) =>

@@ -23,11 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function cargarPersonal() {
   try {
-    const res = await fetch(`${API_BASE}/personal`, { headers: getHeaders() }); // app.js
-    if (!res.ok) throw new Error("Sin respuesta del servidor");
+    const res = await api.get("/api/personal"); // cookie viaja sola
+    listaPersonal = res.data;
 
     listaPersonal = await res.json();
     renderTabla(getPersonalVisibles());
+    renderTabla(listaPersonal);
   } catch (err) {
     console.error("Error cargando personal:", err);
     renderTabla([]);
@@ -43,10 +44,11 @@ async function cargarDeptosEnModal() {
     if (!res.ok) return;
 
     const deptos = await res.json();
+    const res = await api.get("/api/departamentos"); // cookie viaja sola
     const sel = document.getElementById("form-depto");
     sel.innerHTML = `<option value="">Seleccionar…</option>`;
 
-    deptos.forEach((d) => {
+    res.data.forEach((d) => {
       const opt = document.createElement("option");
       opt.value = d.id;
       opt.textContent = d.nombre;
@@ -143,6 +145,8 @@ function renderTabla(datos) {
   });
 
   tbody.innerHTML = ordenados
+  /* Ajustar los campos según la API */
+  tbody.innerHTML = datos
     .map((p) => {
       const cargo =
         typeof p.cargo === "object"
@@ -303,19 +307,14 @@ async function guardarPersonal() {
   btn.textContent = "Guardando…";
 
   try {
-    const res = await fetch(url, {
-      method,
-      headers: getHeaders(), // app.js
-      body: JSON.stringify(body),
-    });
-
-    if (res.ok) {
-      cerrarModal();
-      cargarPersonal(); // refresca la tabla
+    /* cookie viaja sola — sin headers manuales */
+    if (esEdicion) {
+      await api.put(`/api/personal/${id}`, body);
     } else {
-      const err = await res.json().catch(() => ({}));
-      mostrarModalError(err.message || "No se pudo guardar el registro.");
+      await api.post("/api/personal", body);
     }
+    cerrarModal();
+    cargarPersonal();
   } catch {
     mostrarModalError("Error de conexión con el servidor.");
   } finally {
@@ -363,6 +362,10 @@ async function togglePersonalStatus(checkbox, activo, id) {
   } catch {
     alert("Error de conexión con el servidor.");
     checkbox.checked = activo;
+    await api.delete(`/api/personal/${id}`); // cookie viaja sola
+    cargarPersonal();
+  } catch {
+    alert("No se pudo eliminar el registro.");
   }
 }
 
