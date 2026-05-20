@@ -1547,14 +1547,19 @@ body {
   bottom: 0;
   background: #f8d7da;
   border-radius: 999px;
-  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
   border: 1px solid #f5c2c7;
   box-sizing: border-box;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
 .slider:hover {
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .slider:before {
@@ -1565,7 +1570,10 @@ body {
   top: 3px;
   left: 3px;
   background: #ffffff;
-  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
 }
@@ -1671,10 +1679,12 @@ body {
 }
 
 @keyframes deptoRowPulse {
-  0%, 100% {
+  0%,
+  100% {
     background-color: rgba(255, 255, 255, 0.95);
   }
-  33%, 66% {
+  33%,
+  66% {
     background-color: rgba(220, 250, 255, 0.7);
   }
 }
@@ -1718,7 +1728,7 @@ body {
   /* Agregamos Flexbox para centrar todo lo que esté adentro */
   align-items: center;
   justify-content: center;
-  padding: 1rem;       /* Margen de seguridad para pantallas pequeñas */
+  padding: 1rem; /* Margen de seguridad para pantallas pequeñas */
 }
 
 /* Ventana modal REVISAR*/
@@ -1739,7 +1749,7 @@ body {
   overflow-y: auto;
 
   /* Ajustes para tu pantalla de 1366x768px */
-  height: fit-content;            /* Evita que se estire a lo alto de la pantalla */
+  height: fit-content; /* Evita que se estire a lo alto de la pantalla */
   max-height: calc(100vh - 3rem); /* No permite que se salga de la pantalla */
   flex-direction: column;
 }
@@ -1901,4 +1911,138 @@ body {
   .mod-main {
     padding: 1.25rem 1rem 2rem;
   }
+}
+
+/* ── Botón Ver QR en tabla de personal ── */
+.btn-qr {
+  padding: 0.35rem 0.75rem;
+  background: var(--cen-azul-claro);
+  color: var(--cen-azul);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: "Source Sans 3", sans-serif;
+  transition:
+    background 0.18s,
+    transform 0.15s;
+  margin-left: 0.4rem;
+}
+
+.btn-qr:hover {
+  background: #b8d4ee;
+  transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════════
+   ESCÁNER QR
+   ══════════════════════════════════════════ */
+
+/* Área principal */
+.escaner-main {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+/* Panel que contiene la cámara */
+.escaner-panel {
+  background: var(--cen-blanco);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(74, 125, 181, 0.07);
+  text-align: center;
+}
+
+.escaner-panel h2 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  color: var(--cen-azul-oscuro);
+  margin-bottom: 1.25rem;
+}
+
+/* El visor de la cámara ocupa todo el ancho del panel */
+#qr-reader {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+/* Panel de resultado debajo de la cámara */
+.escaner-resultado {
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  margin-top: 1rem;
+  transition: opacity 0.3s;
+}
+
+/* Oculto por defecto */
+.escaner-resultado.oculto {
+  display: none;
+}
+
+/* Resultado exitoso — verde */
+.escaner-success {
+  background: var(--cen-verde-claro);
+  border: 1.5px solid var(--cen-verde);
+}
+
+.escaner-success #escaner-mensaje {
+  color: var(--cen-verde);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0.25rem 0 0;
+}
+
+/* Resultado error — rojo */
+.escaner-error {
+  background: var(--cen-rojo-claro);
+  border: 1.5px solid var(--cen-rojo);
+}
+
+.escaner-error #escaner-mensaje {
+  color: var(--cen-rojo);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0.25rem 0 0;
+}
+
+/* Procesando — gris */
+.escaner-cargando {
+  background: #f0f4f8;
+  border: 1.5px solid #d0dcea;
+}
+
+.escaner-cargando #escaner-mensaje {
+  color: #556a8f;
+  font-size: 1rem;
+  margin: 0.25rem 0 0;
+}
+
+/* Ícono grande */
+#escaner-icono {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Hora del evento */
+#escaner-hora {
+  color: #7a8fa6;
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0;
+}
+
+/* Responsivo — móvil */
+@media (max-width: 600px) {
+  .escaner-main {
+    padding: 1rem 0.75rem 2rem;
+  }
+}
+
+/* Oculta el texto del token que qrcode.js inyecta fuera del div#qr-canvas */
+.modal-body > *:not(#qr-canvas):not(p):not(#qr-status) {
+  display: none !important;
 }
