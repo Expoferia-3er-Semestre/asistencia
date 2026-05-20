@@ -7,4 +7,16 @@ const api = axios.create({
   withCredentials: true, // clave — envía la cookie httpOnly
 });
 
+//la puse para probar con el tlf como host
+/* Detectamos automáticamente el host para que funcione
+   tanto desde la PC (localhost) como desde el teléfono (IP local) */
+/*
+const BASE_URL = `http://${window.location.hostname}:8080`;
+
+const api = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true,
+});
+*/
+
 // recuerda que origen de esta URL que se usa el frontend debe coincidir con el puerto permitido en el backend (SecurityConfig.java) asegúrate que el origen permitido este alli tambien para evitar problemas de CORS.
