@@ -11,6 +11,8 @@
       href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <!-- Librería para generar el código QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   </head>
 
   <body>
@@ -90,6 +92,7 @@
                 <th>Departamento</th>
                 <th>Acciones</th>
                 <th>Estado</th>
+                <th >Empleado QR</th>
               </tr>
             </thead>
             <tbody id="tbody-personal">
@@ -143,11 +146,19 @@
         <div class="form-grid-2">
           <label>
             Correo
-            <input type="email" id="form-correo" placeholder="Correo electrónico" />
+            <input
+              type="email"
+              id="form-correo"
+              placeholder="Correo electrónico"
+            />
           </label>
           <label>
             Numero de teléfono
-            <input type="tel" id="form-telefono" placeholder="Número de teléfono"/>
+            <input
+              type="tel"
+              id="form-telefono"
+              placeholder="Número de teléfono"
+            />
           </label>
         </div>
 
@@ -184,6 +195,43 @@
         >
           Guardar
         </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     MODAL QR — muestra el código QR del empleado
+     ══════════════════════════════════════════ -->
+    <div
+      class="modal-overlay"
+      id="modal-qr-overlay"
+      onclick="cerrarModalQR()"
+    ></div>
+
+    <div class="modal" id="modal-qr">
+      <div class="modal-header">
+        <!-- Nombre del empleado se inyecta desde verQR() -->
+        <h3 id="qr-nombre-empleado">Código QR</h3>
+        <button class="modal-close" onclick="cerrarModalQR()">✕</button>
+      </div>
+
+      <div class="modal-body" style="text-align: center">
+        <!-- Instrucción para el usuario -->
+        <p style="color: #556a8f; font-size: 0.875rem; margin-bottom: 1rem">
+          Escanea este código con la cámara del escáner.
+        </p>
+
+        <!-- Aquí qrcode.js dibuja el QR -->
+        <div
+          id="qr-canvas"
+          style="display: flex; justify-content: center; margin-bottom: 1rem"
+        ></div>
+
+        <!-- Mensaje de estado mientras carga el token -->
+        <p id="qr-status" style="color: #7a8fa6; font-size: 0.8rem"></p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secundario" onclick="cerrarModalQR()">Cerrar</button>
       </div>
     </div>
 

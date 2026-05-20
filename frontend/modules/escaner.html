@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Escáner QR — C.E.N. Roraima</title>
+
+    <!-- Tipografía institucional -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Estilos del sistema -->
+    <link rel="stylesheet" href="../css/styles.css" />
+
+    <!-- Librería para leer QR desde la cámara -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  </head>
+
+  <body>
+    <!-- Barra superior -->
+    <header class="topbar">
+      <a class="topbar-brand" href="dashboard.html">
+        <img
+          src="../img/logo.svg.png"
+          alt="Logo C.E.N. Roraima"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="topbar-brand-text">
+          <strong>C.E.N. Roraima</strong>
+          <span>Control de asistencia</span>
+        </div>
+      </a>
+      <div class="topbar-right">
+        <a href="dashboard.html" class="btn-back">← Dashboard</a>
+        <a
+          href="../index.html"
+          class="btn-logout"
+          onclick="
+            logout();
+            return false;
+          "
+        >
+          Cerrar sesión
+        </a>
+      </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="escaner-main">
+      <!-- Encabezado -->
+      <div class="asist-heading">
+        <p class="eyebrow">Módulo QR</p>
+        <h1>Escáner de Asistencia</h1>
+      </div>
+
+      <!-- Área de la cámara -->
+      <section class="escaner-panel">
+        <h2>Apunta la cámara al código QR del empleado</h2>
+
+        <!-- html5-qrcode dibuja la cámara aquí -->
+        <div id="qr-reader"></div>
+
+        <!-- Feedback visual del resultado del escaneo -->
+        <div id="escaner-resultado" class="escaner-resultado oculto">
+          <span id="escaner-icono"></span>
+          <p id="escaner-mensaje"></p>
+          <p id="escaner-hora"></p>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/escaner.js"></script>
+  </body>
+</html>

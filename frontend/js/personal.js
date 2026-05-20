@@ -3,7 +3,8 @@ let listaPersonal = [];
 let listaCargos = [];
 
 function getPersonalVisibles() {
-  const mostrarInactivos = document.getElementById("mostrar-inactivos")?.checked;
+  const mostrarInactivos =
+    document.getElementById("mostrar-inactivos")?.checked;
   return listaPersonal.filter((p) => mostrarInactivos || p.activo);
 }
 
@@ -12,10 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarPersonal();
   cargarDeptosEnModal();
   cargarCargosEnModal();
-  
+
   const deptoSel = document.getElementById("form-depto");
   if (deptoSel) {
-    deptoSel.addEventListener("change", (e) => filtrarCargosPorDepto(e.target.value));
+    deptoSel.addEventListener("change", (e) =>
+      filtrarCargosPorDepto(e.target.value),
+    );
   }
 });
 
@@ -38,7 +41,7 @@ async function cargarDeptosEnModal() {
     const res = await api.get("/api/departamentos"); // Unificado a Axios
     const sel = document.getElementById("form-depto");
     if (!sel) return;
-    
+
     sel.innerHTML = `<option value="">Seleccionar…</option>`;
 
     res.data.forEach((d) => {
@@ -64,10 +67,10 @@ async function cargarCargosEnModal() {
 
     const cargos = await res.json();
     listaCargos = cargos;
-    
+
     const sel = document.getElementById("form-cargo");
     if (!sel) return;
-    
+
     const previous = sel.value;
     filtrarCargosPorDepto(document.getElementById("form-depto").value || "");
     if (previous) sel.value = previous;
@@ -85,7 +88,7 @@ function filtrarCargosPorDepto(deptoId) {
   if (!sel) return;
   sel.innerHTML = `<option value="">Seleccionar...</option>`;
 
-  if (!deptoId){
+  if (!deptoId) {
     sel.disabled = true;
     return;
   }
@@ -108,7 +111,7 @@ function filtrarCargosPorDepto(deptoId) {
       opt.value = c.id;
       opt.textContent = c.nombre || c.descripcion || "—";
       sel.appendChild(opt);
-    } 
+    }
   });
 }
 
@@ -137,8 +140,12 @@ function renderTabla(datos) {
   // Ordenar: Activos primero, luego alfabéticamente por Nombre + Apellido
   const ordenados = [...datos].sort((a, b) => {
     if (a.activo === b.activo) {
-      const nombreA = `${a.nombre || ""} ${a.apellido || ""}`.trim().toLowerCase();
-      const nombreB = `${b.nombre || ""} ${b.apellido || ""}`.trim().toLowerCase();
+      const nombreA = `${a.nombre || ""} ${a.apellido || ""}`
+        .trim()
+        .toLowerCase();
+      const nombreB = `${b.nombre || ""} ${b.apellido || ""}`
+        .trim()
+        .toLowerCase();
       return nombreA.localeCompare(nombreB, "es", { sensitivity: "base" });
     }
     return a.activo ? -1 : 1;
@@ -163,8 +170,8 @@ function renderTabla(datos) {
         <td data-label="Cargo">${cargo}</td>
         <td data-label="Departamento">${depto}</td>
         <td data-label="Acciones">
-          <button class="btn-edit" onclick="editarPersonal(${p.id})">Editar</button>
-        </td>
+<button class="btn-edit" onclick="editarPersonal(${p.id})">Editar</button>
+
         <td data-label="Estado">
           <div class="switch-cell">
             <label class="switch">
@@ -173,6 +180,9 @@ function renderTabla(datos) {
             </label>
           </div>
         </td>
+        <td data-label="QR" style="text-align:center;">
+  <button class="btn-qr" onclick="verQR(${p.id}, '${p.nombre || ""} ${p.apellido || ""}')">Ver QR</button>
+</td>
       </tr>`;
     })
     .join("");
@@ -217,10 +227,10 @@ function limpiarFormulario() {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
-  
+
   const deptoEl = document.getElementById("form-depto");
   if (deptoEl) deptoEl.value = "";
-  
+
   filtrarCargosPorDepto("");
   const err = document.getElementById("modal-error");
   if (err) {
@@ -233,8 +243,12 @@ function editarPersonal(id) {
   const p = listaPersonal.find((x) => x.id === id);
   if (!p) return;
 
-  const cargoId = typeof p.cargo === "object" ? p.cargo?.id || "" : p.cargoId || "";
-  const deptoId = typeof p.departamento === "object" ? p.departamento?.id || "" : p.departamentoId || "";
+  const cargoId =
+    typeof p.cargo === "object" ? p.cargo?.id || "" : p.cargoId || "";
+  const deptoId =
+    typeof p.departamento === "object"
+      ? p.departamento?.id || ""
+      : p.departamentoId || "";
 
   document.getElementById("form-id").value = p.id;
   document.getElementById("form-nombre").value = p.nombre || "";
@@ -243,7 +257,7 @@ function editarPersonal(id) {
   document.getElementById("form-correo").value = p.correo || "";
   document.getElementById("form-cedula").value = p.cedula || "";
   document.getElementById("form-depto").value = deptoId;
-  
+
   filtrarCargosPorDepto(deptoId);
   document.getElementById("form-cargo").value = cargoId;
 
@@ -261,7 +275,8 @@ async function guardarPersonal() {
   const cedula = document.getElementById("form-cedula").value.trim();
   const cargoId = document.getElementById("form-cargo").value;
   const cargoName = cargoId
-    ? document.getElementById("form-cargo").selectedOptions?.[0]?.textContent || null
+    ? document.getElementById("form-cargo").selectedOptions?.[0]?.textContent ||
+      null
     : null;
   const deptoId = document.getElementById("form-depto").value;
   const btn = document.getElementById("btn-guardar");
@@ -272,7 +287,9 @@ async function guardarPersonal() {
   }
 
   const esEdicion = !!id;
-  const existing = esEdicion ? listaPersonal.find((x) => String(x.id) === String(id)) : null;
+  const existing = esEdicion
+    ? listaPersonal.find((x) => String(x.id) === String(id))
+    : null;
 
   const body = {
     nombre,
@@ -283,9 +300,10 @@ async function guardarPersonal() {
     cargo: cargoName,
     cargoId: cargoId ? Number(cargoId) : null,
     departamentoId: deptoId ? Number(deptoId) : null,
-    fechaIngreso: (esEdicion && existing?.fechaIngreso) 
-      ? existing.fechaIngreso 
-      : new Date().toISOString().split('T')[0],
+    fechaIngreso:
+      esEdicion && existing?.fechaIngreso
+        ? existing.fechaIngreso
+        : new Date().toISOString().split("T")[0],
   };
 
   if (esEdicion && existing && typeof existing.activo !== "undefined") {
@@ -349,6 +367,62 @@ async function togglePersonalStatus(checkbox, activo, id) {
 
 async function eliminarPersonal(id) {
   return togglePersonalStatus(id, true);
+}
+
+/* ── Modal QR ─────────────────────────────────────────────── */
+
+/* Abre el modal QR, obtiene el token del backend y dibuja el QR */
+async function verQR(id, nombre) {
+  /* Limpiamos el canvas anterior y mostramos el modal */
+  document.getElementById("qr-canvas").innerHTML = "";
+  document.getElementById("qr-nombre-empleado").textContent =
+    nombre.trim() || "Empleado";
+  document.getElementById("qr-status").textContent = "Generando QR…";
+
+  /* Activamos el modal */
+  document.getElementById("modal-qr-overlay").classList.add("active");
+  document.getElementById("modal-qr").classList.add("active");
+
+  try {
+    /* Solicitamos el token QR al backend */
+    const res = await api.get(`/api/personal/${id}/qr-token`);
+    const token = res.data?.token || res.data;
+
+    if (!token) {
+      document.getElementById("qr-status").textContent =
+        "No se pudo obtener el token QR.";
+      return;
+    }
+
+    /* Limpiamos el mensaje y dibujamos el QR con el token JWT */
+    document.getElementById("qr-status").textContent = "";
+    new QRCode(document.getElementById("qr-canvas"), {
+      text: token, // el contenido del QR es el token JWT completo
+      width: 220,
+      height: 220,
+      colorDark: "#2f5a8a", // azul institucional
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+
+    /* Ocultamos el texto del token que qrcode.js agrega como atributo title */
+    setTimeout(() => {
+      const canvas = document.getElementById("qr-canvas");
+      canvas.removeAttribute("title");
+    }, 200);
+  } catch (err) {
+    console.error("Error obteniendo QR:", err);
+    document.getElementById("qr-status").textContent =
+      "Error al generar el QR. Intenta de nuevo.";
+  }
+}
+
+/* Cierra el modal QR y limpia el canvas */
+function cerrarModalQR() {
+  document.getElementById("modal-qr-overlay").classList.remove("active");
+  document.getElementById("modal-qr").classList.remove("active");
+  document.getElementById("qr-canvas").innerHTML = "";
+  document.getElementById("qr-status").textContent = "";
 }
 
 /* ── Helpers ──────────────────── */

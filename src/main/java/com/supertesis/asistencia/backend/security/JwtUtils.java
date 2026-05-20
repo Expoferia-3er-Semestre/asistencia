@@ -69,8 +69,13 @@ public class JwtUtils {
             .setClaims(claims)
             .setSubject(subject)
             .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
-            .signWith(SignatureAlgorithm.HS256, jwtSecret) // Usa tu clave secreta existente
+        .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
+        // Usar Keys.hmacShaKeyFor igual que los demás métodos
+        // Se reemplaza signWith(String) por Keys.hmacShaKeyFor(bytes) para que
+        // todos los métodos de JwtUtils firmen con la misma clave de forma consistente
+        // y evitar el WeakKeyException por conversión incorrecta de la clave secreta.
+            .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+            //.signWith(SignatureAlgorithm.HS256, jwtSecret) // Usa tu clave secreta existente
             .compact();
     }
 
