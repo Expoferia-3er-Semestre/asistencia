@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarPersonal();
   cargarDeptosEnModal();
   cargarCargosEnModal();
-  // Al cambiar departamento en el modal, filtrar cargos disponibles
+  
   const deptoSel = document.getElementById("form-depto");
   if (deptoSel) {
     deptoSel.addEventListener("change", (e) => filtrarCargosPorDepto(e.target.value));
@@ -23,12 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function cargarPersonal() {
   try {
-    const res = await api.get("/api/personal"); // cookie viaja sola
+    const res = await api.get("/api/personal"); // Usando Axios ('api.js')
     listaPersonal = res.data;
-
-    listaPersonal = await res.json();
     renderTabla(getPersonalVisibles());
-    renderTabla(listaPersonal);
   } catch (err) {
     console.error("Error cargando personal:", err);
     renderTabla([]);
@@ -38,87 +35,89 @@ async function cargarPersonal() {
 /* Llena el select de departamentos dentro del modal */
 async function cargarDeptosEnModal() {
   try {
-    const res = await fetch(`${API_BASE}/departamentos/activos`, {
-      headers: getHeaders(),
-    }); // app.js
-    if (!res.ok) return;
-
-    const deptos = await res.json();
-    const res = await api.get("/api/departamentos"); // cookie viaja sola
+    const res = await api.get("/api/departamentos"); // Unificado a Axios
     const sel = document.getElementById("form-depto");
+    if (!sel) return;
+    
     sel.innerHTML = `<option value="">Seleccionar…</option>`;
 
     res.data.forEach((d) => {
-      const opt = document.createElement("option");
-      opt.value = d.id;
-      opt.textContent = d.nombre;
-      sel.appendChild(opt);
+      // Opcional: Solo mostrar departamentos activos al registrar nuevo personal
+      if (d.activo) {
+        const opt = document.createElement("option");
+        opt.value = d.id;
+        opt.textContent = d.nombre;
+        sel.appendChild(opt);
+      }
     });
   } catch (err) {
-    console.error("Error cargando departamentos:", err);
+    console.error("Error cargando departamentos en modal:", err);
   }
 }
 
-  /* Llena el select de cargos dentro del modal */
-  async function cargarCargosEnModal() {
-    try {
-      const res = await fetch(`${API_BASE}/cargos`, { headers: getHeaders() });
-      if (!res.ok) return;
+/* Llena el select de cargos dentro del modal */
+async function cargarCargosEnModal() {
+  try {
+    // Si tienes una ruta en Axios para cargos, úsala. Suponiendo getHeaders() para Fetch antiguo:
+    const res = await fetch(`${API_BASE}/cargos`, { headers: getHeaders() });
+    if (!res.ok) return;
 
-      const cargos = await res.json();
-      listaCargos = cargos;
-      const sel = document.getElementById("form-cargo");
-      const previous = sel.value;
-      // Populate according to currently selected departamento (if any)
-      filtrarCargosPorDepto(document.getElementById("form-depto").value || "");
-      if (previous) sel.value = previous;
-    } catch (err) {
-      console.error("Error cargando cargos:", err);
-    }
-  }
-
-  /**
-   * Llena el select de `form-cargo` filtrando por departamento (si se pasa)
-   * @param {string|number} deptoId
-   */
-  function filtrarCargosPorDepto(deptoId) {
+    const cargos = await res.json();
+    listaCargos = cargos;
+    
     const sel = document.getElementById("form-cargo");
     if (!sel) return;
-    sel.innerHTML = `<option value="">Seleccionar...</option>`;
+    
+    const previous = sel.value;
+    filtrarCargosPorDepto(document.getElementById("form-depto").value || "");
+    if (previous) sel.value = previous;
+  } catch (err) {
+    console.error("Error cargando cargos:", err);
+  }
+}
 
-    if (!deptoId){
-      sel.disabled = true;
-      return;
+/**
+ * Llena el select de `form-cargo` filtrando por departamento
+ * @param {string|number} deptoId
+ */
+function filtrarCargosPorDepto(deptoId) {
+  const sel = document.getElementById("form-cargo");
+  if (!sel) return;
+  sel.innerHTML = `<option value="">Seleccionar...</option>`;
+
+  if (!deptoId){
+    sel.disabled = true;
+    return;
+  }
+
+  sel.disabled = false;
+  const idNum = Number(deptoId);
+
+  listaCargos.forEach((c) => {
+    let cargoDeptoId = null;
+    if (c.departamento && typeof c.departamento === "object") {
+      cargoDeptoId = c.departamento.id;
+    } else if (typeof c.departamentoId !== "undefined") {
+      cargoDeptoId = c.departamentoId;
+    } else if (typeof c.departamento !== "undefined") {
+      cargoDeptoId = c.departamento;
     }
 
-    sel.disabled = false;
-
-    const idNum = deptoId ? Number(deptoId) : null;
-    listaCargos.forEach((c) => {
-      // Determinar departamentoId del cargo (puede venir como objeto o campo directo)
-      let cargoDeptoId = null;
-      if (c.departamento && typeof c.departamento === "object") {
-        cargoDeptoId = c.departamento.id;
-      } else if (typeof c.departamentoId !== "undefined") {
-        cargoDeptoId = c.departamentoId;
-      } else if (typeof c.departamento !== "undefined") {
-        cargoDeptoId = c.departamento;
-      }
-
-      if (!idNum || Number(cargoDeptoId) === idNum) {
-        const opt = document.createElement("option");
-        opt.value = c.id;
-        opt.textContent = c.nombre || c.descripcion || "—";
-        sel.appendChild(opt);
-      } 
-    });
-  }
+    if (Number(cargoDeptoId) === idNum) {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nombre || c.descripcion || "—";
+      sel.appendChild(opt);
+    } 
+  });
+}
 
 /* ── Render tabla ─────────── */
 
 function renderTabla(datos) {
   const tbody = document.getElementById("tbody-personal");
   const count = document.getElementById("tabla-count");
+  if (!tbody || !count) return;
 
   count.textContent = `${datos.length} registro${datos.length !== 1 ? "s" : ""}`;
 
@@ -135,6 +134,7 @@ function renderTabla(datos) {
     return;
   }
 
+  // Ordenar: Activos primero, luego alfabéticamente por Nombre + Apellido
   const ordenados = [...datos].sort((a, b) => {
     if (a.activo === b.activo) {
       const nombreA = `${a.nombre || ""} ${a.apellido || ""}`.trim().toLowerCase();
@@ -145,8 +145,6 @@ function renderTabla(datos) {
   });
 
   tbody.innerHTML = ordenados
-  /* Ajustar los campos según la API */
-  tbody.innerHTML = datos
     .map((p) => {
       const cargo =
         typeof p.cargo === "object"
@@ -179,12 +177,13 @@ function renderTabla(datos) {
     })
     .join("");
 }
+
 /* ── Buscador local ───────────────────────────────────── */
 
 function filtrarTabla() {
   const q = document.getElementById("buscador").value.toLowerCase();
   const filtrados = getPersonalVisibles().filter((p) =>
-    `${p.nombre} ${p.apellido} ${p.cedula} ${p.departamentoNombre || ""}`
+    `${p.nombre || ""} ${p.apellido || ""} ${p.cedula || ""} ${p.departamentoNombre || ""}`
       .toLowerCase()
       .includes(q),
   );
@@ -214,29 +213,28 @@ function limpiarFormulario() {
     "form-correo",
     "form-cedula",
     "form-cargo",
-  ].forEach((id) => (document.getElementById(id).value = ""));
-  document.getElementById("form-depto").value = "";
-  // Restaurar listado completo o vacío de cargos
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  
+  const deptoEl = document.getElementById("form-depto");
+  if (deptoEl) deptoEl.value = "";
+  
   filtrarCargosPorDepto("");
   const err = document.getElementById("modal-error");
-  err.className = "feedback-msg";
-  err.textContent = "";
+  if (err) {
+    err.className = "feedback-msg";
+    err.textContent = "";
+  }
 }
 
-/* Precarga el formulario con datos del personal a editar */
 function editarPersonal(id) {
   const p = listaPersonal.find((x) => x.id === id);
   if (!p) return;
 
-  // Extrae cargo limpio — puede venir como objeto o string
-  const cargoId =
-    typeof p.cargo === "object" ? p.cargo?.id || "" : p.cargoId || "";
-
-  // Extrae id de departamento para seleccionar en el select
-  const deptoId =
-    typeof p.departamento === "object"
-      ? p.departamento?.id || ""
-      : p.departamentoId || "";
+  const cargoId = typeof p.cargo === "object" ? p.cargo?.id || "" : p.cargoId || "";
+  const deptoId = typeof p.departamento === "object" ? p.departamento?.id || "" : p.departamentoId || "";
 
   document.getElementById("form-id").value = p.id;
   document.getElementById("form-nombre").value = p.nombre || "";
@@ -245,7 +243,7 @@ function editarPersonal(id) {
   document.getElementById("form-correo").value = p.correo || "";
   document.getElementById("form-cedula").value = p.cedula || "";
   document.getElementById("form-depto").value = deptoId;
-  // Filtrar cargos según el departamento y luego seleccionar el cargo actual
+  
   filtrarCargosPorDepto(deptoId);
   document.getElementById("form-cargo").value = cargoId;
 
@@ -274,7 +272,6 @@ async function guardarPersonal() {
   }
 
   const esEdicion = !!id;
-
   const existing = esEdicion ? listaPersonal.find((x) => String(x.id) === String(id)) : null;
 
   const body = {
@@ -287,27 +284,20 @@ async function guardarPersonal() {
     cargoId: cargoId ? Number(cargoId) : null,
     departamentoId: deptoId ? Number(deptoId) : null,
     fechaIngreso: (esEdicion && existing?.fechaIngreso) 
-    ? existing.fechaIngreso 
-    : new Date().toISOString().split('T')[0],
+      ? existing.fechaIngreso 
+      : new Date().toISOString().split('T')[0],
   };
-  // Si es edición, preservar el estado 'activo' del registro existente;
-  // si es creación, establecer activo = true por defecto
-  if (esEdicion) {
-    const existing = listaPersonal.find((x) => String(x.id) === String(id));
-    if (existing && typeof existing.activo !== "undefined") {
-      body.activo = existing.activo;
-    }
-  } else {
+
+  if (esEdicion && existing && typeof existing.activo !== "undefined") {
+    body.activo = existing.activo;
+  } else if (!esEdicion) {
     body.activo = true;
   }
-  const url = esEdicion ? `${API_BASE}/personal/${id}` : `${API_BASE}/personal`;
-  const method = esEdicion ? "PUT" : "POST";
 
   btn.setAttribute("aria-busy", "true");
   btn.textContent = "Guardando…";
 
   try {
-    /* cookie viaja sola — sin headers manuales */
     if (esEdicion) {
       await api.put(`/api/personal/${id}`, body);
     } else {
@@ -315,7 +305,7 @@ async function guardarPersonal() {
     }
     cerrarModal();
     cargarPersonal();
-  } catch {
+  } catch (err) {
     mostrarModalError("Error de conexión con el servidor.");
   } finally {
     btn.removeAttribute("aria-busy");
@@ -341,31 +331,19 @@ async function togglePersonalStatus(checkbox, activo, id) {
     return;
   }
 
-  const url = activo
-    ? `${API_BASE}/personal/${id}`
-    : `${API_BASE}/personal/${id}/reactivar`;
-  const method = activo ? "DELETE" : "PATCH";
+  const action = activo ? "desactivar" : "activar"; // Asegúrate de si tu backend usa endpoints semánticos
 
   try {
-    const res = await fetch(url, {
-      method,
-      headers: getHeaders(), // app.js
-    });
-
-    if (res.ok) {
-      cargarPersonal();
+    // Intentamos manejarlo con la instancia Axios para consistencia de sesión/cookies
+    if (activo) {
+      await api.delete(`/api/personal/${id}`);
     } else {
-      const err = await res.json().catch(() => ({}));
-      alert(err.message || "No se pudo actualizar el estado.");
-      checkbox.checked = activo;
+      await api.patch(`/api/personal/${id}/reactivar`);
     }
-  } catch {
-    alert("Error de conexión con el servidor.");
-    checkbox.checked = activo;
-    await api.delete(`/api/personal/${id}`); // cookie viaja sola
     cargarPersonal();
-  } catch {
-    alert("No se pudo eliminar el registro.");
+  } catch (err) {
+    alert("No se pudo actualizar el estado del registro.");
+    checkbox.checked = activo;
   }
 }
 
@@ -377,6 +355,8 @@ async function eliminarPersonal(id) {
 
 function mostrarModalError(msg) {
   const el = document.getElementById("modal-error");
-  el.textContent = msg;
-  el.className = "feedback-msg error";
+  if (el) {
+    el.textContent = msg;
+    el.className = "feedback-msg error";
+  }
 }

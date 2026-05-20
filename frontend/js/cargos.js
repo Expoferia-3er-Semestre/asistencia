@@ -11,35 +11,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function cargarCargos() {
   try {
-    const res = await fetch(`${API_BASE}/cargos`, {
-      headers: getHeaders(),
-    });
-    if (!res.ok) throw new Error("Sin respuesta del servidor");
-
-    listaCargos = await res.json();
+    // Migrado a Axios: la cookie/sesión viaja sola de forma automática
+    const res = await api.get("/api/cargos");
+    listaCargos = res.data;
     renderTabla(listaCargos);
   } catch (err) {
-    console.error("Error cargando cargos:", err);
+    console.error("Error cargando cargos con Axios:", err);
     renderTabla([]);
   }
 }
 
 async function cargarDeptosEnModal() {
   try {
-    const res = await fetch(`${API_BASE}/departamentos`, {
-      headers: getHeaders(),
-    });
-    if (!res.ok) throw new Error("Sin respuesta del servidor");
-
-    const deptos = await res.json();
+    // Migrado a Axios para mantener consistencia con los demás módulos
+    const res = await api.get("/api/departamentos");
+    const deptos = res.data;
     const sel = document.getElementById("form-depto");
+    if (!sel) return;
+
     sel.innerHTML = `<option value="">Seleccionar…</option>`;
 
     deptos.forEach((d) => {
-      const opt = document.createElement("option");
-      opt.value = d.id;
-      opt.textContent = d.nombre;
-      sel.appendChild(opt);
+      // Opcional: Solo mostrar departamentos que estén activos
+      if (d.activo !== false) {
+        const opt = document.createElement("option");
+        opt.value = d.id;
+        opt.textContent = d.nombre;
+        sel.appendChild(opt);
+      }
     });
   } catch (err) {
     console.error("Error cargando departamentos para cargos:", err);
@@ -51,6 +50,7 @@ async function cargarDeptosEnModal() {
 function renderTabla(datos) {
   const tbody = document.getElementById("tbody-cargos");
   const count = document.getElementById("tabla-count");
+  if (!tbody || !count) return;
 
   count.textContent = `${datos.length} cargo${datos.length !== 1 ? "s" : ""}`;
 
@@ -68,14 +68,13 @@ function renderTabla(datos) {
   }
 
   tbody.innerHTML = datos
-    .map(
-      (c) => {
-        const departamento =
-          c.departamento && typeof c.departamento === "object"
-            ? c.departamento.nombre || "—"
-            : c.departamento || "—";
+    .map((c) => {
+      const departamento =
+        c.departamento && typeof c.departamento === "object"
+          ? c.departamento.nombre || "—"
+          : c.departamento || "—";
 
-        return `
+      return `
       <tr>
         <td data-label="Cargo">${c.nombre || "—"}</td>
         <td data-label="Departamento">${departamento}</td>
@@ -84,8 +83,7 @@ function renderTabla(datos) {
           <button class="btn-delete" onclick="eliminarCargo(${c.id})">Eliminar</button>
         </td>
       </tr>`;
-      },
-    )
+    })
     .join("");
 }
 
@@ -108,8 +106,10 @@ function limpiarFormulario() {
   document.getElementById("form-nombre").value = "";
   document.getElementById("form-depto").value = "";
   const err = document.getElementById("modal-error");
-  err.className = "feedback-msg";
-  err.textContent = "";
+  if (err) {
+    err.className = "feedback-msg";
+    err.textContent = "";
+  }
 }
 
 function editarCargo(id) {
@@ -118,10 +118,13 @@ function editarCargo(id) {
 
   document.getElementById("form-id").value = cargo.id;
   document.getElementById("form-nombre").value = cargo.nombre || "";
-  document.getElementById("form-depto").value =
+  
+  const deptoId =
     cargo.departamento && typeof cargo.departamento === "object"
       ? cargo.departamento.id || ""
       : cargo.departamentoId || "";
+
+  document.getElementById("form-depto").value = deptoId;
 
   abrirModal("Editar cargo");
 }
@@ -148,29 +151,24 @@ async function guardarCargo() {
     nombre,
     departamentoId: Number(departamentoId),
   };
+  
   const esEdicion = !!id;
-  const url = esEdicion ? `${API_BASE}/cargos/${id}` : `${API_BASE}/cargos`;
-  const method = esEdicion ? "PUT" : "POST";
-
   btn.setAttribute("aria-busy", "true");
   btn.textContent = "Guardando…";
 
   try {
-    const res = await fetch(url, {
-      method,
-      headers: getHeaders(),
-      body: JSON.stringify(body),
-    });
-
-    if (res.ok) {
-      cerrarModal();
-      cargarCargos();
+    if (esEdicion) {
+      // Migrado a Axios PUT
+      await api.put(`/api/cargos/${id}`, body);
     } else {
-      const err = await res.json().catch(() => ({}));
-      mostrarModalError(err.message || "No se pudo guardar el cargo.");
+      // Migrado a Axios POST
+      await api.post("/api/cargos", body);
     }
-  } catch {
-    mostrarModalError("Error de conexión con el servidor.");
+    cerrarModal();
+    cargarCargos();
+  } catch (err) {
+    const errorMsg = err.response?.data?.message || "No se pudo guardar el cargo.";
+    mostrarModalError(errorMsg);
   } finally {
     btn.removeAttribute("aria-busy");
     btn.textContent = "Guardar";
@@ -183,18 +181,12 @@ async function eliminarCargo(id) {
   if (!confirm("¿Seguro que deseas eliminar este cargo?")) return;
 
   try {
-    const res = await fetch(`${API_BASE}/cargos/${id}`, {
-      method: "DELETE",
-      headers: getHeaders(),
-    });
-
-    if (res.ok) {
-      cargarCargos();
-    } else {
-      alert("No se pudo eliminar el cargo.");
-    }
-  } catch {
-    alert("Error de conexión con el servidor.");
+    // Migrado a Axios DELETE
+    await api.delete(`/api/cargos/${id}`);
+    cargarCargos();
+  } catch (err) {
+    console.error("Error eliminando cargo:", err);
+    alert("No se pudo eliminar el cargo del servidor.");
   }
 }
 
@@ -202,6 +194,8 @@ async function eliminarCargo(id) {
 
 function mostrarModalError(msg) {
   const el = document.getElementById("modal-error");
-  el.textContent = msg;
-  el.className = "feedback-msg error";
+  if (el) {
+    el.textContent = msg;
+    el.className = "feedback-msg error";
+  }
 }
