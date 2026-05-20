@@ -1,6 +1,7 @@
 package com.supertesis.asistencia.backend.service;
 
 import com.supertesis.asistencia.backend.entity.Permiso;
+import com.supertesis.asistencia.backend.exception.ResourceNotFoundException;
 import com.supertesis.asistencia.backend.repository.PermisoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class PermisoService {
 
     public Permiso findById(Integer id) {
         return permisoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Permiso no encontrado con id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Permiso", id.toString()));
     }
 
     public List<Permiso> findByNombreContaining(String nombre) {
@@ -47,7 +48,7 @@ public class PermisoService {
     @Transactional
     public void deleteById(Integer id) {
         if (!permisoRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Permiso no encontrado con id " + id);
+            throw new ResourceNotFoundException("Permiso", id.toString());
         }
         permisoRepository.deleteById(id);
     }

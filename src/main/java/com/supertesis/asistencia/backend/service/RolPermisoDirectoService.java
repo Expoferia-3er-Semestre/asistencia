@@ -3,6 +3,7 @@ package com.supertesis.asistencia.backend.service;
 import com.supertesis.asistencia.backend.entity.Permiso;
 import com.supertesis.asistencia.backend.entity.Rol;
 import com.supertesis.asistencia.backend.entity.RolPermisoDirecto;
+import com.supertesis.asistencia.backend.exception.ResourceNotFoundException;
 import com.supertesis.asistencia.backend.repository.PermisoRepository;
 import com.supertesis.asistencia.backend.repository.RolPermisoDirectoRepository;
 import com.supertesis.asistencia.backend.repository.RolRepository;
@@ -44,9 +45,9 @@ public class RolPermisoDirectoService {
             throw new IllegalArgumentException("El permiso ya está asignado a este rol");
         }
         Rol rol = rolRepository.findById(rolId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado con id " + rolId));
+                .orElseThrow(() -> new ResourceNotFoundException("Rol", rolId.toString()));
         Permiso permiso = permisoRepository.findById(permisoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Permiso no encontrado con id " + permisoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Permiso", permisoId.toString()));
         RolPermisoDirecto relacion = new RolPermisoDirecto(rol, permiso);
         return rolPermisoDirectoRepository.save(relacion);
     }
@@ -54,7 +55,7 @@ public class RolPermisoDirectoService {
     @Transactional
     public void removePermisoFromRol(Integer rolId, Integer permisoId) {
         if (!rolPermisoDirectoRepository.existsByRolIdAndPermisoId(rolId, permisoId)) {
-            throw new ResourceNotFoundException("La relación rol-permiso no existe");
+            throw new ResourceNotFoundException("La relación rol-permiso no existe", "Rol ID: " + rolId + ", Permiso ID: " + permisoId);
         }
         rolPermisoDirectoRepository.deleteByRolIdAndPermisoId(rolId, permisoId);
     }

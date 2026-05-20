@@ -1,6 +1,7 @@
 package com.supertesis.asistencia.backend.service;
 
 import com.supertesis.asistencia.backend.entity.Usuario;
+import com.supertesis.asistencia.backend.exception.ResourceNotFoundException;
 import com.supertesis.asistencia.backend.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,12 @@ public class UsuarioService {
 
     public Usuario findById(Integer id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", id.toString()));
     }
 
     public Usuario findByNombreUsuario(String nombreUsuario) {
         return usuarioRepository.findByNombreUsuario(nombreUsuario)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con nombre " + nombreUsuario));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", nombreUsuario));
     }
 
     public List<Usuario> findByRolId(Integer rolId) {
@@ -62,7 +63,7 @@ public class UsuarioService {
     @Transactional
     public void deleteById(Integer id) {
         if (!usuarioRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Usuario no encontrado con id " + id);
+            throw new ResourceNotFoundException("Usuario", id.toString());
         }
         usuarioRepository.deleteById(id);
     }
