@@ -72,6 +72,10 @@ public class JwtUtils {
             .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
             .signWith(SignatureAlgorithm.HS256, jwtSecret) // Usa tu clave secreta existente
             .compact();
-}
+    }
+
+    public Claims getClaimsFromToken(String token) {
+        return parseClaims(token);
+    }
 
 }

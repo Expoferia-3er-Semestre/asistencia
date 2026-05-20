@@ -3,6 +3,7 @@ package com.supertesis.asistencia.backend.service;
 import com.supertesis.asistencia.backend.entity.Permiso;
 import com.supertesis.asistencia.backend.entity.Rol;
 import com.supertesis.asistencia.backend.entity.RolPermisoDirecto;
+import com.supertesis.asistencia.backend.exception.ResourceNotFoundException;
 import com.supertesis.asistencia.backend.repository.RolPermisoDirectoRepository;
 import com.supertesis.asistencia.backend.repository.RolRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +27,12 @@ public class RolService {
 
     public Rol findById(Integer id) {
         return rolRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado con id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Rol", id.toString()));
     }
 
     public Rol findByNombreRol(String nombreRol) {
         return rolRepository.findByNombreRol(nombreRol)
-                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado con nombre " + nombreRol));
+                .orElseThrow(() -> new ResourceNotFoundException("Rol", nombreRol));
     }
 
     @Transactional
@@ -53,7 +54,7 @@ public class RolService {
     @Transactional
     public void deleteById(Integer id) {
         if (!rolRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Rol no encontrado con id " + id);
+            throw new ResourceNotFoundException("Rol", id.toString());
         }
         rolRepository.deleteById(id);
     }

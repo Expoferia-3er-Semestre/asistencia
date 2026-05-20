@@ -1,6 +1,7 @@
 package com.supertesis.asistencia.backend.service;
 
 import com.supertesis.asistencia.backend.entity.Asistencia;
+import com.supertesis.asistencia.backend.exception.ResourceNotFoundException;
 import com.supertesis.asistencia.backend.repository.AsistenciaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class AsistenciaService {
 
     public Asistencia findById(Integer id) {
         return asistenciaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Asistencia no encontrada con id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Asistencia", id.toString()));
     }
 
     public List<Asistencia> findByFecha(LocalDate fecha) {
@@ -55,7 +56,7 @@ public class AsistenciaService {
     @Transactional
     public void deleteById(Integer id) {
         if (!asistenciaRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Asistencia no encontrada con id " + id);
+            throw new ResourceNotFoundException("Asistencia", id.toString());
         }
         asistenciaRepository.deleteById(id);
     }

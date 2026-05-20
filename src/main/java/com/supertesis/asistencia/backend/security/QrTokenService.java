@@ -2,7 +2,6 @@ package com.supertesis.asistencia.backend.security;
 
 import com.supertesis.asistencia.backend.entity.Personal;
 import com.supertesis.asistencia.backend.repository.PersonalRepository;
-import com.supertesis.asistencia.backend.security.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
