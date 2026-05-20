@@ -14,6 +14,18 @@ import java.util.Optional;
 @Repository
 public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer> {
 
+
+    // JOIN FETCH para traer la asistencia y el personal en una sola consulta
+    @Query("SELECT a FROM Asistencia a JOIN FETCH a.personal p WHERE a.fecha = :fecha")
+    List<Asistencia> findByFechaWithPersonal(@Param("fecha") LocalDate fecha);
+
+    // JOIN FETCH para el historial con rango de fechas
+    @Query("SELECT a FROM Asistencia a JOIN FETCH a.personal p WHERE p.id = :personalId AND a.fecha BETWEEN :fechaDesde AND :fechaHasta ORDER BY a.fecha DESC")
+    List<Asistencia> findByPersonalIdAndFechasWithPersonal(
+            @Param("personalId") Integer personalId, 
+            @Param("fechaDesde") LocalDate fechaDesde, 
+            @Param("fechaHasta") LocalDate fechaHasta);
+            
     // Búsqueda por personal y fecha (único según constraint)
     Optional<Asistencia> findByPersonalIdAndFecha(Integer personalId, LocalDate fecha);
 
