@@ -2042,7 +2042,3 @@ body {
   }
 }
 
-/* Oculta el texto del token que qrcode.js inyecta fuera del div#qr-canvas */
-.modal-body > *:not(#qr-canvas):not(p):not(#qr-status) {
-  display: none !important;
-}
