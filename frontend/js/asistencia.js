@@ -1,33 +1,25 @@
 /* asistencia.js */
 
 document.addEventListener("DOMContentLoaded", () => {
-  verificarSesion(); // app.js — redirige si no hay token
+  verificarSesion();
 
-  // Fecha de hoy por defecto en los tres inputs de fecha
-  const hoy = new Date().toISOString().split("T")[0];
-  document.getElementById("reg-fecha").value = hoy;
-  document.getElementById("filtro-fecha-desde").value = hoy;
-  document.getElementById("filtro-fecha-hasta").value = hoy;
+  // Muestra la fecha de hoy en el encabezado
+  const fechaEl = document.getElementById("fecha-hoy");
+  if (fechaEl) fechaEl.textContent = fechaLocal();
 
-  cargarPersonal();
-  cargarDepartamentos();
+  cargarAsistenciaHoy();
 });
 
-/* ── Feedback visual ──────────────────────────────────── */
-
-/* Muestra mensaje de éxito o error y lo oculta a los 4s */
-function mostrarFeedback(id, mensaje, tipo) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = mensaje;
-  el.className = `feedback-msg ${tipo}`; // 'success' | 'error'
-  setTimeout(() => {
-    el.className = "feedback-msg";
-    el.textContent = "";
-  }, 4000);
+/* ── Utilidad: fecha local YYYY-MM-DD sin desfase UTC ── */
+function fechaLocal() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dia = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dia}`;
 }
 
-/* Devuelve el HTML del badge según el estado */
+/* ── Badge de estado ── */
 function badgeEstado(estado) {
   const clases = {
     PRESENTE: "badge-presente",
@@ -41,162 +33,66 @@ function badgeEstado(estado) {
   return `<span class="badge ${clases[estado] || ""}">${etiqueta}</span>`;
 }
 
-/* ── Carga de selects ─────────────────────────────────── */
-
-/* Llena el select de personal para el formulario de registro */
-async function cargarPersonal() {
-  try {
-    const res = await api.get("/api/personal"); // cookie viaja sola
-    const sel = document.getElementById("reg-personal");
-
-    lista.forEach((p) => {
-      const opt = document.createElement("option");
-      opt.value = p.id;
-      // Ajusta los campos según tu modelo de Personal
-      opt.textContent = p.nombre
-        ? `${p.nombre} ${p.apellido || ""}`.trim()
-        : `ID ${p.id}`;
-      sel.appendChild(opt);
-    });
-  } catch (err) {
-    console.error("Error cargando personal:", err);
-  }
+/* ── Formatea "2025-07-10T08:03:00" → "08:03" ── */
+function formatHora(isoStr) {
+  if (!isoStr) return "—";
+  const d = new Date(isoStr);
+  if (isNaN(d)) return isoStr;
+  return d.toLocaleTimeString("es-VE", { hour: "2-digit", minute: "2-digit" });
 }
 
-/* Llena el select de departamentos para el filtro */
-async function cargarDepartamentos() {
-  try {
-    const res = await api.get("/api/departamentos"); // cookie viaja sola
-    const sel = document.getElementById("filtro-depto");
+/* ── Tabla del día ── */
+async function cargarAsistenciaHoy() {
+  const btn = document.getElementById("btn-actualizar");
+  const tbody = document.getElementById("tbody-hoy");
+  const count = document.getElementById("tabla-count-hoy");
 
-    lista.forEach((d) => {
-      const opt = document.createElement("option");
-      opt.value = d.id;
-      opt.textContent = d.nombre;
-      sel.appendChild(opt);
-    });
-  } catch (err) {
-    console.error("Error cargando departamentos:", err);
+  if (btn) {
+    btn.setAttribute("aria-busy", "true");
+    btn.textContent = "Cargando…";
   }
-}
-
-/* ── Registrar asistencia ─────────────────────────────── */
-
-async function registrarAsistencia() {
-  const personalId = document.getElementById("reg-personal").value;
-  const fecha = document.getElementById("reg-fecha").value;
-  const estado = document.getElementById("reg-estado").value;
-  const btn = document.getElementById("btn-registrar");
-
-  if (!personalId || !fecha || !estado) {
-    mostrarFeedback(
-      "feedback-registro",
-      "Completa todos los campos antes de guardar.",
-      "error",
-    );
-    return;
-  }
-
-  btn.setAttribute("aria-busy", "true");
-  btn.textContent = "Guardando…";
 
   try {
-    /* cookie viaja sola — sin headers manuales */
-    await api.post("/api/asistencia", { personalId, fecha, estado });
-    mostrarFeedback(
-      "feedback-registro",
-      "✅ Asistencia registrada correctamente.",
-      "success",
-    );
-    consultarAsistencias();
+    const res = await api.get(`/api/asistencia?fecha=${fechaLocal()}`);
+    const lista = res.data;
+
+    if (count)
+      count.textContent = `${lista.length} registro${lista.length !== 1 ? "s" : ""}`;
+
+    if (!lista.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="tabla-empty">
+            <span></span>
+            Sin registros por ahora. Escanea un QR para registrar asistencia.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista
+      .map(
+        (r) => `
+        <tr>
+          <td>${r.nombrePersonal ?? r.personal?.nombre ?? "—"} ${r.apellidoPersonal ?? r.personal?.apellido ?? ""}</td>
+          <td>${formatHora(r.horaEntrada ?? r.fechaHora ?? null)}</td>
+          <td>${formatHora(r.horaSalida ?? null)}</td>
+          <td>${badgeEstado(r.estado)}</td>
+        </tr>`,
+      )
+      .join("");
   } catch (err) {
-    const msg =
-      err.response?.data?.message || "No se pudo registrar la asistencia.";
-    mostrarFeedback("feedback-registro", msg, "error");
-  } finally {
-    btn.removeAttribute("aria-busy");
-    btn.textContent = "Guardar";
-  }
-}
-
-/* ── Consultar asistencias ────────────────────────────── */
-
-async function consultarAsistencias() {
-  const desde = document.getElementById("filtro-fecha-desde").value;
-  const hasta = document.getElementById("filtro-fecha-hasta").value;
-  const depto = document.getElementById("filtro-depto").value;
-  const btn = document.getElementById("btn-consultar");
-
-  // Validación — ambas fechas son obligatorias
-  if (!desde || !hasta) {
-    mostrarFeedback(
-      "feedback-consulta",
-      "Selecciona las fechas para consultar.",
-      "error",
-    );
-    return;
-  }
-
-  /* Axios acepta params como objeto — más limpio que URLSearchParams */
-  const params = { fechaDesde: desde, fechaHasta: hasta };
-  if (depto) params.departamentoId = depto;
-
-  btn.setAttribute("aria-busy", "true");
-  btn.textContent = "Consultando…";
-
-  try {
-    const res = await api.get("/api/asistencia", { params }); // cookie viaja sola
-    renderTabla(res.data);
-  } catch (err) {
-    console.error("Error consultando asistencias:", err);
-    mostrarFeedback(
-      "feedback-consulta",
-      "Error de conexión con el servidor.",
-      "error",
-    );
-    renderTabla([]);
-  } finally {
-    btn.removeAttribute("aria-busy");
-    btn.textContent = "Consultar";
-  }
-}
-
-/* ── Render tabla ─────────────────────────────────────── */
-
-function renderTabla(datos) {
-  const tbody = document.getElementById("tbody-asistencia");
-  const count = document.getElementById("tabla-count");
-
-  count.textContent = `${datos.length} registro${datos.length !== 1 ? "s" : ""}`;
-
-  if (!datos.length) {
+    console.error("Error cargando asistencia de hoy:", err);
     tbody.innerHTML = `
       <tr>
-        <td colspan="4">
-          <div class="tabla-empty">
-            <span>🔍</span>
-            No se encontraron registros para los filtros seleccionados.
-          </div>
+        <td colspan="4" class="tabla-empty">
+          No se pudo cargar la tabla. Verifica la conexión.
         </td>
       </tr>`;
-    return;
+  } finally {
+    if (btn) {
+      btn.removeAttribute("aria-busy");
+      btn.textContent = "Actualizar";
+    }
   }
-
-  // Recordatorio mas adelante: ajustar los campos según los nombres reales que devuelva la API
-  tbody.innerHTML = datos
-    .map((r) => {
-      const nombre = r.personalNombre || r.nombre || `ID ${r.personalId}`;
-      const depto = r.departamento || r.deptoNombre || "—";
-      const fecha = r.fecha || "—";
-      const estado = r.estado || "—";
-
-      return `
-      <tr>
-        <td data-label="Nombre">${nombre}</td>
-        <td data-label="Departamento">${depto}</td>
-        <td data-label="Fecha">${fecha}</td>
-        <td data-label="Estado">${badgeEstado(estado)}</td>
-      </tr>`;
-    })
-    .join("");
 }
