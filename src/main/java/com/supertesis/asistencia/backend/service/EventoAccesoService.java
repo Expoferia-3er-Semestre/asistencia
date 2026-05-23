@@ -4,6 +4,7 @@ import com.supertesis.asistencia.backend.dto.eventoacceso.EventoAccesoResponseDt
 import com.supertesis.asistencia.backend.entity.Asistencia;
 import com.supertesis.asistencia.backend.entity.AsistenciaEstado;
 import com.supertesis.asistencia.backend.entity.DispositivoAcceso;
+import com.supertesis.asistencia.backend.entity.DispositivoTipo;
 import com.supertesis.asistencia.backend.entity.EventoAcceso;
 import com.supertesis.asistencia.backend.entity.EventoAccesoMetodo;
 import com.supertesis.asistencia.backend.entity.EventoAccesoResultado;
@@ -12,6 +13,7 @@ import com.supertesis.asistencia.backend.entity.Personal;
 import com.supertesis.asistencia.backend.exception.ResourceNotFoundException;
 import com.supertesis.asistencia.backend.mapper.EventoAccesoMapper;
 import com.supertesis.asistencia.backend.repository.AsistenciaRepository;
+import com.supertesis.asistencia.backend.repository.DispositivoAccesoRepository;
 import com.supertesis.asistencia.backend.repository.EventoAccesoRepository;
 import com.supertesis.asistencia.backend.repository.PersonalRepository;
 import com.supertesis.asistencia.backend.security.JwtUtils; // Paquete actualizado
@@ -37,8 +39,9 @@ public class EventoAccesoService {
     private final PersonalRepository personalRepository;
     private final EventoAccesoRepository eventoAccesoRepository;
     private final AsistenciaRepository asistenciaRepository;
-
     private final EventoAccesoMapper eventoAccesoMapper;
+    private final DispositivoAccesoRepository dispositivoAccesoRepository;
+
 
     @Transactional
     public EventoAccesoResponseDto procesarScan(String qrToken) {
@@ -76,8 +79,7 @@ public class EventoAccesoService {
         Optional<EventoAcceso> ultimoEventoOpt = eventoAccesoRepository
                 .findUltimoEventoDelDia(personalId, inicioDia, finDia);
 
-        EventoAccesoTipo proximoTipoEvento = null;
-
+        EventoAccesoTipo proximoTipoEvento = EventoAccesoTipo.desconocido; // Valor por defecto en caso de denegación
         if (ultimoEventoOpt.isEmpty()) {
             proximoTipoEvento = EventoAccesoTipo.entrada;
         } else {
@@ -90,8 +92,9 @@ public class EventoAccesoService {
         }
 
         // 6. Insertar en eventos_acceso
-        DispositivoAcceso dispositivo = new DispositivoAcceso();
-        dispositivo.setId(2); // ID fijo para QR, o podrías parametrizarlo si tienes varios dispositivos
+        DispositivoAcceso dispositivo = dispositivoAccesoRepository
+        .findFirstByTipoAndActivoTrue(DispositivoTipo.qr)
+        .orElseThrow(() -> new ResourceNotFoundException("DispositivoAcceso", "tipo=qr"));
         EventoAcceso nuevoEvento = new EventoAcceso();
         nuevoEvento.setPersonal(personal);
 
@@ -113,13 +116,19 @@ public class EventoAccesoService {
             asistencia.setHoraEntrada(horaActual);
             asistencia.setEventoEntrada(nuevoEvento);
             asistencia.setEstado(AsistenciaEstado.presente);
+            // AGREGAR ESTOS:
+            asistencia.setCorregido(false);
+            asistencia.setCreadoEn(ahora);
+            asistencia.setActualizadoEn(ahora);
             asistenciaRepository.save(asistencia);
-            
-        } else { 
+
+        } else {
             if (asistenciaOpt.isPresent()) {
                 Asistencia asistenciaExistente = asistenciaOpt.get();
                 asistenciaExistente.setHoraSalida(horaActual);
                 asistenciaExistente.setEventoSalida(nuevoEvento);
+                // AGREGAR ESTE:
+                asistenciaExistente.setActualizadoEn(ahora);
                 asistenciaRepository.save(asistenciaExistente);
             } else {
                 Asistencia asistenciaInconsistente = new Asistencia();
@@ -128,6 +137,10 @@ public class EventoAccesoService {
                 asistenciaInconsistente.setHoraSalida(horaActual);
                 asistenciaInconsistente.setEventoSalida(nuevoEvento);
                 asistenciaInconsistente.setEstado(AsistenciaEstado.ausente);
+                // AGREGAR ESTOS:
+                asistenciaInconsistente.setCorregido(false);
+                asistenciaInconsistente.setCreadoEn(ahora);
+                asistenciaInconsistente.setActualizadoEn(ahora);
                 asistenciaRepository.save(asistenciaInconsistente);
             }
         }

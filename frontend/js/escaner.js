@@ -14,7 +14,7 @@ let procesando = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   /* Verificamos sesión antes de activar la cámara */
-  verificarSesion();
+  //verificarSesion(); /* se desactiva para que abra el escaner.html sin necesidad de iniciar sesion esto por si se quiere usar el tlf como host para probar. Recuerda activarlo nuevamente!! */
   iniciarEscaner();
 });
 
