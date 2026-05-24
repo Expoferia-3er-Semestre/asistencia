@@ -1,16 +1,11 @@
 package com.supertesis.asistencia.backend.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class LoginRequest {
-
-    private String nombreUsuario;
-    private String password;
-}
+public record LoginRequest(
+    @NotBlank(message = "El nombre de usuario es obligatorio")
+    String nombreUsuario,
+    
+    @NotBlank(message = "La contraseña es obligatoria")
+    String password
+) {}
