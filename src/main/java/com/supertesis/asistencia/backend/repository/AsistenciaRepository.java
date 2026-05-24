@@ -15,6 +15,35 @@ import java.util.Optional;
 public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer> {
 
 
+    
+    /**
+     * Busca una asistencia específica por empleado y fecha.
+     * Útil para la validación antes de hacer un save() y evitar duplicados.
+     */
+    Optional<Asistencia> findByPersonalIdAndFecha(Integer personalId, LocalDate fecha);
+
+    /**
+     * Consulta dinámica principal con JPQL.
+     * Evalúa cada parámetro: si es NULL, ignora ese filtro; si tiene valor, lo aplica.
+     * Hace un JOIN FETCH con 'personal' para optimizar la carga perezosa (LAZY).
+     */
+    @Query("SELECT a FROM Asistencia a " +
+           "JOIN FETCH a.personal p " +
+           "WHERE (:fecha IS NULL OR a.fecha = :fecha) " +
+           "AND (:fechaDesde IS NULL OR a.fecha >= :fechaDesde) " +
+           "AND (:fechaHasta IS NULL OR a.fecha <= :fechaHasta) " +
+           "AND (:personalId IS NULL OR p.id = :personalId) " +
+           "AND (:departamentoId IS NULL OR p.departamento.id = :departamentoId) " +
+           "AND (:estado IS NULL OR a.estado = :estado) " +
+           "ORDER BY a.fecha DESC, p.id ASC")
+    List<Asistencia> findDynamicWithFilters(
+            @Param("fecha") LocalDate fecha,
+            @Param("fechaDesde") LocalDate fechaDesde,
+            @Param("fechaHasta") LocalDate fechaHasta,
+            @Param("personalId") Integer personalId,
+            @Param("departamentoId") Integer departamentoId,
+            @Param("estado") AsistenciaEstado estado);
+
     // JOIN FETCH para traer la asistencia y el personal en una sola consulta
     @Query("SELECT a FROM Asistencia a JOIN FETCH a.personal p WHERE a.fecha = :fecha")
     List<Asistencia> findByFechaWithPersonal(@Param("fecha") LocalDate fecha);
@@ -25,9 +54,6 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
             @Param("personalId") Integer personalId, 
             @Param("fechaDesde") LocalDate fechaDesde, 
             @Param("fechaHasta") LocalDate fechaHasta);
-            
-    // Búsqueda por personal y fecha (único según constraint)
-    Optional<Asistencia> findByPersonalIdAndFecha(Integer personalId, LocalDate fecha);
 
     // Asistencia de un personal en un rango de fechas
     List<Asistencia> findByPersonalIdAndFechaBetween(Integer personalId, LocalDate fechaInicio, LocalDate fechaFin);
