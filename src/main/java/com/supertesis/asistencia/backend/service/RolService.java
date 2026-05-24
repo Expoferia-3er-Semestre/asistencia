@@ -1,17 +1,13 @@
 package com.supertesis.asistencia.backend.service;
 
-import com.supertesis.asistencia.backend.entity.Permiso;
 import com.supertesis.asistencia.backend.entity.Rol;
-import com.supertesis.asistencia.backend.entity.RolPermisoDirecto;
 import com.supertesis.asistencia.backend.exception.ResourceNotFoundException;
-import com.supertesis.asistencia.backend.repository.RolPermisoDirectoRepository;
 import com.supertesis.asistencia.backend.repository.RolRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +15,6 @@ import java.util.stream.Collectors;
 public class RolService {
 
     private final RolRepository rolRepository;
-    private final RolPermisoDirectoRepository rolPermisoDirectoRepository;
 
     public List<Rol> findAll() {
         return rolRepository.findAll();
@@ -59,8 +54,4 @@ public class RolService {
         rolRepository.deleteById(id);
     }
 
-    public List<Permiso> findPermisosDirectos(Integer rolId) {
-        List<RolPermisoDirecto> relaciones = rolPermisoDirectoRepository.findByRolIdWithDetails(rolId);
-        return relaciones.stream().map(RolPermisoDirecto::getPermiso).collect(Collectors.toList());
-    }
 }
