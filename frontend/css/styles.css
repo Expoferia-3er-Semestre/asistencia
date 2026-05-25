@@ -2042,3 +2042,22 @@ body {
   }
 }
 
+/* ══════════════════════════════
+   FILTROS PARA EXTENDIDOS — ASIS-34
+══════════════════════════════ */
+/* Filtros extendidos — ASIS-34 */
+.filters-grid--5col {
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+
+@media (max-width: 900px) {
+  .filters-grid--5col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .filters-grid--5col {
+    grid-template-columns: 1fr;
+  }
+}
