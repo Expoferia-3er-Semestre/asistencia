@@ -11,6 +11,22 @@ function getPersonalVisibles() {
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesion(); // app.js — redirige si no hay token
   protegerModulo(["ROLE_ADMIN", "ROLE_ASISTENTE"]);
+
+  // Oculta columnas y botones de edicion si el usuario es ROLE_ASISTENTE
+  if (getRol() === "ROLE_ASISTENTE") {
+    const style = document.createElement("style");
+    style.textContent = `
+    /* Oculta columnas Acciones y Estado para ROLE_ASISTENTE */
+    #tabla-personal thead th:nth-child(5),
+    #tabla-personal thead th:nth-child(6),
+    #tbody-personal td:nth-child(5),
+    #tbody-personal td:nth-child(6),
+    .mod-heading-actions button,
+    #mostrar-inactivos { display: none !important; }
+  `;
+    document.head.appendChild(style);
+  }
+
   cargarPersonal();
   cargarDeptosEnModal();
   cargarCargosEnModal();
