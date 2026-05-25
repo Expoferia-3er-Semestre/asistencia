@@ -1,6 +1,11 @@
 /* dashboard.js */
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Redirige inmediatamente si es ROLE_ESCANER sin esperar al backend
+  if (localStorage.getItem("rol") === "ROLE_ESCANER") {
+    window.location.replace("escaner.html");
+    return;
+  }
   verificarSesion(); // app.js
   protegerModulo(["ROLE_ADMIN", "ROLE_ASISTENTE"]);
 
