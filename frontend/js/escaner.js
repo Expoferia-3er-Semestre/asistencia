@@ -16,6 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
   /* Verificamos sesión antes de activar la cámara */
   //verificarSesion(); /* se desactiva para que abra el escaner.html sin necesidad de iniciar sesion esto por si se quiere usar el tlf como host para probar. Recuerda activarlo nuevamente!! */
   iniciarEscaner();
+
+  // Oculta el botón dashboard si el usuario es ROLE_ESCANER
+  if (getRol() === "ROLE_ESCANER") {
+    const btn = document.getElementById("btn-dashboard");
+    if (btn) btn.style.display = "none";
+  }
 });
 
 /* ── Iniciar cámara ────────────────────────────────── */

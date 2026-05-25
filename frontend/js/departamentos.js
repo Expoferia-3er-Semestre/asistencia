@@ -3,6 +3,7 @@ let listaDeptos = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesion(); // app.js — redirige si no hay token
+  protegerModulo(["ROLE_ADMIN", "ROLE_ASISTENTE"]);
   cargarDeptos();
 });
 
@@ -33,7 +34,9 @@ function renderCards(datos) {
 
   const departamentosOrdenados = datos
     .slice()
-    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
+    .sort((a, b) =>
+      a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }),
+    );
 
   if (!departamentosOrdenados.length) {
     grid.innerHTML = placeholder;
@@ -223,7 +226,9 @@ async function toggleDeptoStatus(checkbox, activo, id) {
     await api.patch(`/api/departamentos/${id}/${action}`);
     cargarDeptos();
   } catch (err) {
-    const msg = err.response?.data?.message || "No se pudo actualizar el estado del departamento.";
+    const msg =
+      err.response?.data?.message ||
+      "No se pudo actualizar el estado del departamento.";
     alert(msg);
     checkbox.checked = activo;
   }

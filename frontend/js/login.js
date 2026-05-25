@@ -19,22 +19,26 @@ async function iniciarSesion() {
   errorMsg.style.display = "none";
 
   try {
-    /* api viene de api.js — withCredentials:true hace que el navegador
-       guarde la cookie httpOnly que manda el backend */
+    /* Llama al backend para autenticar — la cookie httpOnly se guarda automáticamente */
     const res = await api.post("/api/auth/login", {
       nombreUsuario: usuario,
       password: password,
     });
 
-    /* El token ya NO se guarda — viaja solo en la cookie httpOnly
-       Solo guardamos el nombre para mostrarlo en el dashboard */
     const nombre =
       res.data.nombreUsuario || res.data.username || res.data.nombre || usuario;
-    localStorage.setItem("nombre", nombre);
+    const rol = res.data.rol || "";
 
-    // Redirigir según rol despues de la expoferia, por ahora vamos directo al dashboard
-    window.location.href = "../modules/dashboard.html";
-    
+    // Guarda nombre y rol en localStorage para uso en otras páginas
+    localStorage.setItem("nombre", nombre);
+    localStorage.setItem("rol", rol);
+
+    // Redirige según rol: escaner solo ve su pantalla, los demás van al dashboard
+    if (rol === "ROLE_ESCANER") {
+      window.location.href = "../modules/escaner.html";
+    } else {
+      window.location.href = "../modules/dashboard.html";
+    }
   } catch (err) {
     /* Axios lanza error si el status no es 2xx */
     if (err.response?.status === 401 || err.response?.status === 403) {
@@ -59,7 +63,7 @@ function mostrarError(msg) {
 function ocultarError() {
   const el = document.getElementById("error-msg");
   el.style.display = "none";
-  el.textContent   = "";
+  el.textContent = "";
 }
 
 // Login con Enter

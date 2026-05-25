@@ -2,6 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesion(); // app.js
+  protegerModulo(["ROLE_ADMIN", "ROLE_ASISTENTE"]);
 
   // Muestra nombre en topbar y saludo
   const nombreLimpio = getNombre(); // app.js

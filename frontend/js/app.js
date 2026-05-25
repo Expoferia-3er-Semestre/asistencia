@@ -65,7 +65,11 @@ function createConfirmModal() {
 function showConfirmation(message, options = {}) {
   createConfirmModal();
 
-  const { title = "Confirmar acción", confirmText = "Confirmar", cancelText = "Cancelar" } = options;
+  const {
+    title = "Confirmar acción",
+    confirmText = "Confirmar",
+    cancelText = "Cancelar",
+  } = options;
   const overlay = document.getElementById("confirm-overlay");
   const modal = document.getElementById("confirm-modal");
   const titleEl = modal.querySelector(".confirm-title");
@@ -115,4 +119,25 @@ function showConfirmation(message, options = {}) {
     overlay.addEventListener("click", onCancel);
     document.addEventListener("keydown", onKeyDown);
   });
+}
+
+/* Retorna el rol guardado en localStorage tras el login */
+function getRol() {
+  return localStorage.getItem("rol") || "";
+}
+
+/* Guarda de ruta: llámalo al inicio de cada página restringida.
+   rolesPermitidos: ej ["ROLE_ADMIN"] o ["ROLE_ADMIN", "ROLE_ASISTENTE"]
+   Si el rol no está en la lista redirige automáticamente */
+function protegerModulo(rolesPermitidos) {
+  const rol = getRol();
+  if (!rol || !rolesPermitidos.includes(rol)) {
+    // ROLE_ESCANER solo puede ver su pantalla
+    if (rol === "ROLE_ESCANER") {
+      window.location.href = "../modules/escaner.html";
+    } else {
+      // Sin rol o rol desconocido → dashboard
+      window.location.href = "../modules/dashboard.html";
+    }
+  }
 }
