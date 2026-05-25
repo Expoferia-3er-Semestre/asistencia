@@ -1,5 +1,7 @@
 /* asistencia.js */
 
+let tablaActual = []; // guarda el último resultado para exportar CSV (excel)
+
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesion();
 
@@ -37,15 +39,15 @@ function mostrarFeedback(id, mensaje, tipo) {
 }
 
 /* ── Badge de estado ── */
-function badgeEstado(estado) {
+function badgeEstado(estado, minutosTardanza) {
   const clases = {
     presente: "badge-presente",
     tardanza: "badge-tardanza",
-    salida_anticipada: "badge-tardanza",
+    salida_anticipada: "badge-salida-anticipada",
     ausente: "badge-ausente",
-    permiso: "badge-justificado",
-    feriado: "badge-justificado",
-    libre: "badge-justificado",
+    permiso: "badge-permiso",
+    feriado: "badge-feriado",
+    libre: "badge-libre",
   };
   const etiquetas = {
     presente: "Presente",
@@ -57,7 +59,11 @@ function badgeEstado(estado) {
     libre: "Libre",
   };
   const key = estado?.toLowerCase();
-  return `<span class="badge ${clases[key] || ""}">${etiquetas[key] || estado || "—"}</span>`;
+  let etiqueta = etiquetas[key] || estado || "—";
+  if (key === "tardanza" && minutosTardanza > 0) {
+    etiqueta = `Tardanza (${minutosTardanza} min)`;
+  }
+  return `<span class="badge ${clases[key] || ""}">${etiqueta}</span>`;
 }
 
 /* ── Formatea "2025-07-10T08:03:00" → "08:03" ── */
@@ -70,6 +76,7 @@ function formatHora(isoStr) {
 
 /* ── Render tabla genérica ── */
 function renderTabla(lista) {
+  tablaActual = lista;
   const tbody = document.getElementById("tbody-asistencia");
   const count = document.getElementById("tabla-count");
 
@@ -79,7 +86,7 @@ function renderTabla(lista) {
   if (!lista.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="4" class="tabla-empty">
+        <td colspan="7" class="tabla-empty">
           <span></span>
           No hay registros en ese período.
         </td>
@@ -91,10 +98,13 @@ function renderTabla(lista) {
     .map(
       (r) => `
       <tr>
-        <td>${r.nombrePersonal ?? r.personal?.nombre ?? "—"} ${r.apellidoPersonal ?? r.personal?.apellido ?? ""}</td>
-        <td>${r.departamento ?? r.personal?.departamento?.nombre ?? "—"}</td>
-        <td>${r.fecha ?? "—"}</td>
-        <td>${badgeEstado(r.estado)}</td>
+        <td data-label="Nombre">${r.nombrePersonal ?? r.personal?.nombre ?? "—"} ${r.apellidoPersonal ?? r.personal?.apellido ?? ""}</td>
+        <td data-label="Cédula">${r.cedula ?? "—"}</td>
+        <td data-label="Departamento">${r.departamento ?? r.personal?.departamento?.nombre ?? "—"}</td>
+        <td data-label="Fecha">${r.fecha ?? "—"}</td>
+        <td data-label="Hora entrada">${r.horaEntrada ? r.horaEntrada.substring(0, 5) : "—"}</td>
+        <td data-label="Hora salida">${r.horaSalida ? r.horaSalida.substring(0, 5) : "—"}</td>
+        <td data-label="Estado">${badgeEstado(r.estado, r.minutosTardanza)}</td>
       </tr>`,
     )
     .join("");
@@ -240,4 +250,44 @@ function limpiarFiltros() {
   document.getElementById("filtro-estado").value = "";
   document.getElementById("filtro-personal").value = "";
   consultarAsistencias();
+}
+
+/* ──  Exportar en formato CSV (Excel) ── */
+function exportarCSV() {
+  if (!tablaActual || !tablaActual.length) return;
+
+  const encabezado = [
+    "Nombre",
+    "Cédula",
+    "Departamento",
+    "Fecha",
+    "Hora Entrada",
+    "Hora Salida",
+    "Estado",
+    "Min. Tardanza",
+  ];
+
+  const filas = tablaActual.map((r) =>
+    [
+      `"${r.nombrePersonal || ""} ${r.apellidoPersonal || ""}"`,
+      r.cedula || "",
+      `"${r.departamento || ""}"`,
+      r.fecha || "",
+      r.horaEntrada ? r.horaEntrada.substring(0, 5) : "",
+      r.horaSalida ? r.horaSalida.substring(0, 5) : "",
+      r.estado || "",
+      r.minutosTardanza || 0,
+    ].join(","),
+  );
+
+  const csv = [encabezado.join(","), ...filas].join("\n");
+  const desde = document.getElementById("filtro-fecha-desde").value || "inicio";
+  const hasta = document.getElementById("filtro-fecha-hasta").value || "fin";
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `asistencia_${desde}_${hasta}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
 }

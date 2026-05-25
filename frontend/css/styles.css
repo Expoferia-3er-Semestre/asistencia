@@ -2061,3 +2061,21 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Badges de estado — ASIS-35 (estados adicionales del enum) ── */
+.badge-salida-anticipada {
+  background: #fef3e2;
+  color: var(--cen-naranja);
+}
+.badge-permiso {
+  background: #e8f4fd;
+  color: var(--cen-azul);
+}
+.badge-feriado {
+  background: var(--cen-azul-claro);
+  color: var(--cen-azul-oscuro);
+}
+.badge-libre {
+  background: #f0f4f8;
+  color: #7a8fa6;
+}

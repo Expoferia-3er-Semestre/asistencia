@@ -153,21 +153,30 @@
       <section class="tabla-panel">
         <div class="tabla-header">
           <h2>Resultados</h2>
-          <span class="tabla-count" id="tabla-count">0 registros</span>
+          <div style="display: flex; align-items: center; gap: 0.75rem">
+            <span class="tabla-count" id="tabla-count">0 registros</span>
+            <button class="btn-back" onclick="exportarCSV()">
+              Exportar Excel
+            </button>
+          </div>
         </div>
+
         <div class="tabla-container">
           <table id="tabla-asistencia">
             <thead>
               <tr>
                 <th>Nombre</th>
+                <th>Cédula</th>
                 <th>Departamento</th>
                 <th>Fecha</th>
+                <th>Hora entrada</th>
+                <th>Hora salida</th>
                 <th>Estado</th>
               </tr>
             </thead>
             <tbody id="tbody-asistencia">
               <tr>
-                <td colspan="4" class="tabla-empty">
+                <td colspan="7" class="tabla-empty">
                   <span></span>
                   Usa los filtros para consultar registros.
                 </td>
