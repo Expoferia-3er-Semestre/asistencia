@@ -3,6 +3,7 @@ let listaCargos = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesion(); // app.js — redirige si no hay token
+  protegerModulo(["ROLE_ADMIN"]); // solo ADMIN puede gestionar cargos
   cargarCargos();
   cargarDeptosEnModal();
 });
@@ -118,7 +119,7 @@ function editarCargo(id) {
 
   document.getElementById("form-id").value = cargo.id;
   document.getElementById("form-nombre").value = cargo.nombre || "";
-  
+
   const deptoId =
     cargo.departamento && typeof cargo.departamento === "object"
       ? cargo.departamento.id || ""
@@ -151,7 +152,7 @@ async function guardarCargo() {
     nombre,
     departamentoId: Number(departamentoId),
   };
-  
+
   const esEdicion = !!id;
   btn.setAttribute("aria-busy", "true");
   btn.textContent = "Guardando…";
@@ -167,7 +168,8 @@ async function guardarCargo() {
     cerrarModal();
     cargarCargos();
   } catch (err) {
-    const errorMsg = err.response?.data?.message || "No se pudo guardar el cargo.";
+    const errorMsg =
+      err.response?.data?.message || "No se pudo guardar el cargo.";
     mostrarModalError(errorMsg);
   } finally {
     btn.removeAttribute("aria-busy");

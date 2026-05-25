@@ -10,6 +10,7 @@ function getPersonalVisibles() {
 
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesion(); // app.js — redirige si no hay token
+  protegerModulo(["ROLE_ADMIN", "ROLE_ASISTENTE"]);
   cargarPersonal();
   cargarDeptosEnModal();
   cargarCargosEnModal();

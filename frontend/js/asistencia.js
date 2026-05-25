@@ -4,6 +4,7 @@ let tablaActual = []; // guarda el último resultado para exportar CSV (excel)
 
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesion();
+  protegerModulo(["ROLE_ADMIN", "ROLE_ASISTENTE"]);
 
   const hoy = fechaLocal();
   document.getElementById("filtro-fecha-desde").value = hoy;
