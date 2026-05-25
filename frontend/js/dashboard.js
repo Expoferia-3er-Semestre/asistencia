@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   cargarEstadisticas();
+  cargarEstadisticasSemana();
 });
 
 /* Carga los 3 contadores desde el backend */
@@ -68,11 +69,55 @@ async function cargarEstadisticas() {
       console.error("Error en /api/departamentos:", resultados[2].reason);
       setVal("totalDeptos", "0");
     }
-
   } catch (err) {
     console.error("Error crítico en bloque de estadísticas:", err);
     ["totalPersonal", "totalAsistencias", "totalDeptos"].forEach((id) =>
-      setVal(id, "—")
+      setVal(id, "—"),
     );
+  }
+}
+
+/* ── Semana actual ── */
+function getSemanaActual() {
+  const hoy = new Date();
+  const diaSemana = hoy.getDay() || 7; // domingo=0 → 7
+  const lunes = new Date(hoy);
+  lunes.setDate(hoy.getDate() - (diaSemana - 1));
+  const domingo = new Date(lunes);
+  domingo.setDate(lunes.getDate() + 6);
+  const fmt = (d) => d.toISOString().split("T")[0];
+  return { desde: fmt(lunes), hasta: fmt(domingo) };
+}
+
+async function cargarEstadisticasSemana() {
+  const { desde, hasta } = getSemanaActual();
+
+  // Actualiza el link "Ver detalle "
+  const link = document.getElementById("link-ver-detalle");
+  if (link)
+    link.href = `asistencia.html?fechaDesde=${desde}&fechaHasta=${hasta}`;
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  try {
+    const res = await api.get("/api/asistencia/estadisticas", {
+      params: { fechaDesde: desde, fechaHasta: hasta },
+    });
+    const data = res.data;
+    setVal("semana-presentes", data.presente ?? "—");
+    setVal("semana-ausentes", data.ausente ?? "—");
+    setVal("semana-tardanzas", data.tardanza ?? "—");
+    setVal("semana-permisos", data.permiso ?? "—");
+  } catch (err) {
+    console.error("Error cargando estadisticas de semana:", err);
+    [
+      "semana-presentes",
+      "semana-ausentes",
+      "semana-tardanzas",
+      "semana-permisos",
+    ].forEach((id) => setVal(id, "—"));
   }
 }

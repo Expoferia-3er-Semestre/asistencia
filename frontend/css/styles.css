@@ -2079,3 +2079,40 @@ body {
   background: #f0f4f8;
   color: #7a8fa6;
 }
+
+/* ── Stat cards adicionales — ASIS-36 ── */
+.stat-card--rojo {
+  border-top-color: var(--cen-rojo);
+}
+.stat-card--naranja {
+  border-top-color: var(--cen-naranja);
+}
+
+.semana-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.stats-row--semana {
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 600px) {
+  .stats-row--semana {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.link-detalle-semana {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cen-azul);
+  text-decoration: none;
+}
+
+.link-detalle-semana:hover {
+  text-decoration: underline;
+}
