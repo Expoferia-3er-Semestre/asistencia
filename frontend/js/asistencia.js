@@ -15,6 +15,16 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarPersonal();
   cargarDepartamentos();
   cargarAsistenciaHoy();
+
+  // Precarga fechas desde URL si vienen como parámetros (ej: desde dashboard)
+  const params = new URLSearchParams(window.location.search);
+  const fechaDesde = params.get("fechaDesde");
+  const fechaHasta = params.get("fechaHasta");
+  if (fechaDesde && fechaHasta) {
+    document.getElementById("filtro-fecha-desde").value = fechaDesde;
+    document.getElementById("filtro-fecha-hasta").value = fechaHasta;
+    consultarAsistencias();
+  }
 });
 
 /* ── Utilidad: fecha local YYYY-MM-DD ── */
