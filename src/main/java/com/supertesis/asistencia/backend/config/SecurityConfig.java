@@ -40,6 +40,8 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // 0. EXCLUSIVO PARA CORS: Permitir todas las peticiones OPTIONS previas
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 1. RUTAS PÚBLICAS: Autenticación, configuración inicial y recursos estáticos
                         .requestMatchers("/api/auth/**", "/api/setup/**").permitAll()
                         .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/modules/**", "/img/**").permitAll()
@@ -95,9 +97,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // Mantiene tus puertos locales del Live Server
-        configuration.setAllowedOrigins(List.of("http://localhost:5500", "http://127.0.0.1:5500")); 
+        configuration.setAllowedOrigins(List.of("http://localhost:5500", "http://127.0.0.1:5500", "http://192.168.10.17:5500", "http://192.168.140.23:5500")); 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With","Ngrok-Skip-Browser-Warning"));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(List.of("Authorization"));
 

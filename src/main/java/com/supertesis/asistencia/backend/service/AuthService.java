@@ -42,8 +42,8 @@ public class AuthService {
                 .path("/")
                 .maxAge(24 * 60 * 60) // Expiración de 1 día
                 .httpOnly(true)
-                .secure(false)        // Cambiar a true en producción cuando uses HTTPS
-                .sameSite("Lax")
+                .secure(true)        // Cambiar a true en producción cuando uses HTTPS
+                .sameSite("None")
                 .build();
         
         response.addHeader("Set-Cookie", jwtCookie.toString());
