@@ -3,7 +3,7 @@ package com.supertesis.asistencia.backend.controller;
 import com.supertesis.asistencia.backend.dto.personal.PersonalCreateRequestDto;
 import com.supertesis.asistencia.backend.dto.personal.PersonalResponseDto;
 import com.supertesis.asistencia.backend.dto.personal.PersonalUpdateRequestDto;
-import com.supertesis.asistencia.backend.security.QrTokenService;
+import com.supertesis.asistencia.backend.service.CarnetService;
 import com.supertesis.asistencia.backend.service.PersonalService;
 
 import jakarta.validation.Valid;
@@ -15,8 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/personal")
@@ -25,13 +27,23 @@ public class PersonalController {
 
     private final PersonalService personalService;
     @Autowired
-    private QrTokenService qrTokenService;
+    private CarnetService carnetService;
 
     @PreAuthorize("hasRole('Administrador')") 
-    @GetMapping("/{id}/qr-token")
-    public ResponseEntity<Map<String, Object>> getQrToken(@PathVariable("id") Integer id) {
-        Map<String, Object> response = qrTokenService.generateQrToken(id);
-        return ResponseEntity.ok(response);
+    @GetMapping("/{id}/carnet")
+    public ResponseEntity<byte[]> descargarCarnet(@PathVariable("id") Integer id) {
+        
+        // El controlador delega de manera directa toda la lógica de negocio y empaquetado
+        byte[] pdfBytes = carnetService.obtenerCarnetDocumento(id);
+
+        // Definición de las cabeceras del protocolo HTTP de transferencia de archivos
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        String nombreArchivo = "Carnet_Personal_" + id + ".pdf";
+        headers.setContentDispositionFormData("attachment", nombreArchivo);
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 
     @GetMapping

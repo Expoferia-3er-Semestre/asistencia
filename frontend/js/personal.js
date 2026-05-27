@@ -75,24 +75,30 @@ async function cargarDeptosEnModal() {
   }
 }
 
-/* Llena el select de cargos dentro del modal */
+/* Llena el select de cargos dentro del modal utilizando la instancia de Axios */
 async function cargarCargosEnModal() {
   try {
-    // Si tienes una ruta en Axios para cargos, úsala. Suponiendo getHeaders() para Fetch antiguo:
-    const res = await fetch(`${API_BASE}/cargos`, { headers: getHeaders() });
-    if (!res.ok) return;
-
-    const cargos = await res.json();
+    // Se reemplaza 'fetch' y 'API_BASE' por la instancia global 'api' del proyecto
+    const res = await api.get('/api/cargos');
+    
+    // Axios parsea automáticamente el JSON en la propiedad 'data'
+    const cargos = res.data;
     listaCargos = cargos;
 
     const sel = document.getElementById("form-cargo");
     if (!sel) return;
 
     const previous = sel.value;
-    filtrarCargosPorDepto(document.getElementById("form-depto").value || "");
+    
+    // Se valida la existencia del nodo del departamento antes de extraer su valor
+    const deptoSelect = document.getElementById("form-depto");
+    const deptoId = deptoSelect ? deptoSelect.value : "";
+    
+    filtrarCargosPorDepto(deptoId || "");
     if (previous) sel.value = previous;
+    
   } catch (err) {
-    console.error("Error cargando cargos:", err);
+    console.error("Error cargando cargos en el módulo:", err);
   }
 }
 
@@ -198,7 +204,7 @@ function renderTabla(datos) {
           </div>
         </td>
         <td data-label="QR" style="text-align:center;">
-  <button class="btn-qr" onclick="verQR(${p.id}, '${p.nombre || ""} ${p.apellido || ""}')">Ver QR</button>
+  <button class="btn-qr" onclick="descargarCarnet(${p.id}, '${p.nombre || ""} ${p.apellido || ""}', this)">Descargar Carnet</button>
 </td>
       </tr>`;
     })
@@ -386,62 +392,6 @@ async function eliminarPersonal(id) {
   return togglePersonalStatus(id, true);
 }
 
-/* ── Modal QR ─────────────────────────────────────────────── */
-
-/* Abre el modal QR, obtiene el token del backend y dibuja el QR */
-async function verQR(id, nombre) {
-  /* Limpiamos el canvas anterior y mostramos el modal */
-  document.getElementById("qr-canvas").innerHTML = "";
-  document.getElementById("qr-nombre-empleado").textContent =
-    nombre.trim() || "Empleado";
-  document.getElementById("qr-status").textContent = "Generando QR…";
-
-  /* Activamos el modal */
-  document.getElementById("modal-qr-overlay").classList.add("active");
-  document.getElementById("modal-qr").classList.add("active");
-
-  try {
-    /* Solicitamos el token QR al backend */
-    const res = await api.get(`/api/personal/${id}/qr-token`);
-    const token = res.data?.token || res.data;
-
-    if (!token) {
-      document.getElementById("qr-status").textContent =
-        "No se pudo obtener el token QR.";
-      return;
-    }
-
-    /* Limpiamos el mensaje y dibujamos el QR con el token JWT */
-    document.getElementById("qr-status").textContent = "";
-    new QRCode(document.getElementById("qr-canvas"), {
-      text: token, // el contenido del QR es el token JWT completo
-      width: 220,
-      height: 220,
-      colorDark: "#2f5a8a", // azul institucional
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.M,
-    });
-
-    /* Ocultamos el texto del token que qrcode.js agrega como atributo title */
-    setTimeout(() => {
-      const canvas = document.getElementById("qr-canvas");
-      canvas.removeAttribute("title");
-    }, 200);
-  } catch (err) {
-    console.error("Error obteniendo QR:", err);
-    document.getElementById("qr-status").textContent =
-      "Error al generar el QR. Intenta de nuevo.";
-  }
-}
-
-/* Cierra el modal QR y limpia el canvas */
-function cerrarModalQR() {
-  document.getElementById("modal-qr-overlay").classList.remove("active");
-  document.getElementById("modal-qr").classList.remove("active");
-  document.getElementById("qr-canvas").innerHTML = "";
-  document.getElementById("qr-status").textContent = "";
-}
-
 /* ── Helpers ──────────────────── */
 
 function mostrarModalError(msg) {
@@ -449,5 +399,49 @@ function mostrarModalError(msg) {
   if (el) {
     el.textContent = msg;
     el.className = "feedback-msg error";
+  }
+
+}
+
+/* ── Descarga de Carnet PDF (Unificado) ────────────────────────────────── */
+
+/**
+ * Solicita al servidor el PDF del carnet del empleado y procesa la descarga 
+ * de manera transparente en el navegador.
+ * * @param {number} id - Identificador único del personal.
+ * @param {string} nombreCompleto - Nombre y apellido para nombrar el archivo.
+ * @param {HTMLElement} btnElement - Referencia del botón para el feedback visual.
+ */
+async function descargarCarnet(id, nombreCompleto, btnElement) {
+  const textoOriginal = btnElement.textContent;
+  btnElement.textContent = "Generando...";
+  btnElement.disabled = true;
+
+  try {
+    const res = await api.get(`/api/personal/${id}/carnet`, {
+      responseType: 'blob'
+    });
+
+    const blob = new Blob([res.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    
+    const nombreArchivo = `Carnet_${nombreCompleto.trim().replace(/\s+/g, '_')}.pdf`;
+    link.setAttribute('download', nombreArchivo);
+    
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
+    window.URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error("Error descargando el carnet institucional:", err);
+    alert("No se pudo generar el carnet. Verifique los permisos de administrador o la configuración del servidor.");
+  } finally {
+    btnElement.textContent = textoOriginal;
+    btnElement.disabled = false;
   }
 }
