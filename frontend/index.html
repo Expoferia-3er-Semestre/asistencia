@@ -1,54 +1,131 @@
 <!doctype html>
-<html lang="es" data-theme="light">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>C.E.N. Lcda. Roraima Asansa Escándela</title>
-    <link rel="stylesheet" href="css/styles.css" />
-    <!-- Tipografía institucional -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,600&family=Source+Sans+3:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <link rel="stylesheet" href="css/index.css" />
   </head>
 
-  <body class="public-page">
-    <!-- ── Navbar pública ── -->
-    <header class="pub-navbar">
-      <a class="pub-brand" href="index.html">
+  <body>
+    <!-- ══ NAVBAR ══ -->
+    <nav class="navbar" id="navbar">
+      <a class="nav-brand" href="index.html">
         <img
-          src="img/logo.svg.png"
-          alt="Logo C.E.N. Roraima"
+          src="img/logo_asansa.jpeg"
+          alt="Escudo C.E.N. Roraima Asansa Escándela"
           onerror="this.style.display = 'none'"
         />
-        <span>C.E.N. Roraima</span>
+        <div class="nav-brand-text">
+          <strong>C.E.N. Roraima Asansa</strong>
+          <small>Escándela</small>
+        </div>
       </a>
-      <!-- Acceso al sistema -->
-      <a href="modules/login.html" class="pub-btn-login">Iniciar sesión</a>
-    </header>
 
-    <!-- ── Hero ── -->
-    <section class="pub-hero">
-      <div class="pub-hero-inner">
-        <p class="eyebrow">Bienvenidos</p>
-        <h1>C.E.N. Lcda. Roraima<br />Asansa Escándela</h1>
-        <p class="pub-hero-sub">
-          Formando ciudadanos con valores, excelencia académica y compromiso
-          social.
+      <div class="nav-links" id="navLinks">
+        <a href="#mision">Nosotros</a>
+        <a href="#galeria">Galería</a>
+        <a href="#noticias">Noticias</a>
+        <a href="#contacto">Contacto</a>
+        <a
+          target="_blank"
+          href="modules/login.html"
+          class="btn-acceso"
+          aria-label="Acceder al sistema"
+        >
+          <img
+            src="img/person-svgrepo-com.svg"
+            alt="Acceder"
+            width="22"
+            height="22"
+          />
+        </a>
+      </div>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+
+    <!-- ══ HERO SLIDER ══ -->
+    <section class="hero" id="inicio">
+      <div class="hero-slides" id="heroSlides">
+        <div
+          class="hero-slide active"
+          style="background-image: url(&quot;img/asansa.jpeg&quot;)"
+        ></div>
+        <div
+          class="hero-slide"
+          style="background-image: url(&quot;img/grupo_premilitar.jpeg&quot;)"
+        ></div>
+        <div
+          class="hero-slide"
+          style="
+            background-image: url(&quot;img/estudiantes_premilitar.jpeg&quot;);
+          "
+        ></div>
+        <div
+          class="hero-slide"
+          style="background-image: url(&quot;img/representantes.jpeg&quot;)"
+        ></div>
+      </div>
+
+      <div class="hero-content">
+        <h1 class="hero-title">C.E.N. Lcda. Roraima<br />Asansa Escándela</h1>
+      </div>
+
+      <div class="hero-caption">
+        <p class="hero-quote visible" id="heroQuote">
+          "Educación con valores, formando el futuro de nuestra comunidad."
         </p>
-        <!--<a href="modules/login.html" class="pub-btn-cta"
-          >Preinscripción o se deja aca el boton para loguearse (Acceder al sistema)</a
-        >-->
+      </div>
+
+      <button class="hero-prev" id="heroPrev" aria-label="Anterior">
+        &#8592;
+      </button>
+      <button class="hero-next" id="heroNext" aria-label="Siguiente">
+        &#8594;
+      </button>
+
+      <div class="hero-dots" id="heroDots"></div>
+
+      <div class="hero-quick">
+        <div class="quick-card">
+          <strong>Año Escolar</strong>
+          <span>2025 – 2026</span>
+        </div>
+        <div class="quick-card">
+          <strong>Control de Asistencia</strong>
+          <span>Sistema institucional en línea</span>
+        </div>
+        <div class="quick-card">
+          <strong>Comunidad Educativa</strong>
+          <span>Personal, docentes y directivos</span>
+        </div>
       </div>
     </section>
 
-    <!-- ── Misión / Visión ── -->
-    <section class="pub-mv">
-      <div class="pub-container">
+    <!-- ══ MISIÓN / VISIÓN / VALORES ══ -->
+    <section class="section-mv" id="mision">
+      <div class="section-header"></div>
+      <div class="mv-grid" id="mvGrid">
         <article class="mv-card">
-          <div class="mv-icon">🎯</div> 
+          <div class="mv-icon">
+            <img
+              src="https://s2.svgbox.net/hero-solid.svg?ic=academic-cap&color=2f5a8a"
+              width="44"
+              height="44"
+              alt="Misión"
+            />
+          </div>
           <h2>Misión</h2>
           <p>
             Brindar una educación integral de calidad que forme personas
@@ -56,9 +133,15 @@
             fundamentada en valores éticos y el respeto mutuo.
           </p>
         </article>
-
         <article class="mv-card">
-          <div class="mv-icon">🌟</div>
+          <div class="mv-icon">
+            <img
+              src="https://s2.svgbox.net/materialui.svg?ic=people_alt&color=b8891e"
+              width="44"
+              height="44"
+              alt="Visión"
+            />
+          </div>
           <h2>Visión</h2>
           <p>
             Ser una institución educativa de referencia regional, reconocida por
@@ -66,9 +149,15 @@
             positivo de sus egresados en la sociedad.
           </p>
         </article>
-
         <article class="mv-card">
-          <div class="mv-icon">⚖️</div>
+          <div class="mv-icon">
+            <img
+              src="https://s2.svgbox.net/octicons.svg?ic=heart-fill-bold&color=3a7d44"
+              width="44"
+              height="44"
+              alt="Valores"
+            />
+          </div>
           <h2>Valores</h2>
           <p>
             Respeto, honestidad, solidaridad, responsabilidad y excelencia son
@@ -79,16 +168,92 @@
       </div>
     </section>
 
-    <!-- ── Noticias ── -->
-    <section class="pub-news">
-      <div class="pub-container">
-        <!--<p class="eyebrow">Institución</p>-->
-        <h2 class="pub-section-title">Últimas noticias</h2>
+    <!-- ══ GALERÍA ══ -->
+    <section class="section-gallery" id="galeria">
+      <div class="section-header" style="position: relative">
+        <span class="ghost-text">Galería</span>
+        <h2 class="section-title">Galería de fotos</h2>
+      </div>
 
-        <!-- Las noticias se cargan aquí desde index.js -->
-        <div class="news-grid" id="news-grid">
-          <!-- Tarjeta estática de ejemplo mientras no haya backend de noticias -->
-          <article class="news-card">
+      <div class="gallery-slider">
+        <div class="gallery-track" id="galleryTrack">
+          <div class="gallery-slide">
+            <img
+              src="img/asansa.jpeg"
+              alt="Sede del C.E.N. Roraima Asansa Escándela"
+            />
+            <div class="gallery-slide-caption">
+              <h3>Nuestra sede</h3>
+              <p>Urb. Villa Chinita, Parroquia San Francisco</p>
+            </div>
+          </div>
+          <div class="gallery-slide">
+            <img
+              src="img/grupo_premilitar.jpeg"
+              alt="Grupo premilitar en formación"
+            />
+            <div class="gallery-slide-caption">
+              <h3>Formación premilitar</h3>
+              <p>Disciplina y valores en nuestra comunidad</p>
+            </div>
+          </div>
+          <div class="gallery-slide">
+            <img
+              src="img/estudiantes_premilitar.jpeg"
+              alt="Estudiantes en uniforme"
+            />
+            <div class="gallery-slide-caption">
+              <h3>Nuestros estudiantes</h3>
+              <p>Orgullo del C.E.N. Roraima Asansa Escándela</p>
+            </div>
+          </div>
+          <div class="gallery-slide">
+            <img src="img/aula.jpeg" alt="Aula de clases" />
+            <div class="gallery-slide-caption">
+              <h3>Nuestras aulas</h3>
+              <p>Espacios preparados para el aprendizaje</p>
+            </div>
+          </div>
+          <div class="gallery-slide">
+            <img
+              src="img/representantes.jpeg"
+              alt="Reunión de representantes"
+            />
+            <div class="gallery-slide-caption">
+              <h3>Comunidad educativa</h3>
+              <p>Padres y representantes comprometidos</p>
+            </div>
+          </div>
+        </div>
+        <button class="gallery-prev" id="galleryPrev">&#8592;</button>
+        <button class="gallery-next" id="galleryNext">&#8594;</button>
+      </div>
+    </section>
+
+    <!-- ══ BANDA INSTITUCIONAL ══ -->
+    <div class="section-band">
+      <div class="band-left">
+        <h2>Control<br />de Asistencia</h2>
+      </div>
+      <div class="band-right">
+        <p>
+          Accede al sistema institucional para gestionar la asistencia del
+          personal docente y administrativo del Complejo Educativo Roraima
+          Asansa Escándela.
+        </p>
+        <a href="modules/login.html" class="band-btn">Acceder al sistema</a>
+      </div>
+    </div>
+
+    <!-- ══ NOTICIAS ══ -->
+    <section class="section-news" id="noticias">
+      <div class="section-header">
+        <span class="section-eyebrow">Institución</span>
+        <h2 class="section-title">Últimas noticias</h2>
+      </div>
+      <div class="news-grid" id="newsGrid">
+        <article class="news-card">
+          <div class="news-body">
             <div class="news-date">Enero 2026</div>
             <h3>Inicio del año escolar 2025–2026</h3>
             <p>
@@ -96,9 +261,10 @@
               año escolar con actividades de integración y jornadas de
               orientación.
             </p>
-          </article>
-
-          <article class="news-card">
+          </div>
+        </article>
+        <article class="news-card">
+          <div class="news-body">
             <div class="news-date">Abril 2026</div>
             <h3>Jornada de salud comunitaria</h3>
             <p>
@@ -106,37 +272,148 @@
               organizada por la alcaldía, apoyando a más de 200 familias del
               sector.
             </p>
-          </article>
-
-          <article class="news-card">
+          </div>
+        </article>
+        <article class="news-card">
+          <div class="news-body">
             <div class="news-date">Mayo 2026</div>
             <h3>Reconocimiento a docentes destacados</h3>
             <p>
               En el marco del Día del Maestro, se reconoció la labor de cinco
               docentes que sobresalieron por su dedicación y compromiso.
             </p>
-          </article>
-        </div>
+          </div>
+        </article>
       </div>
     </section>
 
-    <!-- ── Footer ── -->
-    <footer class="pub-footer">
-      <div class="pub-container pub-footer-inner">
+    <!-- ══ REDES SOCIALES ══ -->
+    <section class="section-social">
+      <div class="section-header">
+        <span class="section-eyebrow">Síguenos</span>
+        <h2 class="section-title">Redes sociales</h2>
+      </div>
+      <div class="social-grid">
+        <a
+          class="social-card"
+          href="https://www.instagram.com/"
+          target="_blank"
+          rel="noopener"
+        >
+          <div class="social-icon instagram">
+            <img
+              src="https://s2.svgbox.net/social.svg?ic=instagram&color=fff"
+              width="28"
+              height="28"
+              alt="Instagram"
+            />
+          </div>
+          <div class="social-card-text">
+            <strong>Instagram</strong>
+            <span>Síguenos en Instagram y mantente al día</span>
+          </div>
+        </a>
+        <a
+          class="social-card"
+          href="https://www.facebook.com/"
+          target="_blank"
+          rel="noopener"
+        >
+          <div class="social-icon facebook">
+            <img
+              src="img/facebook-svgrepo-com.svg"
+              alt="Facebook"
+              width="28"
+              height="28"
+              onerror="this.style.display = 'none'"
+            />
+          </div>
+          <div class="social-card-text">
+            <strong>Facebook</strong>
+            <span>Síguenos y comparte nuestras publicaciones</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="footer" id="contacto">
+      <div class="footer-top">
         <div class="footer-brand">
-          <img
-            src="img/logo.svg.png"
-            alt="Logo"
-            onerror="this.style.display = 'none'"
-          />
-          <span>C.E.N. Lcda. Roraima Asansa Escándela</span>
+          <div class="footer-brand-row">
+            <img
+              src="img/logo_asansa.jpeg"
+              alt="Escudo C.E.N. Roraima Asansa Escándela"
+            />
+            <div>
+              <strong>C.E.N. Lcda. Roraima<br />Asansa Escándela</strong>
+              <small>Complejo Educativo</small>
+            </div>
+          </div>
         </div>
+
+        <div class="footer-col">
+          <h4>Contacto</h4>
+          <ul>
+            <li>
+              <span class="icon">
+                <img
+                  src="https://s2.svgbox.net/hero-solid.svg?ic=phone&color=fff"
+                  width="18"
+                  height="18"
+                  alt=""
+                />
+              </span>
+              <span>(0412) 368-0055</span>
+            </li>
+            <li>
+              <span class="icon">
+                <img
+                  src="https://s2.svgbox.net/materialui.svg?ic=location_on&color=fff"
+                  width="18"
+                  height="18"
+                  alt=""
+                />
+              </span>
+              <span
+                >Urb. Villa Chinita, Calle N.º 1 Av. N.º 1, Parroquia San
+                Francisco</span
+              >
+            </li>
+            <li>
+              <span class="icon">
+                <img
+                  src="https://s2.svgbox.net/materialui.svg?ic=email&color=fff"
+                  width="18"
+                  height="18"
+                  alt=""
+                />
+              </span>
+              <span>info@asansa.edu.ve</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>De Interés</h4>
+          <ul>
+            <li><a href="#mision">Misión y Visión</a></li>
+            <li><a href="#galeria">Galería</a></li>
+            <li><a href="#noticias">Noticias</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col"></div>
+      </div>
+
+      <div class="footer-bottom">
         <p class="footer-copy">
-          © 2026 · Control de Asistencia · Todos los derechos reservados.
+          Complejo Educativo Roraima Asansa Escandela © 2026 · Todos los
+          derechos reservados
         </p>
       </div>
     </footer>
 
-    <!-- index.js solo si hay lógica dinámica de noticias <script src="js/index.js"></script>-->
+    <script src="js/index.js"></script>
   </body>
 </html>
