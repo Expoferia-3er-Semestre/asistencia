@@ -15,6 +15,20 @@ import java.util.Optional;
 public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer> {
 
 
+        /**
+     * Recupera el último bloque de asistencia abierto (sin hora de salida registrada) 
+     * para un empleado y una fecha específica, ordenado cronológicamente por la hora de entrada.
+     * Esencial para el cierre cíclico de marcas en la simulación de la Expoferia.
+     */
+    Optional<Asistencia> findFirstByPersonalIdAndFechaAndHoraSalidaIsNullOrderByHoraEntradaDesc(Integer personalId, LocalDate fecha);
+
+    /**
+     * Determina si el empleado posee un bloque de asistencia activo en el día actual
+     * (es decir, una entrada registrada que aún no cuenta con una salida).
+     */
+    @Query("SELECT a FROM Asistencia a WHERE a.personal.id = :personalId AND a.fecha = :fecha AND a.horaSalida IS NULL")
+    Optional<Asistencia> findAsistenciaActivaParaHoy(@Param("personalId") Integer personalId, @Param("fecha") LocalDate fecha);
+
     
     /**
      * Busca una asistencia específica por empleado y fecha.

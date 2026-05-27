@@ -1,20 +1,19 @@
-/* api.js — instancia Axios compartida
-   withCredentials: true hace que el navegador
-   envíe la cookie automáticamente en cada petición */
+/* api.js — instancia Axios compartida */
 
-/* Detectamos automáticamente el host para que funcione
-   tanto desde la PC (localhost) como desde el teléfono (IP local) */
+const NGROK_URL = "https://agile-dawdler-factor.ngrok-free.dev";
+const LOCAL_URL = "http://localhost:8080"; // O tu IP local si lo prefieres
 
-const BASE_URL = `http://${window.location.hostname}:8080`;
+// Evaluamos el host actual de la barra de direcciones
+const BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? LOCAL_URL 
+  : NGROK_URL;
 
 const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
 });
 
-/*const api = axios.create({
-  baseURL: "http://127.0.0.1:8080", //http://localhost:8080
-  withCredentials: true, // clave — envía la cookie httpOnly
-});*/
-
-// recuerda que origen de esta URL que se usa el frontend debe coincidir con el puerto permitido en el backend (SecurityConfig.java) asegúrate que el origen permitido este alli tambien para evitar problemas de CORS.
+// Condición inteligente: Solo añade la cabecera si la URL base es la de Ngrok
+if (BASE_URL === NGROK_URL) {
+  api.defaults.headers.common["Ngrok-Skip-Browser-Warning"] = "true";
+}
